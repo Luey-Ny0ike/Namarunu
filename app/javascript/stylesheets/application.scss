@@ -2,8 +2,40 @@
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;600&family=Nunito:wght@900&family=Roboto:wght@300;700&display=swap");
 
 body {
-  overflow-x: hidden;
   font-family: "Nunito Sans", sans-serif;
+}
+.body {
+  overflow-x: hidden;
+  position: relative;
+}
+@media screen and (max-width: 1300px) {
+  body {
+    overflow-x: hidden;
+  }
+}
+@media screen and (max-width: 480px) {
+  .part-one {
+    .content-left {
+      padding-top: 40px;
+    }
+  }
+  .jumbo {
+    width: 80% !important;
+  }
+  .navbar {
+    .mx-5 {
+      margin-left: 0rem !important;
+      margin-right: 0rem !important;
+    }
+  }
+  .part-two {
+    .p2 {
+      padding-top: 35px !important;
+    }
+  }
+  .zm {
+    padding-top: 35px;
+  }
 }
 // LANDING PAGE
 .navbar {
