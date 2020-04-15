@@ -3,4 +3,5 @@ Rails.application.routes.draw do
 
 # STATIC PAGES ROUTES
 root 'static_pages#index'
+get '/products/namarunu-store', to: 'static_pages#store-sell', as: 'store_sell'
 end
