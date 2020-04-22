@@ -9,8 +9,8 @@
         <br>
         <button type="button" name="button" class="btn btn l-button">Learn More</button>
       </div>
-      <div class="col-md-8 image-right">
-        <img class="img-fluid" src="https://via.placeholder.com/750x550" alt="Card image cap">
+      <div class="col-md-8 col-sm-8 col-xs-12 image-right">
+        <%= image_pack_tag 'media/images/homepage.png', class:'img-fluid', alt:'Build your own store image' %>
       </div>
     </div>
   </section>
@@ -22,7 +22,7 @@ From concept Idea to launch, profit to scale and even beyond </p>
     <div class="content-two ">
       <div class="row">
         <div class="col-md-6 order-md-last col-sm-6 order-md-last col-xs-12">
-          <img class="img-fluid" src="https://via.placeholder.com/750x450" alt="Card image cap">
+          <%= image_pack_tag 'media/images/4.png', class:'img-fluid', alt:'Professional, beautifully designed ecommerce platform' %>
         </div>
 
         <div class="col-md-6 order-md-first col-sm-6 order-sm-first col-xs-12 align-self-center zm">
@@ -35,7 +35,7 @@ From concept Idea to launch, profit to scale and even beyond </p>
 
       <div class="row">
         <div class="col-md-6 order-md-first col-sm-6 order-sm-first col-xs-12 p2">
-          <img class="img-fluid" src="https://via.placeholder.com/750x450" alt="Card image cap">
+          <%= image_pack_tag 'media/images/2.png', class:'img-fluid', alt:'No coding skills required' %>
         </div>
 
         <div class="col-md-6 order-md-last col-sm-6 order-sm-last col-xs-12 p2 align-self-center">
@@ -49,7 +49,7 @@ From concept Idea to launch, profit to scale and even beyond </p>
 
       <div class="row">
         <div class="col-md-6 order-md-last col-sm-6 order-sm-last col-xs-12 p2">
-          <img class="img-fluid" src="https://via.placeholder.com/750x450" alt="Card image cap">
+          <%= image_pack_tag 'media/images/3.png', class:'img-fluid', alt:'Professional support, 24/7' %>
         </div>
 
         <div class="col-md-6 order-md-first col-sm-6 order-md-first col-xs-12 p2 align-self-center">
@@ -68,7 +68,7 @@ From concept Idea to launch, profit to scale and even beyond </p>
     <p class="text">"Tap into the unlimted potential of online sales and marketing."<br> Namarunu - helping businesses grow </p>
     <div class="row p2">
       <div class="col-md-6 col-sm-6 col-xs-12">
-          <img class="img-fluid" src="https://via.placeholder.com/450x250" alt="Card image cap">
+        <%= image_pack_tag 'media/images/resized.png', class:'img-fluid', alt:'Grow your business today with namarunu store' %>
       </div>
       <div class="col-md-6 col-sm-6 col-xs-12">
         <ul class="zm">
@@ -78,7 +78,9 @@ From concept Idea to launch, profit to scale and even beyond </p>
           <li>Mobile responsive user interface</li>
           <li>Dynamic admin panel</li>
           <li>From 5000kes a month</li><br>
+          <%= link_to store_sell_path do %>
           <button type="button" name="button" class="btn btn-outline-success l-button">Learn More</button>
+          <% end %>
         </ul>
       </div>
     </div>
