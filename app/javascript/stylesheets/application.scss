@@ -243,11 +243,47 @@ body {
 .st-three {
   padding: 30px;
   padding-top: 70px;
-  .b-one {
-    background-color: blue;
-    padding-top: 30px;
-    padding-bottom: 20px;
+  .box {
+    padding: 24px 24px 0;
+    border-radius: 4px;
+    box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 0.1);
     cursor: pointer;
+  }
+  .b-one {
+    background-color: #fc7753;
+  }
+  .b-two {
+    background-color: #66d7d1;
+  }
+  .b-three {
+    background-color: #f1bf98;
+  }
+  .b-four {
+    background-color: #d6e5e3;
+  }
+  .b-five {
+    background-color: #9fd8cb;
+  }
+  .b-six {
+    background-color: #eee5e9;
+  }
+  .b-seven {
+    background-color: #6b818c;
+  }
+  .b-eight {
+    background-color: #7dcd85;
+  }
+  .b-nine {
+    background-color: #faa6ff;
+  }
+  .b-ten {
+    background-color: #9ceaef;
+  }
+  .b-eleven {
+    background-color: #c59fc9;
+  }
+  .b-twelve {
+    background-color: #73a6ad;
   }
   .content {
     display: none;
@@ -257,6 +293,12 @@ body {
   }
   .pc-3 {
     margin-top: 110px;
+  }
+  h5 {
+    padding-top: 75px;
+    span {
+      float: right;
+    }
   }
 }
 .st-four {
