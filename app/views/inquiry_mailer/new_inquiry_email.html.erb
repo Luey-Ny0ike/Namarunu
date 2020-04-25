@@ -1,0 +1,22 @@
+<div style="border: 1px solid black; padding:20px;">
+  <h1 style="text-align:center; padding-bottom:30px;">NAMARUNU</h1>
+  <h2>New Inquiry submitted. The details are listed below.</h2>
+  <h3>Contact Information</h3>
+  <p>Full Name: <%= @inquiry.full_name %></p>
+  <p>Phone Number: <%= @inquiry.phone_number %></p>
+  <p>Email: <%= @inquiry.email %></p>
+  <hr>
+  <h3>Store Information</h3>
+  <p>Store Name: <%= @inquiry.store_name %></p>
+  <p>Do you have a domain name: <%= @inquiry.domain_name %></p>
+  <p>What is your preffered store name: <%= @inquiry.preffered_name %></p>
+  <hr>
+  <h3>Billing Information</h3>
+  <p>Which plan suites your business: <%= @inquiry.plan %></p>
+  <p>What is your preffered billing cycle?: <%= @inquiry.billing_type %></p>
+  <p>Would you like professional web administration?: <%= @inquiry.web_administration %></p>
+  <hr>
+  <h3>Feedback</h3>
+  <p>Questions and feedback: <%= @inquiry.message %></p>
+
+</div>
