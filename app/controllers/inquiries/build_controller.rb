@@ -7,10 +7,13 @@ class Inquiries::BuildController < ApplicationController
     @inquiry = Inquiry.find(params[:inquiry_id])
     render_wizard
   end
-  
+
   def update
     @inquiry = Inquiry.find(params[:inquiry_id])
     @inquiry.update_attributes(inquiry_params)
+    if step == steps.last
+      InquiryMailer.with(inquiry: @inquiry).new_inquiry_email.deliver_now
+    end
     render_wizard @inquiry
   end
 
