@@ -1,0 +1,49 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Full name:</strong>
+  <%= @inquiry.full_name %>
+</p>
+
+<p>
+  <strong>Phone number:</strong>
+  <%= @inquiry.phone_number %>
+</p>
+
+<p>
+  <strong>Email:</strong>
+  <%= @inquiry.email %>
+</p>
+
+<p>
+  <strong>Store name:</strong>
+  <%= @inquiry.store_name %>
+</p>
+
+<p>
+  <strong>Domain name:</strong>
+  <%= @inquiry.domain_name %>
+</p>
+
+<p>
+  <strong>Preffered name:</strong>
+  <%= @inquiry.preffered_name %>
+</p>
+
+<p>
+  <strong>Plan:</strong>
+  <%= @inquiry.plan %>
+</p>
+
+<p>
+  <strong>Billing type:</strong>
+  <%= @inquiry.billing_type %>
+</p>
+
+<p>
+  <strong>Web administration:</strong>
+  <%= @inquiry.web_administration %>
+</p>
+
+<%= link_to 'Edit', edit_inquiry_path(@inquiry) %> |
+<%= link_to 'Back', inquiries_path %>
