@@ -1,3 +1,4 @@
+<% @inquiry = Inquiry.new %>
 <section class="main-content">
   <section class="part-one">
     <div class="row">
@@ -7,7 +8,9 @@
           With our advanced Ecommerce software, Build, Upscale and Grow with us by your side in just a few simple steps
         </p>
         <br>
+        <%= link_to store_sell_path do %>
         <button type="button" name="button" class="btn btn l-button">Learn More</button>
+        <% end %>
       </div>
       <div class="col-md-8 col-sm-8 col-xs-12 image-right">
         <%= image_pack_tag 'media/images/homepage.png', class:'img-fluid', alt:'Build your own store image' %>
@@ -29,7 +32,9 @@ From concept Idea to launch, profit to scale and even beyond </p>
           <h4>Professional, responsive, beautiflly designed e-commerce platform in no time </h4>
           <br>
           <p>Create a beautiful, fully functional e-commerce website with all necessary features like payment integrations with card and Mpesa. Order & Delivery management system, an admin panel to manage them all plus so much more </p>
+          <%= link_to store_sell_path do %>
           <p class="pn">Learn more about our products</p>
+          <% end %>
         </div>
       </div>
 
@@ -43,7 +48,9 @@ From concept Idea to launch, profit to scale and even beyond </p>
           <br>
           <p>Our advanced e-commerce software is fully dynamic and will do everything for you. Add products and categories, monitor orders and payments, customize your landing page plus many more great and essential features straight from your
           admin panel via your phone or laptop. No technical skills required! as easy as ABC!</p>
+          <%= link_to store_sell_path do %>
           <p class="pn">Learn more about our features</p>
+          <% end %>
         </div>
       </div>
 
@@ -57,7 +64,9 @@ From concept Idea to launch, profit to scale and even beyond </p>
           <br>
           <p>We will take care of all the technical bits for you so you can focus more on your sales and other required efforts. If the site crashes or needs a security patch update or for some reason does not perform for you as advertised and expected,
           we'll be here for you 24/7 inclusive in the package price.</p>
+          <%= link_to pricing_path do %>
           <p class="pn">Learn more about our pricing</p>
+          <% end %>
         </div>
       </div>
     </div>
@@ -98,6 +107,12 @@ From concept Idea to launch, profit to scale and even beyond </p>
         <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#2ECC71" fill-rule="nonzero"></path></svg> Support Every Day
       </li>
     </ul><br>
-    <button type="button" name="button" class="btn btn g-button">Get Started</button>
+    <%= form_with(model: @inquiry, local: true) do |form| %>
+    <span class="my-2 my-lg-0 ">
+      <%= form.hidden_field :message, value:"nil" %>
+      <%= form.submit 'Get started', class:"btn btn g-button" %>
+    </span>
+    <% end %>
+
   </section>
 </section>
