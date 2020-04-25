@@ -1,0 +1,38 @@
+<div class="container wizard-steps-layout">
+  <h3>Contact Information</h3>
+  <%= form_for @inquiry, url: wizard_path do |form| %>
+      <div class="row justify-content-center">
+        <% if @inquiry.errors.any? %>
+          <div id="error_explanation">
+            <h2><%= pluralize(@inquiry.errors.count, "error") %> prohibited this inquiry from being saved:</h2>
+
+            <ul>
+              <% @inquiry.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+      <div class="field col-md-8 ">
+        <%= form.label :full_name %>
+        <%= form.text_field :full_name, class:"form-control" %>
+      </div>
+
+      <div class="field col-md-8">
+        <%= form.label :phone_number %>
+        <%= form.text_field :phone_number, class:"form-control" %>
+      </div>
+
+      <div class="field col-md-8">
+        <%= form.label :email %>
+        <%= form.text_field :email, class:"form-control" %>
+      </div>
+      <div class="field col-md-8">
+        <br>
+        <%= form.submit 'Next Step (1/4)', class:"btn btn-outline-success next-button" %>
+      </div>
+      </div>
+  <% end %>
+
+</div>

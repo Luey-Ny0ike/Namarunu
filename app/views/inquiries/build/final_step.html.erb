@@ -1,0 +1,32 @@
+<div class="container wizard-steps-layout">
+  <h3>Final Steps</h3>
+  <p>Thank you for your intrest in Namranu and taking your time to fil out this form.
+  <br>You will receive a call within the hour by one of our representatives. <br>
+  Have a lovely day <%= @inquiry.full_name %></p>
+  <%= form_for @inquiry, url: wizard_path do |form| %>
+  <div class="row justify-content-center">
+    <% if @inquiry.errors.any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(@inquiry.errors.count, "error") %>
+          prohibited this inquiry from being saved:</h2>
+
+        <ul>
+          <% @inquiry.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <div class="field col-md-8">
+      <%= form.label :message, "Any questions or feedback for us?"%>
+      <%= form.text_area :message, class:"form-control" %>
+    </div>
+    <div class="field col-md-8">
+      <br>
+      <%= link_to 'Previous Step', previous_wizard_path, class:"btn btn-outline-success previous-button" %>
+      <%= form.submit 'Submit form', class:"btn btn-outline-success next-button" %>
+    </div>
+  </div>
+<% end %>
+
+</div>

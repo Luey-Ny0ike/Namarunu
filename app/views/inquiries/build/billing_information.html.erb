@@ -1,0 +1,40 @@
+<div class="container wizard-steps-layout">
+  <h3>Billing Information</h3>
+    <%= form_for @inquiry, url: wizard_path do |form| %>
+  <div class="row justify-content-center">
+    <% if @inquiry.errors.any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(@inquiry.errors.count, "error") %>
+          prohibited this inquiry from being saved:</h2>
+
+        <ul>
+          <% @inquiry.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="field col-md-8">
+      <%= form.label :plan %>
+      <%= form.text_field :plan, class:"form-control" %>
+    </div>
+
+    <div class="field col-md-8">
+      <%= form.label :billing_type %>
+      <%= form.text_field :billing_type, class:"form-control" %>
+    </div>
+
+    <div class="field col-md-8">
+      <%= form.label :web_administration %>
+      <%= form.text_field :web_administration, class:"form-control" %>
+    </div>
+    <div class="field col-md-8">
+      <br>
+      <%= link_to 'Previous Step', previous_wizard_path, class:"btn btn-outline-success previous-button" %>
+      <%= form.submit 'Next Step (3/4)', class:"btn btn-outline-success next-button" %>
+    </div>
+  </div>
+<% end %>
+
+</div>
