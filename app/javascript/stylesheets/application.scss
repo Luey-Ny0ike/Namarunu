@@ -53,6 +53,9 @@ body {
   .pricing-extra-content {
     width: 100% !important;
   }
+  .faq {
+    width: 100% !important;
+  }
 }
 // LANDING PAGE
 .navbar {
@@ -365,6 +368,7 @@ body {
     width: 80%;
     margin: 0 auto;
     margin-top: 30px;
+    cursor: pointer;
     .q-one {
       padding: 20px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.125);
@@ -379,6 +383,9 @@ body {
     }
     #plus {
       float: right;
+    }
+    .content-f {
+      display: none;
     }
   }
 }
