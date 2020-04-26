@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).on("turbolinks:load", function() {
   $(".box").click(function() {
     $(".content", this).toggle(100);
   });
