@@ -16,18 +16,18 @@
     <% end %>
 
     <div class="field col-md-8">
-      <%= form.label :plan %>
-      <%= form.text_field :plan, class:"form-control" %>
+      <%= form.label :plan, "Which plan suits your business best?" %>
+      <%= form.select(:plan, ["Standard - (5,000kes - 6,500Kes)", "Growth - (10,000Kes - 13,000Kes)", "Scale - (15,000kes - 19,500kes)"], { prompt: "Kindly choose a plan"}, {class: "form-control", id:"plan-select"}) %>
     </div>
 
-    <div class="field col-md-8">
-      <%= form.label :billing_type %>
-      <%= form.text_field :billing_type, class:"form-control" %>
+    <div class="field col-md-8"><br>
+      <%= form.label :billing_type, "What is your preffered billing cycle?" %>
+      <%= form.select(:billing_type, ["Monthy cycle", "Semi-annual cycle - save 30%"], { prompt: "Select a billing cycle"}, {class: "form-control", id:"billing-cycle-select"}) %>
     </div>
 
-    <div class="field col-md-8">
-      <%= form.label :web_administration %>
-      <%= form.text_field :web_administration, class:"form-control" %>
+    <div class="field col-md-8"><br>
+      <%= form.label :web_administration, "Would you also like professional web administration" %>
+      <%= form.select(:web_administration, ["Yes", "No", "Please elaborate further"], { prompt: "Select an option"}, {class: "form-control", id:"web-administration-select"}) %>
     </div>
     <div class="field col-md-8">
       <br>

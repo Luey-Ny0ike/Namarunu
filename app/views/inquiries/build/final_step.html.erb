@@ -1,8 +1,8 @@
 <div class="container wizard-steps-layout">
   <h3>Final Steps</h3>
-  <p>Thank you for your intrest in Namranu and taking your time to fil out this form.
-  <br>You will receive a call within the hour by one of our representatives. <br>
-  Have a lovely day <%= @inquiry.full_name %></p>
+  <p>Thank you for your interest in Namranu and taking your time to fill out this form.
+  <br>You will receive a call/email within the hour by one of our representatives. <br>
+  Have a lovely day, <%= @inquiry.full_name %>.</p>
   <%= form_for @inquiry, url: wizard_path do |form| %>
   <div class="row justify-content-center">
     <% if @inquiry.errors.any? %>

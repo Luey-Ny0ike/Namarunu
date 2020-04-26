@@ -15,18 +15,18 @@
       </div>
     <% end %>
     <div class="field col-md-8">
-      <%= form.label :store_name %>
+      <%= form.label :store_name, "What is your store name?" %>
       <%= form.text_field :store_name, class:"form-control" %>
     </div>
 
-    <div class="field col-md-8">
-      <%= form.label :domain_name %>
-      <%= form.text_field :domain_name, class:"form-control" %>
+    <div class="field col-md-8"><br>
+      <%= form.label :domain_name, "Do you already have a domain name for it?" %>
+      <%= form.select(:domain_name, ["Yes", "No"], { prompt: "Select an option"}, {class: "form-control", id:"domain-name-select"}) %>
     </div>
 
-    <div class="field col-md-8">
-      <%= form.label :preffered_name %>
-      <%= form.text_field :preffered_name, class:"form-control" %>
+    <div class="field col-md-8 preffered_name"><br>
+      <%= form.label :preffered_name, "What is your preffered domain name for your store?" %>
+      <%= form.text_field :preffered_name, class:"form-control", placeholder:"eg www.my-store.com" %>
     </div>
     <div class="field col-md-8">
       <br>
