@@ -14,4 +14,13 @@ $(document).on("turbolinks:load", function() {
       $(".preffered_name").hide(150);
     }
   });
+  $(".switch").click(function() {
+    if ($("#billing-switch").is(":checked")) {
+      $(".semi-annually").show();
+      $(".monthly").hide();
+    } else {
+      $(".semi-annually").hide();
+      $(".monthly").show();
+    }
+  });
 });
