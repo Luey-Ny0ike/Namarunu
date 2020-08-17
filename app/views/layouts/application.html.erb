@@ -6,11 +6,20 @@
     <%= csp_meta_tag %>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Build your online store. Fast, Start selling online, list your products, manage orders and recive payments online">
     <meta name="author" content="Namarunu">
     <%= stylesheet_pack_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
-  </head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-173158853-3"></script>  
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    gtag('js', new Date());
+
+    gtag('config', 'UA-173158853-3');
+    function gtag(){dataLayer.push(arguments);}
+  </script>
+</head>
+
 
   <body>
       <%= render 'shared/navbar' %>
