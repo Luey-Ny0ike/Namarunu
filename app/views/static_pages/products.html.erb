@@ -1,0 +1,107 @@
+<div class="container products-page">
+  <h1>The right e-commerce <br> software at the right time </h1>
+  <p class="intro">Need an eCommerce website to sell your products or services online? Need a management
+  system to run your business smoothly? We'll give you the best of both worlds. Choose the right approach for your idea, technical skills and budget.
+  Launch fast with our no-code pre built solution and even opt in to our management services to grow your business
+  even bigger.</p>
+  <div class="card namarunu-store">
+    <div class="container row">
+      <div class="col-md-1">
+
+      </div>
+      <div class="col-md-5">
+        <p class="price">Starts From 5,000 KES/mo</p>
+        <%= link_to store_sell_path, class:"product-link" do %>
+        <h5 class="name">Namarunu Store: <br>
+        The most efficient way to sell online </h5>
+        <% end %>
+        <div class="check-list">
+            <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#3d4d5c" fill-rule="nonzero"></path></svg> &nbsp; Launch Quickly
+            <br>
+            <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#3d4d5c" fill-rule="nonzero"></path></svg> &nbsp; Expand on Demand
+            <br>
+              <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#3d4d5c" fill-rule="nonzero"></path></svg> &nbsp; Support Every Day
+        </div>
+        <%= form_with(model: @inquiry, local: true) do |form| %>
+        <span class="my-2 my-lg-0 ">
+        <%= form.hidden_field :message, value:"nil" %>
+        <%= form.submit 'Start a free 7-day trial', class:"btn btn free-trial-button" %>
+      </span>
+        <% end %>
+        <%= link_to "> Learn more about Namarunu store", store_sell_path, class:"product-link" %>
+      </div>
+      <div class="col-md-6">
+        <%= image_pack_tag 'media/images/4-bg.png', class:'img-fluid', alt:'Grow your business today with namarunu store' %>
+      </div>
+    </div>
+  </div>
+  <div class="card web-admin">
+    <div class="container row">
+      <div class="col-md-6">
+        <%= image_pack_tag 'media/images/4-bg.png', class:'img-fluid', alt:'Grow your business today with namarunu store' %>
+      </div>
+      <div class="col-md-1">
+
+      </div>
+      <div class="col-md-5">
+        <p class="price">Starts From 15,000 KES/mo</p>
+        <%= link_to web_administration_path, class:"product-link" do %>
+        <h5 class="name">Web Administration: <br>
+        Turning your numbers into currency $$ </h5>
+        <% end %>
+        <div class="check-list">
+          <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#3d4d5c" fill-rule="nonzero"></path></svg> &nbsp; Data Entry
+          <br>
+          <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#3d4d5c" fill-rule="nonzero"></path></svg> &nbsp; Data analysis
+          <br>
+            <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#3d4d5c" fill-rule="nonzero"></path></svg> &nbsp; Customer relations <br>
+            <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#3d4d5c" fill-rule="nonzero"></path></svg> &nbsp; 3 proffesionals for the price of 1
+        </div>
+        <%= form_with(model: @inquiry, local: true) do |form| %>
+        <span class="my-2 my-lg-0 ">
+        <%= form.hidden_field :message, value:"nil" %>
+        <%= form.submit 'Start a free 7-day trial', class:"btn btn free-trial-button" %>
+      </span>
+        <% end %>
+        <%= link_to "> Learn more about Web Administration services", web_administration_path, class:"product-link" %>
+      </div>
+    </div>
+  </div>
+  <div class="card startup-package">
+    <div class="container row">
+      <div class="col-md-1">
+
+      </div>
+      <div class="col-md-5">
+        <p class="price">Starts From 1,500 KES/mo</p>
+        <%= link_to startup_package_path, class:"product-link" do %>
+        <h5 class="name">Startup Package: <br>
+        Small Business? We have the perfect rates to help you and your small business </h5>
+        <% end %>
+        <div class="check-list">
+          <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#31de79" fill-rule="nonzero"></path></svg> &nbsp; Same great software
+          <br>
+          <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#31de79" fill-rule="nonzero"></path></svg> &nbsp; Launch Quickly
+          <br>
+            <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#31de79" fill-rule="nonzero"></path></svg> &nbsp; Expand on Demand <br>
+            <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#31de79" fill-rule="nonzero"></path></svg> &nbsp; Support Every Day
+        </div>
+        <%= form_with(model: @inquiry, local: true) do |form| %>
+        <span class="my-2 my-lg-0 ">
+        <%= form.hidden_field :message, value:"nil" %>
+        <%= form.submit 'Start a free 7-day trial', class:"btn btn free-trial-button" %>
+      </span>
+        <% end %>
+        <%= link_to "> Learn more about Web Administration services", startup_package_path, class:"product-link" %>
+      </div>
+      <div class="col-md-6">
+        <%= image_pack_tag 'media/images/4-bg.png', class:'img-fluid', alt:'Grow your business today with namarunu store' %>
+      </div>
+    </div>
+  </div>
+  <div class="hr-line">
+    <hr><br>
+    <h2>Always included in all packages, straight from the box</h2>
+  </div>
+
+</div>
