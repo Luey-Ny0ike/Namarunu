@@ -203,6 +203,95 @@ body {
     margin-top: 10px;
   }
 }
+//PRODUCTS PAGE
+.products-page {
+  padding-top: 65px;
+  h1 {
+    text-align: center;
+    width: 80%;
+    margin: 0 auto;
+    font-family: "Roboto", sans-serif;
+    font-weight: 700;
+    padding-bottom: 14px;
+  }
+  .intro {
+    text-align: center;
+    width: 65%;
+    margin: 0 auto;
+  }
+  .namarunu-store {
+    margin-top: 30px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    background: #f76c6c;
+  }
+  .web-admin {
+    margin-top: 30px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    background: #31de79;
+  }
+  .startup-package {
+    margin-top: 30px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    background: #1b4066;
+    .price {
+      color: white;
+    }
+    .check-list {
+      color: white;
+    }
+    .free-trial-button {
+      background-color: #31de79;
+      color: #1b4066;
+    }
+    .product-link {
+      color: white !important;
+    }
+  }
+  .name {
+    color: white;
+    font-size: 2rem;
+    font-weight: 600;
+  }
+  .price {
+    font-weight: 400;
+    color: #3d4d5c;
+    font-weight: bolder;
+  }
+  .check-list {
+    color: #3d4d5c;
+    font-weight: bolder;
+  }
+  .free-trial-button {
+    background-color: #3d4d5c;
+    color: white;
+    margin-top: 18px;
+    margin-bottom: 9px;
+  }
+  .product-link {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+  .hr-line {
+    margin-top: 55px;
+    margin-bottom: 60px;
+    padding-bottom: 60px;
+    border-bottom: 1px solid #ebebeb;
+    hr {
+      width: 20%;
+      margin: 0 auto;
+      background-color: #31de79;
+    }
+    h2 {
+      text-align: center;
+      font-family: "Roboto", sans-serif;
+      font-weight: 700;
+    }
+  }
+}
+
 // PRODUCT PAGE (Namarunu-store)
 .st-one {
   text-align: center;
