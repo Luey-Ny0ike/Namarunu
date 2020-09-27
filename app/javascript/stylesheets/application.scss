@@ -290,6 +290,27 @@ body {
       font-weight: 700;
     }
   }
+  .icon-section {
+    padding: 4rem;
+    text-align: center;
+    p {
+      padding-top: 1rem;
+    }
+  }
+}
+@media screen and (max-width: 425px) {
+  .products-page {
+    h1 {
+      width: 100%;
+    }
+    .intro {
+      width: 95%;
+    }
+    .icon-section {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
 }
 
 // PRODUCT PAGE (Namarunu-store)
