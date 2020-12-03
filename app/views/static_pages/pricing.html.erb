@@ -1,4 +1,12 @@
 <% @inquiry = Inquiry.new %>
+<div class="container currency-select pt-3">
+  <p>Currency:</p>
+  <select id="inputCurrency" class="form-control col-3 col-md-1 order-12">
+    <option selected class="kenya">KES</option>
+    <option class="usa">$</option>
+    <option class="tanzania">TZS</option>
+  </select>
+</div>
 <section class="st-four">
   <hr id="to">
   <h3>Pricing based on your business size</h3>
@@ -16,11 +24,15 @@
     <div class="card col-md-4 col-sm-4 col-xs-12 pricing-box">
       <p><strong>STANDARD</strong></p>
       <div class="semi-annually">
-        <p id="price">KES <span id="number">5,000</span>/ month</p>
+        <p id="price" class="ke">KES <span id="number">5,000</span>/ month</p>
+        <p id="price" class="us">$ <span id="number">50</span>/ month</p>
+        <p id="price" class="tz">TSH <span id="number">105,000</span>/ month</p>
         <p>Billed every 6 months</p>
       </div>
       <div class="monthly">
-        <p id="price">KES <span id="number">6,500</span>/ month</p>
+        <p id="price" class="ke">KES <span id="number">6,500</span>/ month</p>
+        <p id="price" class="us">$ <span id="number">65</span>/ month</p>
+        <p id="price" class="tz">TSH <span id="number">140,000</span>/ month</p>
         <p>Billed every month</p>
       </div>
       <hr>
@@ -39,11 +51,15 @@
     <div class="card col-md-4 col-sm-4 col-xs-12 pricing-box value">
       <p><strong>GROWTH</strong></p>
       <div class="semi-annually">
-        <p id="price">KES <span id="number">10,000</span>/ month</p>
+        <p id="price" class="ke">KES <span id="number">10,000</span>/ month</p>
+        <p id="price" class="us">$ <span id="number">100</span>/ month</p>
+        <p id="price" class="tz">TSH <span id="number">210,000</span>/ month</p>
         <p>Billed every 6 months</p>
       </div>
       <div class="monthly">
-        <p id="price">KES <span id="number">13,000</span>/ month</p>
+        <p id="price" class="ke">KES <span id="number">13,000</span>/ month</p>
+        <p id="price" class="us">$ <span id="number">130</span>/ month</p>
+        <p id="price" class="tz">TSH <span id="number">275,000</span>/ month</p>
         <p>Billed every month</p>
       </div>
       <hr>
@@ -57,11 +73,15 @@
     <div class="card col-md-4 col-sm-4 col-xs-12 pricing-box">
       <p><strong>SCALE</strong></p>
       <div class="semi-annually">
-        <p id="price">KES <span id="number">15,000</span>/ month</p>
+        <p id="price" class="ke">KES <span id="number">15,000</span>/ month</p>
+        <p id="price" class="us">$ <span id="number">150</span>/ month</p>
+        <p id="price" class="tz">TSH <span id="number">320,000</span>/ month</p>
         <p>Billed every 6 months</p>
       </div>
       <div class="monthly">
-        <p id="price">KES <span id="number">19,500</span>/ month</p>
+        <p id="price" class="ke">KES <span id="number">19,500</span>/ month</p>
+        <p id="price" class="us">$ <span id="number">210</span>/ month</p>
+        <p id="price" class="tz">TSH <span id="number">445,000</span>/ month</p>
         <p>Billed every month</p>
       </div>
       <hr>
