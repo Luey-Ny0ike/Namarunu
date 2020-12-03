@@ -23,4 +23,19 @@ $(document).on("turbolinks:load", function() {
       $(".monthly").show();
     }
   });
+  $(".kenya").click(function() {
+    $(".ke").show();
+    $(".us").hide();
+    $(".tz").hide();
+  });
+  $(".usa").click(function() {
+    $(".us").show();
+    $(".ke").hide();
+    $(".tz").hide();
+  });
+  $(".tanzania").click(function() {
+    $(".tz").show();
+    $(".us").hide();
+    $(".ke").hide();
+  });
 });
