@@ -4,7 +4,7 @@ class InquiriesController < ApplicationController
   # GET /inquiries
   # GET /inquiries.json
   def index
-    @inquiries = Inquiry.all
+    @inquiries = Inquiry.paginate(page: params[:page], per_page: 20).order('id DESC')
   end
 
   # GET /inquiries/1
