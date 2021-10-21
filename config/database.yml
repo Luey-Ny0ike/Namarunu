@@ -77,4 +77,4 @@ production:
   <<: *default
   database: namarunu_production
   username: ubuntu
-  password: mypass
+  password: <%= Rails.application.credentials.dig(:db_password) %>
