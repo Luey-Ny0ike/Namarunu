@@ -653,3 +653,24 @@ footer {
 .tz {
   display: none;
 }
+.help-b {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.float {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  bottom: 40px;
+  color: #fff;
+  border-radius: 50px;
+  text-align: center;
+  box-shadow: 2px 2px 3px #999;
+  z-index: 100;
+  cursor: pointer;
+}
+.float0 {
+  right: 30px;
+  background-color: #25d366;
+}

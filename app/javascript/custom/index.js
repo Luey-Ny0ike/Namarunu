@@ -5,7 +5,7 @@ $(document).on("turbolinks:load", function() {
   $(".question").click(function() {
     $(".content-f", this).toggle(100);
   });
-  $("#domain-name-select").click(function() {
+  $("#domain-name-select").change(function() {
     if ($("#domain-name-select").val() == "Yes") {
       $(".preffered_name").hide(150);
     } else if ($("#domain-name-select").val() == "No") {

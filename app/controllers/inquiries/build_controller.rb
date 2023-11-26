@@ -5,6 +5,10 @@ class Inquiries::BuildController < ApplicationController
 
   def show
     @inquiry = Inquiry.find(params[:inquiry_id])
+    # binding.pry
+    if step == :billing_information
+      skip_step
+    end
     render_wizard
   end
 
