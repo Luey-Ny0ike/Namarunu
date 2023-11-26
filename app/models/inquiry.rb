@@ -5,7 +5,7 @@ class Inquiry < ApplicationRecord
     apikey = Rails.application.credentials.dig(:africastalking, :api_key)
     at = AfricasTalking::Initialize.new(username, apikey)
     sms = at.sms
-    to = "+254726160664, +254715553341"
+    to = "+254726160664"
     @message = "New signup on namarunu.com, check your email"
     # from = "NAMARUNU"
     options = {

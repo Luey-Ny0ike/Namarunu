@@ -1,5 +1,5 @@
 # Change these
-server '68.183.118.73', port: 22, roles: [:web, :app, :db], primary: true
+server '207.180.199.41', port: 22, roles: [:web, :app, :db], primary: true
 
 set :repo_url,        'git@github.com:Luey-Ny0ike/Namarunu.git'
 set :application,     'Namarunu'
