@@ -22,12 +22,9 @@
             <br>
               <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#3d4d5c" fill-rule="nonzero"></path></svg> &nbsp; Support Every Day
         </div>
-        <%= form_with(model: @inquiry, local: true) do |form| %>
-        <span class="my-2 my-lg-0 ">
-        <%= form.hidden_field :message, value:"nil" %>
-        <%= form.submit 'Start a free 7-day trial', class:"btn btn free-trial-button" %>
-      </span>
-        <% end %>
+        <div>
+          <%= link_to 'Start a free 7-day trial', build_path(:contact_information), class: "btn free-trial-button" %>
+        </div>
         <%= link_to "> Learn more about Namarunu store", store_sell_path, class:"product-link" %>
       </div>
       <div class="col-md-6">
@@ -44,7 +41,7 @@
 
       </div>
       <div class="col-md-5">
-        <p class="price">Starts From 15,000 KES/mo</p>
+        <p class="price">Starts From 6,500 KES/mo</p>
         <%= link_to web_administration_path, class:"product-link" do %>
         <h5 class="name">Web Administration: <br>
         Turning your numbers into currency $$ </h5>
@@ -57,12 +54,9 @@
             <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#3d4d5c" fill-rule="nonzero"></path></svg> &nbsp; Customer relations <br>
             <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#3d4d5c" fill-rule="nonzero"></path></svg> &nbsp; 3 proffesionals for the price of 1
         </div>
-        <%= form_with(model: @inquiry, local: true) do |form| %>
-        <span class="my-2 my-lg-0 ">
-        <%= form.hidden_field :message, value:"nil" %>
-        <%= form.submit 'Start a free 7-day trial', class:"btn btn free-trial-button" %>
-      </span>
-        <% end %>
+        <div>
+          <%= link_to 'Start a free 7-day trial', build_path(:contact_information), class: "btn free-trial-button" %>
+        </div>
         <%= link_to "> Learn more about Web Administration services", web_administration_path, class:"product-link" %>
       </div>
     </div>
@@ -86,12 +80,9 @@
             <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#31de79" fill-rule="nonzero"></path></svg> &nbsp; Expand on Demand <br>
             <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#31de79" fill-rule="nonzero"></path></svg> &nbsp; Support Every Day
         </div>
-        <%= form_with(model: @inquiry, local: true) do |form| %>
-        <span class="my-2 my-lg-0 ">
-        <%= form.hidden_field :message, value:"nil" %>
-        <%= form.submit 'Start a free 7-day trial', class:"btn btn free-trial-button" %>
-      </span>
-        <% end %>
+        <div>
+          <%= link_to 'Start a free 7-day trial', build_path(:contact_information), class: "btn free-trial-button" %>
+        </div>
         <%= link_to "> Learn more about Web Administration services", startup_package_path, class:"product-link" %>
       </div>
       <div class="col-md-6">

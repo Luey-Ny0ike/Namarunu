@@ -1,6 +1,6 @@
 <div class="container wizard-steps-layout">
   <h3>Contact Information</h3>
-  <%= form_for @inquiry, url: wizard_path do |form| %>
+  <%= form_for @inquiry do |form| %>
       <div class="row justify-content-center">
         <% if @inquiry.errors.any? %>
           <div id="error_explanation">
@@ -16,12 +16,12 @@
 
       <div class="field col-md-8 ">
         <%= form.label :full_name %>
-        <%= form.text_field :full_name, class:"form-control" %>
+        <%= form.text_field :full_name, class:"form-control", required: true %>
       </div>
 
       <div class="field col-md-8 mt-1">
         <%= form.label :phone_number %>
-        <%= form.text_field :phone_number, class:"form-control" %>
+        <%= form.text_field :phone_number, class:"form-control", required: true %>
       </div>
 
       <div class="field col-md-8 mt-1">

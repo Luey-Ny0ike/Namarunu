@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   resources :inquiries do
-    resources :build, controller:'inquiries/build'
   end
+  resources :build, controller:'inquiries/build'
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
 # STATIC PAGES ROUTES

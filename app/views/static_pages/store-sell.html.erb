@@ -4,7 +4,7 @@
   <p>Grow your business today. Namarunu store gets you a professional eCommerce platform with
   24/7 expert support that is easy to set up, maintain, manage and grow.
 <br> Without writing a single line of code.</p>
-<button type="button" name="button" class="btn btn st-g-button">Get Started</button>
+<%= link_to 'Get Started', build_path(:contact_information), class: "btn btn  st-g-button" %>
 </section>
 <section class="st-two">
   <div class="content-two ">
@@ -29,8 +29,8 @@
       <div class="col-md-6 order-md-last col-sm-6 order-sm-last col-xs-12 p2 align-self-center"><br>
         <h4>Adaptable to your idea! </h4>
         <br>
-        <p>Get a fully dynamic eCommerce website adaptable to any idea. Whether you are selling furniture or jewlery or even pets, We got you. Let your users see all
-        the details about your product, order and even pay online. The system will even update your stock number to avoid selling out of stock items!</p>
+        <p>Get a fully dynamic eCommerce website adaptable to any idea. Whether you are selling furniture, jewelry, makeup and cosmetics, home decor, food and drinks, clothing and accessories or more, We got you. Let your users see all
+        the details about your product, order and even pay online. The system will update your stock number to avoid selling out of stock items!</p>
       </div>
     </div>
   </div>
@@ -70,7 +70,7 @@
         <i class="fas fa-users fa-2x icon"></i>
         <h5>User profiles <span>+</span></h5><br>
         <div class="content">
-          <p>N-store allows your customers create accounts to save their delivery addresses for easier ordering, they can also save their favourite products,
+          <p>N-store allows your customers create accounts to save their delivery addresses for easier re-ordering, they can also save their favourite products,
           change their passwords and information details.</p>
         </div>
       </div>
@@ -79,7 +79,7 @@
         <h5>Payment Getaways <span>+</span></h5><br>
         <div class="content">
           <p>N-store is inbuilt to accept payments from your customers via Mpesa, Card transactions, bank transfers and more. Both you and your customer receive
-          email notifications after a successful payment. You can choose to have either manual or automatic payment verifications</p>
+          SMS and email notifications after a successful payment. You can also add manual payment methods like Cash on Delivery</p>
         </div>
       </div>
       <div class="col-md-4">
@@ -92,8 +92,10 @@
         <i class="fas fa-truck fa-2x icon"></i>
         <h5>Delivery Estimates <span>+</span></h5><br>
         <div class="content">
-          <p>N-store uses distance matrixes by google with sendy app to give cost estimates for deliveries. You can choose whether to include this delivery cost estimate in your customers
-          total cost, or just show it to them and have them pay for it themselves.</p>
+          <p>N-store allows you to define your delivery zones and locations with their associated delivery costs. ie, Mombasa road, South C, cost: 400kes.</p>
+          <p>You can also integrate 3rd party providers like bolt or uber to provide delivery estimates to your customers.</p>
+          <p>You can choose whether to include this delivery cost estimate in your customers
+          total order cost, or just show it to them and indicate they have to pay for it themselves directly to the delivery man.</p>
         </div>
       </div>
       <div class="col-md-3 ml-2 mr-2 mb-3 col-sm-4 col-xs-12 box b-six">
@@ -101,6 +103,7 @@
         <h5>Multiple sign-up/sign-in options <span>+</span></h5><br>
         <div class="content">
           <p>Let your users set up accounts quickly and securely. They can sign up with google or facebook or a custom sign up form to take in some more desired data.</p>
+          <p></p>
         </div>
       </div>
       <div class="col-md-4">
@@ -317,10 +320,5 @@
       <svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M9.51256313.5811083l-5.58976181 7.933417L2.33557206 6.927296c-.5342053-.5342053-1.40103275-.5342053-1.93523805 0-.53406573.5381641-.53406573 1.4039156.00172438 1.936958l2.73521435 2.7352188c.25715033.2571503.60503276.4008645.96761902.4008645.44238249 0 .86085955-.2136983 1.11883744-.5797298l6.5266379-9.2636151c.435016-.6196901.2871251-1.473354-.3318215-1.907902-.6181203-.434409-1.47107004-.2861595-1.90598247.3320179zm-5.58976181 7.933417l-.64839332.9202493 1.44440609-.1242365-.79601277-.7960128zm6.40717328-6.7144992l.5439982-.7756694-.5439982.7756694z" fill="#2ECC71" fill-rule="nonzero"></path></svg> Support Every Day
     </li>
   </ul><br>
-  <%= form_with(model: @inquiry, local: true) do |form| %>
-  <span class="my-2 my-lg-0 ">
-    <%= form.hidden_field :message, value:"nil" %>
-    <%= form.submit 'Get started', class:"btn btn g-button" %>
-  </span>
-  <% end %>
+  <%= link_to 'Get Started', build_path(:contact_information), class: "btn g-button" %>
 </section>

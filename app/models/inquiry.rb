@@ -1,4 +1,7 @@
 class Inquiry < ApplicationRecord
+  # Validations
+  validates_presence_of :full_name, :phone_number
+
   require 'AfricasTalking'
   def send_sms
     username = Rails.application.credentials.dig(:africastalking, :username)

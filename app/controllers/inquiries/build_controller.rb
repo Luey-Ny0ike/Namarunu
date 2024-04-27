@@ -4,16 +4,20 @@ class Inquiries::BuildController < ApplicationController
   steps :contact_information, :store_information, :billing_information, :final_step
 
   def show
-    @inquiry = Inquiry.find(params[:inquiry_id])
-    # binding.pry
-    if step == :billing_information
+    case step
+    when :contact_information
+      @inquiry = Inquiry.new
+      session[:inquiry_id] = nil
+    when :billing_information
       skip_step
+    else
+      @inquiry = Inquiry.find(session[:inquiry_id])
     end
     render_wizard
   end
 
   def update
-    @inquiry = Inquiry.find(params[:inquiry_id])
+    @inquiry = Inquiry.find(session[:inquiry_id])
     @inquiry.update_attributes(inquiry_params)
     if step == steps.last
       # InquiryMailer.with(inquiry: @inquiry).new_inquiry_email.deliver_now

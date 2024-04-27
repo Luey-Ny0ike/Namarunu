@@ -28,10 +28,11 @@ class InquiriesController < ApplicationController
 
     respond_to do |format|
       if @inquiry.save
-        format.html { redirect_to inquiry_build_index_path(@inquiry) }
+        session[:inquiry_id] = @inquiry.id
+        format.html { redirect_to build_path(:store_information) }
         format.json { render :show, status: :created, location: @inquiry }
       else
-        format.html { render :new }
+        format.html { redirect_to build_path(:contact_information) }
         format.json { render json: @inquiry.errors, status: :unprocessable_entity }
       end
     end

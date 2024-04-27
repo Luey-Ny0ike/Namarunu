@@ -276,8 +276,9 @@ body {
     margin-bottom: 9px;
   }
   .product-link {
-    text-decoration: none !important;
-    color: inherit !important;
+    // text-decoration: none !important;
+    font-weight: bold;
+    color: white !important;
   }
   .hr-line {
     margin-top: 55px;
