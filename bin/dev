@@ -1,29 +1,11 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env sh
 
-ENV["RAILS_ENV"] ||= "development"
+if gem list --no-installed --exact --silent foreman; then
+  echo "Installing foreman..."
+  gem install foreman
+fi
 
-require "logger"
-require "active_support"
-require "bundler/setup"
-require "fileutils"
+# Default to port 3000 if not specified
+export PORT="${PORT:-3000}"
 
-# Check if foreman is available
-def foreman_available?
-  system("which foreman > /dev/null 2>&1")
-end
-
-# Start the development server
-if foreman_available?
-  puts "Starting Rails app with foreman..."
-  exec("foreman start -f Procfile.dev")
-else
-  puts "Foreman not found. Starting Rails server and webpack-dev-server separately..."
-  
-  # Start webpack-dev-server in background
-  fork do
-    exec("./bin/webpack-dev-server")
-  end
-  
-  # Start Rails server in foreground
-  exec("bundle exec puma -C config/puma.rb")
-end
+exec foreman start -f Procfile.dev --env /dev/null "$@"

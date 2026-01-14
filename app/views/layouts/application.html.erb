@@ -7,8 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="Namarunu">
-    <%= stylesheet_pack_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbo-track': 'reload' %>
     <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-173158853-3"></script>
   <script>
@@ -18,14 +17,15 @@
     gtag('config', 'UA-173158853-3');
     function gtag(){dataLayer.push(arguments);}
   </script>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
 </head>
 
 
   <body>
       <%= render 'shared/navbar' %>
-      <span class="float float0 help-b" data-toggle="tooltip" data-placement="top" title="Need Help?">
-        <a href="https://api.whatsapp.com/send?phone=+254726160664&text=Hi,%20I%20would%20like%20help%20in%20setting%20up%20a%20store" class="" target="_blank" rel="noreferrer" data-toggle="tooltip" data-placement="top" title="WhatsApp Us">
-          <%= image_pack_tag 'media/images/whatsapp.png', class: "img-fluid", alt:"Send Us a Whatsapp message"%>
+      <span class="float float0 help-b" data-bs-toggle="tooltip" data-bs-placement="top" title="Need Help?">
+        <a href="https://api.whatsapp.com/send?phone=+254726160664&text=Hi,%20I%20would%20like%20help%20in%20setting%20up%20a%20store" class="" target="_blank" rel="noreferrer" data-bs-toggle="tooltip" data-bs-placement="top" title="WhatsApp Us">
+          <%= image_tag 'whatsapp.png', class: "img-fluid", alt:"Send Us a Whatsapp message"%>
         </a>
       </span>
       <div class="body">

@@ -10,12 +10,9 @@ gem 'rails', '~> 7.1'
 gem 'pg', '>= 0.18', '< 2.0'
 # Use Puma as the app server
 gem 'puma', '~> 6.4'
-# Use SCSS for stylesheets
-gem 'sass-rails', '>= 6'
 # Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
-gem 'webpacker', '~> 4.0'
-# Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
-gem 'turbolinks', '~> 5'
+gem 'jsbundling-rails'
+# Using Turbo instead of Turbolinks for Rails 7
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.7'
 # Use Redis adapter to run Action Cable in production
@@ -60,3 +57,9 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem "foreman", "~> 0.90.0"
+
+gem "cssbundling-rails", "~> 1.4"
+
+gem "propshaft", "~> 1.3"
+
+gem "turbo-rails", "~> 2.0"
