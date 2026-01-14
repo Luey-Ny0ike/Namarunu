@@ -1,5 +1,22 @@
 #!/usr/bin/env ruby
 
+require "psych"
+
+module Psych
+  class << self
+    alias_method :_original_load, :load
+    alias_method :_original_load_file, :load_file
+
+    def load(yaml, *args, **kwargs)
+      _original_load(yaml, *args, aliases: true)
+    end
+
+    def load_file(filename, *args, **kwargs)
+      _original_load_file(filename, *args, aliases: true)
+    end
+  end
+end
+
 ENV["RAILS_ENV"] ||= ENV["RACK_ENV"] || "development"
 ENV["NODE_ENV"]  ||= "development"
 
