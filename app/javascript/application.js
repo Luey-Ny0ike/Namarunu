@@ -2,8 +2,6 @@ import "@rails/ujs"
 import "@rails/activestorage"
 import "@rails/actioncable"
 
-import "bootstrap"
-import "@fortawesome/fontawesome-free"
 
 
 
