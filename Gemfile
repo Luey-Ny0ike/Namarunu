@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 require 'net/http'
 
-ruby '3.2.2'
+ruby '3.4.2'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 7.1'
+gem 'rails', '~> 7.2.2'
 # Use postgresql as the database for Active Record
 gem 'pg', '>= 0.18', '< 2.0'
 # Use Puma as the app server
@@ -19,9 +21,10 @@ gem 'jbuilder', '~> 2.7'
 # gem 'redis', '~> 4.0'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
+gem "mutex_m"
 
-gem 'wicked'
 gem 'africastalking-ruby', '~> 2.1', '>= 2.1.5'
+gem 'wicked'
 gem 'will_paginate', '~> 3.1.0'
 
 # Use Active Storage variant
@@ -32,7 +35,7 @@ gem 'bootsnap', '>= 1.4.2', require: false
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'byebug', platforms: %i[ windows ]
   gem 'rspec-rails'
   # gem 'launchy'
   gem 'pry'
@@ -41,25 +44,29 @@ end
 
 group :development do
   # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
-  gem 'web-console', '>= 3.3.0'
   gem 'listen', '>= 3.0.5', '< 3.2'
+  gem 'web-console', '>= 3.3.0'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
+  gem 'capistrano', '~> 3.11', require: false
+  gem 'capistrano3-puma',   require: false
+  gem 'capistrano-bundler', require: false
+  gem 'capistrano-rails', '~> 1.4', require: false
+  gem 'capistrano-rvm', require: false
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
-  gem 'capistrano', '~> 3.11', require: false
-  gem 'capistrano-rvm',     require: false
-  gem 'capistrano-rails', '~> 1.4', require: false
-  gem 'capistrano-bundler', require: false
-  gem 'capistrano3-puma',   require: false
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'tzinfo-data', platforms: %i[ windows jruby]
 
-gem "foreman", "~> 0.90.0"
+gem 'foreman', '~> 0.90.0'
 
-gem "cssbundling-rails", "~> 1.4"
+gem 'cssbundling-rails', '~> 1.4'
 
-gem "propshaft", "~> 1.3"
+gem 'propshaft', '~> 1.3'
 
-gem "turbo-rails", "~> 2.0"
+gem 'turbo-rails', '~> 2.0'
+
+gem "importmap-rails", "~> 2.2"
+
+gem "stimulus-rails", "~> 1.3"

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InquiryMailer < ApplicationMailer
   default from: 'notifications@namarunu.com'
   def new_inquiry_email

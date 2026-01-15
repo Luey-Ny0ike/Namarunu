@@ -1,7 +1,9 @@
-class ApplicationController < ActionController::Base
-    before_action :set_inquiry
+# frozen_string_literal: true
 
-    def set_inquiry
-        @inquiry = Inquiry.new
-    end
+class ApplicationController < ActionController::Base
+  before_action :set_inquiry
+
+  def set_inquiry
+    @inquiry = Inquiry.new
+  end
 end

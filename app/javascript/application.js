@@ -1,11 +1,13 @@
-require("@rails/ujs").start();
-require("@rails/activestorage").start();
-require("./channels");
+import "@rails/ujs"
+import "@rails/activestorage"
+import "@rails/actioncable"
 
-import $ from "jquery";
-window.$ = $;
-window.jQuery = $;
+import "bootstrap"
+import "@fortawesome/fontawesome-free"
 
-import "bootstrap";
-require("./custom");
 
+
+import "@hotwired/turbo-rails"
+import "controllers"
+import "custom"
+import "channels"

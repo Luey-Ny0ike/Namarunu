@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class InquiriesController < ApplicationController
-  before_action :set_inquiry, only: [:show, :edit, :update, :destroy]
+  before_action :set_inquiry, only: %i[show edit update destroy]
 
   # GET /inquiries
   # GET /inquiries.json
@@ -9,8 +11,7 @@ class InquiriesController < ApplicationController
 
   # GET /inquiries/1
   # GET /inquiries/1.json
-  def show
-  end
+  def show; end
 
   # GET /inquiries/new
   def new
@@ -18,8 +19,7 @@ class InquiriesController < ApplicationController
   end
 
   # GET /inquiries/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /inquiries
   # POST /inquiries.json
@@ -63,13 +63,15 @@ class InquiriesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_inquiry
-      @inquiry = Inquiry.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def inquiry_params
-      params.require(:inquiry).permit(:full_name, :phone_number, :email, :store_name, :domain_name, :preffered_name, :plan, :billing_type, :web_administration, :message)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_inquiry
+    @inquiry = Inquiry.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def inquiry_params
+    params.require(:inquiry).permit(:full_name, :phone_number, :email, :store_name, :domain_name, :preffered_name,
+                                    :plan, :billing_type, :web_administration, :message)
+  end
 end

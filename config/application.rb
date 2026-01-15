@@ -1,12 +1,14 @@
-require_relative "boot"
+# frozen_string_literal: true
 
-require "rails/all"
-require "yaml"
+require_relative 'boot'
+
+require 'rails/all'
+require 'yaml'
 
 module Psych
   class << self
-    alias_method :old_load, :load
-    def load(yaml, *args, **kwargs)
+    alias old_load load
+    def load(yaml, *args, **_kwargs)
       old_load(yaml, *args, aliases: true)
     end
   end
