@@ -1,3 +1,7 @@
+import $ from "jquery";
+window.$ = $;
+window.jQuery = $;
+
 $(document).ready(function() {
   // Initialize visibility states
   $(".monthly").hide();

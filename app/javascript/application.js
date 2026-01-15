@@ -1,11 +1,13 @@
-import "@rails/ujs"
-import "@rails/activestorage"
-import "@rails/actioncable"
-
-
-
-
-import "@hotwired/turbo-rails"
 import "controllers"
 import "custom"
-import "channels"
+
+
+import "@rails/activestorage"
+import "@rails/actioncable"
+import "@rails/ujs"
+
+import '@hotwired/turbo-rails'
+
+import "bootstrap"
+import "@fortawesome/fontawesome-free"
+

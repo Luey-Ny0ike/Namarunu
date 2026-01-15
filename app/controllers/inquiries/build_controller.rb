@@ -21,7 +21,7 @@ module Inquiries
 
     def update
       @inquiry = Inquiry.find(session[:inquiry_id])
-      @inquiry.update_attributes(inquiry_params)
+      @inquiry.update(inquiry_params)
       if step == steps.last
         # InquiryMailer.with(inquiry: @inquiry).new_inquiry_email.deliver_now
         @inquiry.send_sms
@@ -32,8 +32,8 @@ module Inquiries
     private
 
     def inquiry_params
-      params.require(:inquiry).permit(:full_name, :phone_number, :email, :store_name, :domain_name, :preffered_name,
-                                      :plan, :billing_type, :web_administration, :message)
+      params.expect(inquiry: [ :full_name, :phone_number, :email, :store_name, :domain_name, :preffered_name,
+                                      :plan, :billing_type, :web_administration, :message ])
     end
   end
 end

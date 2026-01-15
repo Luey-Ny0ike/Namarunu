@@ -12,15 +12,16 @@ gem 'pg', '>= 0.18', '< 2.0'
 gem 'puma', '~> 6.4'
 
 # Frontend
-gem 'jsbundling-rails'
-gem 'cssbundling-rails', '~> 1.4'
-gem 'propshaft', '~> 1.3'
-gem 'turbo-rails', '~> 2.0'
 gem "importmap-rails", "~> 2.2"
+gem 'propshaft', '~> 1.3'
+
+
 gem "stimulus-rails", "~> 1.3"
+gem 'turbo-rails', '~> 2.0'
 
 gem 'jbuilder', '~> 2.7'
 gem "mutex_m"
+
 
 gem 'africastalking-ruby', '~> 2.1', '>= 2.1.5'
 gem 'wicked'
