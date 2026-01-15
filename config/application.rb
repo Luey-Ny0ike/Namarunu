@@ -1,18 +1,6 @@
-# frozen_string_literal: true
+require_relative "boot"
 
-require_relative 'boot'
-
-require 'rails/all'
-require 'yaml'
-
-module Psych
-  class << self
-    alias old_load load
-    def load(yaml, *args, **_kwargs)
-      old_load(yaml, *args, aliases: true)
-    end
-  end
-end
+require "rails/all"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
