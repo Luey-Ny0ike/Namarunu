@@ -1,3 +1,4 @@
+<% @inquiry = Inquiry.new %>
 <section class="st-one st-c">
   <h1>Small Business? We got you too</h1>
   <p>We have the perfect rates to help you and your small business grow. Enjoy the same great software at affordable rates custom to your
@@ -10,23 +11,45 @@
 <hr>
 <section class="st-four">
   <div class="container currency-select pt-3">
-    <p style="text-align:left;">Currency:</p>
-    <select id="inputCurrency" class="form-control col-3 col-md-1 order-12">
-      <option selected class="kenya">KES</option>
-      <option class="usa">$</option>
-      <option class="tanzania">TZS</option>
-    </select>
+    <div class=" col-3">
+      <div class="col-auto">
+        <p class="mb-0 me-2">Currency:</p>
+      </div>
+      <div class="col-3">
+        <select id="inputCurrency" class="form-select">
+          <option selected value="KES">KES</option>
+          <option value="$">$</option>
+          <option value="TZS">TZS</option>
+        </select>
+      </div>
+    </div>
   </div>
   <hr id="to">
   <h3>Pricing based on your business size</h3>
   <p id="text-e">create your eCommerce website. Then choose the best plan for your idea and budget – pricing only goes up when your business grows. No lock-in, no hidden fees, no credit card needed.</p>
+  <div class="justify-content-center mt-5">
+    <p><strong>Biling Period</strong></p>
+    <span class="mr-3 bv">Monthly</span>
+    <label class="switch">
+      <input type="checkbox" id="billing-switch" checked>
+      <span class="slider round"></span>
+  </label>
+  <span class="ml-3 bv">Semi-annually</span>
+  </div>
   <div class="row pricing-column">
     <div class="card col-md-4 col-sm-4 col-xs-12 pricing-box">
       <p><strong>SUNGURA</strong></p>
       <div class="semi-annually">
-        <p id="price" class="ke">KES <span id="number">1,500</span>/ month</p>
-        <p id="price" class="us">$ <span id="number">15</span>/ month</p>
-        <p id="price" class="tz">Tsh <span id="number">32,000</span>/ month</p>
+        <p class="price ke">KES <span class="number">1,500</span>/ month</p>
+        <p class="price us">$ <span class="number">15</span>/ month</p>
+        <p class="price tz">TSH <span class="number">32,000</span>/ month</p>
+        <p>Billed every 6 months</p>
+      </div>
+      <div class="monthly">
+        <p class="price ke">KES <span class="number">1,950</span>/ month</p>
+        <p class="price us">$ <span class="number">20</span>/ month</p>
+        <p class="price tz">TSH <span class="number">42,000</span>/ month</p>
+        <p>Billed every month</p>
       </div>
       <hr>
       <ul class="plan-features">
@@ -41,9 +64,16 @@
     <div class="card col-md-4 col-sm-4 col-xs-12 pricing-box value">
       <p><strong>CHIPUKIZI</strong></p>
       <div class="semi-annually">
-        <p id="price" class="ke">KES <span id="number">2,500</span>/ month</p>
-        <p id="price" class="us">$ <span id="number">25</span>/ month</p>
-        <p id="price" class="tz">Tsh <span id="number">52,000</span>/ month</p>
+        <p class="price ke">KES <span class="number">2,500</span>/ month</p>
+        <p class="price us">$ <span class="number">25</span>/ month</p>
+        <p class="price tz">TSH <span class="number">52,000</span>/ month</p>
+        <p>Billed every 6 months</p>
+      </div>
+      <div class="monthly">
+        <p class="price ke">KES <span class="number">3,250</span>/ month</p>
+        <p class="price us">$ <span class="number">33</span>/ month</p>
+        <p class="price tz">TSH <span class="number">68,000</span>/ month</p>
+        <p>Billed every month</p>
       </div>
       <hr>
       <ul class="plan-features">
@@ -58,9 +88,16 @@
     <div class="card col-md-4 col-sm-4 col-xs-12 pricing-box">
       <p><strong>NDOVU</strong></p>
       <div class="semi-annually">
-        <p id="price" class="ke">KES <span id="number">3,500</span>/ month</p>
-        <p id="price" class="us">$ <span id="number">35</span>/ month</p>
-        <p id="price" class="tz">Tsh <span id="number">73,000</span>/ month</p>
+        <p class="price ke">KES <span class="number">3,500</span>/ month</p>
+        <p class="price us">$ <span class="number">35</span>/ month</p>
+        <p class="price tz">TSH <span class="number">73,000</span>/ month</p>
+        <p>Billed every 6 months</p>
+      </div>
+      <div class="monthly">
+        <p class="price ke">KES <span class="number">4,550</span>/ month</p>
+        <p class="price us">$ <span class="number">46</span>/ month</p>
+        <p class="price tz">TSH <span class="number">95,000</span>/ month</p>
+        <p>Billed every month</p>
       </div>
       <hr>
       <ul class="plan-features">

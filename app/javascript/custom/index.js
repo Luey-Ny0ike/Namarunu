@@ -2,7 +2,7 @@ import $ from "jquery";
 window.$ = $;
 window.jQuery = $;
 
-$(document).ready(function() {
+$(document).on('turbo:load', function() {
   // Initialize visibility states
   $(".monthly").hide();
   $(".us").hide();
