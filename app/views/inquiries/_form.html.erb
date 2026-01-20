@@ -1,4 +1,8 @@
-  <%= form_with(model: inquiry, local: true) do |form| %>
+  <% form_options = { model: inquiry, local: true } %>
+  <% if inquiry.new_record? %>
+    <% form_options[:data] = { controller: "recaptcha", action: "submit->recaptcha#submit", recaptcha_function_value: "executeRecaptchaForInquirySubmitAsync" } %>
+  <% end %>
+  <%= form_with(**form_options) do |form| %>
     <% if inquiry.errors.any? %>
       <div id="error_explanation">
         <h2><%= pluralize(inquiry.errors.count, "error") %> prohibited this inquiry from being saved:</h2>
@@ -61,6 +65,11 @@
         <%= form.label :message, "Any questions or feedback for us?" %>
         <%= form.text_area :message, class: "form-control" %>
       </div>
+      <% if inquiry.new_record? %>
+        <div class="field col-12">
+          <%= recaptcha_v3(action: "inquiry_submit", turbo: true) %>
+        </div>
+      <% end %>
       <div class="actions col-12 pt-2">
         <%= form.submit 'Submit', class: "btn btn-primary w-100" %>
       </div>

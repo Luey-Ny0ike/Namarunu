@@ -26,6 +26,17 @@ class InquiriesController < ApplicationController
   def create
     @inquiry = Inquiry.new(inquiry_params)
 
+    unless verify_recaptcha(action: 'inquiry_submit', minimum_score: 0.5)
+      respond_to do |format|
+        format.html do
+          flash[:alert] = 'We could not verify you are human. Please try again.'
+          redirect_to build_path(:contact_information)
+        end
+        format.json { render json: { error: 'recaptcha_failed' }, status: :unprocessable_entity }
+      end
+      return
+    end
+
     respond_to do |format|
       if @inquiry.save
         session[:inquiry_id] = @inquiry.id

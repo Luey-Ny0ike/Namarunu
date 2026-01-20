@@ -35,12 +35,16 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'foreman', '~> 0.90.0'
 gem 'tzinfo-data', platforms: %i[ windows jruby]
 
+# Google recaptcha
+gem "recaptcha", "~> 5.21"
+
 group :development, :test do
   gem 'byebug', platforms: %i[ windows ]
   gem 'rspec-rails'
   # gem 'launchy'
   gem 'pry'
   gem 'shoulda-matchers'
+  gem "dotenv-rails", "~> 3.2"
 end
 
 group :development do
