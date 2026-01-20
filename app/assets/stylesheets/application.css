@@ -5,6 +5,14 @@
 body {
   font-family: "Nunito Sans", sans-serif;
 }
+
+.pagination-link--auto {
+  display: block;
+  height: 1px;
+  overflow: hidden;
+  color: transparent;
+  text-decoration: none;
+}
 .body {
   overflow-x: hidden;
   position: relative;

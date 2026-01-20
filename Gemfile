@@ -25,7 +25,7 @@ gem "mutex_m"
 
 gem 'africastalking-ruby', '~> 2.1', '>= 2.1.5'
 gem 'wicked'
-gem 'will_paginate', '~> 3.1.0'
+gem "geared_pagination", "~> 1.2"
 
 # Use Active Storage variant
 gem 'image_processing', '~> 1.2'

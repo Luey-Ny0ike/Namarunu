@@ -6,7 +6,7 @@ class InquiriesController < ApplicationController
   # GET /inquiries
   # GET /inquiries.json
   def index
-    @inquiries = Inquiry.paginate(page: params[:page], per_page: 20).order('id DESC')
+    @inquiries = set_page_and_extract_portion_from Inquiry.order(created_at: :desc)
   end
 
   # GET /inquiries/1

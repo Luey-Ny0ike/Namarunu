@@ -11,58 +11,56 @@
     <%= link_to 'New Inquiry', new_inquiry_path, class: 'btn btn-primary' %>
   </div>
 
-  <div class="row g-3">
-    <% @inquiries.each do |inquiry| %>
-      <div class="col-12">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <div class="row align-items-center g-3">
-              <div class="col-lg-3">
-                <div class="fw-semibold"><%= inquiry.full_name %></div>
-                <div class="text-muted small d-lg-none">Full name</div>
-              </div>
-              <div class="col-lg-3">
-                <div><%= inquiry.phone_number.presence || '-' %></div>
-                <div class="text-muted small d-lg-none">Phone</div>
-              </div>
-              <div class="col-lg-3">
-                <div><%= inquiry.email.presence || '-' %></div>
-                <div class="text-muted small d-lg-none">Email</div>
-              </div>
-              <div class="col-lg-2">
-                <% if inquiry.plan.present? %>
-                  <span class="badge bg-info text-dark"><%= inquiry.plan %></span>
-                <% else %>
-                  <span class="text-muted">-</span>
-                <% end %>
-                <div class="text-muted small d-lg-none">Plan</div>
-              </div>
-              <div class="col-lg-1 text-lg-end">
-                <%= link_to 'View', inquiry, class: 'btn btn-outline-primary btn-sm' %>
-              </div>
-              <div class="col-12 d-lg-none">
-                <div class="text-muted small">Billing</div>
-                <% if inquiry.billing_type.present? %>
-                  <span class="badge bg-secondary"><%= inquiry.billing_type %></span>
-                <% else %>
-                  <span class="text-muted">-</span>
-                <% end %>
-              </div>
-              <div class="col-lg-2 d-none d-lg-block">
-                <% if inquiry.billing_type.present? %>
-                  <span class="badge bg-secondary"><%= inquiry.billing_type %></span>
-                <% else %>
-                  <span class="text-muted">-</span>
-                <% end %>
+  <%= with_automatic_pagination("inquiries", @page) do %>
+    <div class="row g-3">
+      <% @inquiries.each do |inquiry| %>
+        <div class="col-12">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="row align-items-center g-3">
+                <div class="col-lg-3">
+                  <div class="fw-semibold"><%= inquiry.full_name %></div>
+                  <div class="text-muted small d-lg-none">Full name</div>
+                </div>
+                <div class="col-lg-3">
+                  <div><%= inquiry.phone_number.presence || '-' %></div>
+                  <div class="text-muted small d-lg-none">Phone</div>
+                </div>
+                <div class="col-lg-3">
+                  <div><%= inquiry.email.presence || '-' %></div>
+                  <div class="text-muted small d-lg-none">Email</div>
+                </div>
+                <div class="col-lg-2">
+                  <% if inquiry.plan.present? %>
+                    <span class="badge bg-info text-dark"><%= inquiry.plan %></span>
+                  <% else %>
+                    <span class="text-muted">-</span>
+                  <% end %>
+                  <div class="text-muted small d-lg-none">Plan</div>
+                </div>
+                <div class="col-lg-1 text-lg-end">
+                  <%= link_to 'View', inquiry, class: 'btn btn-outline-primary btn-sm', data: { turbo_frame: "_top" } %>
+                </div>
+                <div class="col-12 d-lg-none">
+                  <div class="text-muted small">Billing</div>
+                  <% if inquiry.billing_type.present? %>
+                    <span class="badge bg-secondary"><%= inquiry.billing_type %></span>
+                  <% else %>
+                    <span class="text-muted">-</span>
+                  <% end %>
+                </div>
+                <div class="col-lg-2 d-none d-lg-block">
+                  <% if inquiry.billing_type.present? %>
+                    <span class="badge bg-secondary"><%= inquiry.billing_type %></span>
+                  <% else %>
+                    <span class="text-muted">-</span>
+                  <% end %>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    <% end %>
-  </div>
-
-  <div class="mt-3">
-    <%= will_paginate @inquiries %>
-  </div>
+      <% end %>
+    </div>
+  <% end %>
 </div>
