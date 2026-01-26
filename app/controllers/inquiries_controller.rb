@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class InquiriesController < ApplicationController
+  allow_unauthenticated_access except: %i[ index show ]
   before_action :set_inquiry, only: %i[show edit update destroy]
 
   # GET /inquiries

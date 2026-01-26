@@ -717,3 +717,45 @@ footer {
   right: 30px;
   background-color: #25d366;
 }
+
+/* AUTH PAGES */
+.auth-shell {
+  background: linear-gradient(180deg, rgba(49, 222, 121, 0.08), rgba(27, 64, 102, 0.08));
+}
+.auth-card {
+  border: 1px solid rgba(49, 222, 121, 0.3);
+  box-shadow: 0 16px 40px rgba(27, 64, 102, 0.12);
+}
+.auth-title {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  color: #1b4066;
+}
+.auth-form .form-control {
+  border-radius: 10px;
+}
+.auth-form .form-control:focus {
+  border-color: #31de79;
+  box-shadow: 0 0 0 0.2rem rgba(49, 222, 121, 0.2);
+}
+.btn-namarunu {
+  background-color: #31de79;
+  border-color: #31de79;
+  color: #0a0101;
+  font-weight: 600;
+}
+.btn-namarunu:hover,
+.btn-namarunu:focus {
+  background-color: #27c96b;
+  border-color: #27c96b;
+  color: #0a0101;
+}
+.auth-link {
+  color: #1b4066;
+  font-weight: 600;
+  text-decoration: none;
+}
+.auth-link:hover {
+  color: #0f2f4a;
+  text-decoration: underline;
+}

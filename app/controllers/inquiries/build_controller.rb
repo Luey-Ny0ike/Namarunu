@@ -3,7 +3,7 @@
 module Inquiries
   class BuildController < ApplicationController
     include Wicked::Wizard
-
+    allow_unauthenticated_access
     steps :contact_information, :store_information, :billing_information, :final_step
 
     def show

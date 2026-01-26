@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  resource :session, only: [:new, :create, :destroy]
+  resource :registration, only: [:new, :create]
+  resources :passwords, param: :token, only: [:new, :create, :edit, :update]
   resources :inquiries do
   end
   resources :build, controller: 'inquiries/build'
