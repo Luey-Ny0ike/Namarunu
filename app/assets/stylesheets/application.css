@@ -6,6 +6,10 @@ body {
   font-family: "Nunito Sans", sans-serif;
 }
 
+a {
+  text-decoration: none;
+}
+
 .pagination-link--auto {
   display: block;
   height: 1px;
@@ -84,6 +88,9 @@ body {
   }
   .nav-item:hover {
     color: #31de79 !important;
+    .nav-link {
+      color: rgba(0, 0, 0, 0.5);
+    }
   }
   .g-button {
     color: #0a0101 !important;
@@ -660,6 +667,7 @@ footer {
   padding-top: 60px;
   padding: 40px;
   margin-top: 50px;
+  z-index: 1;
   h4 {
     font-weight: 600;
   }
@@ -679,17 +687,16 @@ footer {
 
 .currency-select {
   padding-top: 70px;
-  
   p {
     font-weight: 600;
     color: #333;
   }
-  
+
   #inputCurrency {
     min-width: 100px;
     font-weight: 500;
     border-color: #31de79;
-    
+
     &:focus {
       border-color: #31de79;
       box-shadow: 0 0 0 0.2rem rgba(49, 222, 121, 0.25);
@@ -710,8 +717,8 @@ footer {
   border-radius: 50px;
   text-align: center;
   box-shadow: 2px 2px 3px #999;
-  z-index: 100;
   cursor: pointer;
+  z-index: 9999;
 }
 .float0 {
   right: 30px;
