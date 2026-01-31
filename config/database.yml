@@ -18,12 +18,17 @@ default:
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  port: 5432
 
 development:
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   database: namarunu_development
+  host: localhost
+  username: postgres
+  password: postgres
+  port: 5432
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -56,6 +61,11 @@ test:
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   database: namarunu_test
+  host: localhost
+  username: postgres
+  password: postgres
+  port: 5432
+
 
 
 # As with config/credentials.yml, you never want to store sensitive information,
@@ -82,5 +92,7 @@ production:
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   database: namarunu_production
-  username: ubuntu
-  password: <%= Rails.application.credentials.dig(:db_password) %>
+  host: postgres
+  port: 5432
+  username: githinjiv
+  password: <%= ENV["POSTGRES_DATABASE_PASSWORD"] %>
