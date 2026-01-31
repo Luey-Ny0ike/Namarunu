@@ -16,4 +16,8 @@ Rails.application.routes.draw do
   get 'products/web-administration-services', to: 'static_pages#web-administration', as: 'web_administration'
   get 'products/startup-package', to: 'static_pages#startup-package', as: 'startup_package'
   get '/pricing', to: 'static_pages#pricing', as: 'pricing'
+
+  get "up", to: "rails/health#show", as: :rails_health_check
+  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "service-worker" => "pwa#service_worker"
 end

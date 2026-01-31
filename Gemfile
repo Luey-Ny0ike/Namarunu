@@ -4,8 +4,6 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 require 'net/http'
 
-ruby file: ".ruby-version"
-
 # Drivers
 gem 'rails', github: 'rails/rails', branch: "main"
 gem 'pg', '>= 0.18', '< 2.0'
@@ -60,3 +58,7 @@ group :development do
 end
 
 gem "bcrypt", "~> 3.1"
+
+gem "kamal", "~> 2.10"
+
+gem "thruster", "~> 0.1.17"
