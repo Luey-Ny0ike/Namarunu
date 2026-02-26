@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Plan
   attr_reader :code, :name, :tier, :prices, :features, :featured
 
@@ -35,14 +37,15 @@ class Plan
   def monthly_equivalent_for(currency:, billing_period:)
     total = price_for(currency: currency, billing_period: billing_period)
     return total if billing_period.to_sym == :monthly
+
     total / 6
   end
 
   ALL = [
     new(
-      code:     "standard",
-      name:     "Standard",
-      tier:     :standard,
+      code: "standard",
+      name: "Standard",
+      tier: :standard,
       featured: false,
       prices: {
         "KES" => { monthly: 650_000,     semi_annually: 3_000_000 },
@@ -62,9 +65,9 @@ class Plan
       ]
     ),
     new(
-      code:     "growth",
-      name:     "Growth",
-      tier:     :standard,
+      code: "growth",
+      name: "Growth",
+      tier: :standard,
       featured: true,
       prices: {
         "KES" => { monthly: 1_300_000,   semi_annually: 6_000_000 },
@@ -80,9 +83,9 @@ class Plan
       ]
     ),
     new(
-      code:     "scale",
-      name:     "Scale",
-      tier:     :standard,
+      code: "scale",
+      name: "Scale",
+      tier: :standard,
       featured: false,
       prices: {
         "KES" => { monthly: 1_950_000,   semi_annually: 9_000_000 },
@@ -98,9 +101,9 @@ class Plan
       ]
     ),
     new(
-      code:     "sungura",
-      name:     "Sungura",
-      tier:     :startup,
+      code: "sungura",
+      name: "Sungura",
+      tier: :startup,
       featured: false,
       prices: {
         "KES" => { monthly: 195_000,     semi_annually: 900_000 },
@@ -117,9 +120,9 @@ class Plan
       ]
     ),
     new(
-      code:     "chipukizi",
-      name:     "Chipukizi",
-      tier:     :startup,
+      code: "chipukizi",
+      name: "Chipukizi",
+      tier: :startup,
       featured: true,
       prices: {
         "KES" => { monthly: 325_000,     semi_annually: 1_500_000 },
@@ -136,9 +139,9 @@ class Plan
       ]
     ),
     new(
-      code:     "ndovu",
-      name:     "Ndovu",
-      tier:     :startup,
+      code: "ndovu",
+      name: "Ndovu",
+      tier: :startup,
       featured: false,
       prices: {
         "KES" => { monthly: 455_000,     semi_annually: 2_100_000 },
