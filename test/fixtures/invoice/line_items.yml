@@ -1,0 +1,8 @@
+glow_feb_subscription_line:
+  invoice: glow_feb_draft
+  kind: subscription
+  description: "Sungura plan (Monthly)"
+  quantity: 1
+  unit_amount_cents: 195000
+  amount_cents: 195000
+

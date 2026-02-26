@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
 class Plan
-  attr_reader :code, :name, :tier, :prices, :features, :featured
+  attr_reader :code, :name, :tier, :plan_type, :prices, :features, :featured
 
-  def initialize(code:, name:, tier:, prices:, features: [], featured: false)
-    @code     = code
-    @name     = name
-    @tier     = tier
-    @prices   = prices
-    @features = features
-    @featured = featured
+  def initialize(code:, name:, tier:, plan_type:, prices:, features: [], featured: false)
+    @code      = code
+    @name      = name
+    @tier      = tier
+    @plan_type = plan_type
+    @prices    = prices
+    @features  = features
+    @featured  = featured
   end
 
   def featured? = @featured
@@ -43,10 +44,11 @@ class Plan
 
   ALL = [
     new(
-      code: "standard",
-      name: "Standard",
-      tier: :standard,
-      featured: false,
+      code:      "standard",
+      name:      "Standard",
+      tier:      :standard,
+      plan_type: "starter",
+      featured:  false,
       prices: {
         "KES" => { monthly: 650_000,     semi_annually: 3_000_000 },
         "USD" => { monthly: 6_500,       semi_annually: 30_000 },
@@ -65,10 +67,11 @@ class Plan
       ]
     ),
     new(
-      code: "growth",
-      name: "Growth",
-      tier: :standard,
-      featured: true,
+      code:      "growth",
+      name:      "Growth",
+      tier:      :standard,
+      plan_type: "pro",
+      featured:  true,
       prices: {
         "KES" => { monthly: 1_300_000,   semi_annually: 6_000_000 },
         "USD" => { monthly: 13_000,      semi_annually: 60_000 },
@@ -83,10 +86,11 @@ class Plan
       ]
     ),
     new(
-      code: "scale",
-      name: "Scale",
-      tier: :standard,
-      featured: false,
+      code:      "scale",
+      name:      "Scale",
+      tier:      :standard,
+      plan_type: "business",
+      featured:  false,
       prices: {
         "KES" => { monthly: 1_950_000,   semi_annually: 9_000_000 },
         "USD" => { monthly: 21_000,      semi_annually: 90_000 },
@@ -101,10 +105,11 @@ class Plan
       ]
     ),
     new(
-      code: "sungura",
-      name: "Sungura",
-      tier: :startup,
-      featured: false,
+      code:      "sungura",
+      name:      "Sungura",
+      tier:      :startup,
+      plan_type: "starter",
+      featured:  false,
       prices: {
         "KES" => { monthly: 195_000,     semi_annually: 900_000 },
         "USD" => { monthly: 2_000,       semi_annually: 9_000 },
@@ -120,10 +125,11 @@ class Plan
       ]
     ),
     new(
-      code: "chipukizi",
-      name: "Chipukizi",
-      tier: :startup,
-      featured: true,
+      code:      "chipukizi",
+      name:      "Chipukizi",
+      tier:      :startup,
+      plan_type: "pro",
+      featured:  true,
       prices: {
         "KES" => { monthly: 325_000,     semi_annually: 1_500_000 },
         "USD" => { monthly: 3_300,       semi_annually: 15_000 },
@@ -139,10 +145,11 @@ class Plan
       ]
     ),
     new(
-      code: "ndovu",
-      name: "Ndovu",
-      tier: :startup,
-      featured: false,
+      code:      "ndovu",
+      name:      "Ndovu",
+      tier:      :startup,
+      plan_type: "business",
+      featured:  false,
       prices: {
         "KES" => { monthly: 455_000,     semi_annually: 2_100_000 },
         "USD" => { monthly: 4_600,       semi_annually: 21_000 },

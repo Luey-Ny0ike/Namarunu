@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-module Store
-  class Subscription < ApplicationRecord
+class Store::Subscription < ApplicationRecord
     STATUSES        = %w[trialing active paused canceled].freeze
     BILLING_PERIODS = %w[monthly semi_annually].freeze
 
@@ -49,4 +48,3 @@ module Store
       errors.add(:current_period_end, "must be after the period start date")
     end
   end
-end
