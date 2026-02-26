@@ -69,7 +69,7 @@ class InquiriesController < ApplicationController
     authorize @inquiry
     respond_to do |format|
       if @inquiry.update(inquiry_params)
-        format.html { redirect_to @inquiry, notice: 'Inquiry was successfully updated.' }
+        format.html { redirect_to @inquiry, notice: "Inquiry was successfully updated." }
         format.json { render :show, status: :ok, location: @inquiry }
       else
         format.html { render :edit }
@@ -84,7 +84,7 @@ class InquiriesController < ApplicationController
     authorize @inquiry
     @inquiry.destroy
     respond_to do |format|
-      format.html { redirect_to inquiries_url, notice: 'Inquiry was successfully destroyed.' }
+      format.html { redirect_to inquiries_url, notice: "Inquiry was successfully destroyed." }
       format.json { head :no_content }
     end
   end
