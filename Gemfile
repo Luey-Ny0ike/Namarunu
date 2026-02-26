@@ -41,7 +41,6 @@ gem "recaptcha", "~> 5.21"
 
 group :development, :test do
   gem "byebug", platforms: %i[windows]
-  gem "rspec-rails"
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
   # gem 'launchy'

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class Invoice < ApplicationRecord
-  include Validations
-
   STATUSES        = %w[ draft issued paid void overdue ].freeze
   BILLING_PERIODS = %w[ monthly semi_annually ].freeze
   PLAN_TYPES      = %w[ starter pro business enterprise ].freeze
+
+  include Validations
 
   belongs_to :store
   belongs_to :store_subscription, class_name: "Store::Subscription", optional: true

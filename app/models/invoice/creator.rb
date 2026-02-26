@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-module Invoice
-  class Creator
+class Invoice::Creator
     def initialize(subscription)
       @subscription = subscription
       @store        = subscription.store
@@ -23,7 +22,7 @@ module Invoice
         store: @store,
         store_subscription: @subscription,
         plan_code: @subscription.plan_code,
-        plan_type: @subscription.plan.tier.to_s,
+        plan_type: @subscription.plan.plan_type,
         billing_period: @subscription.billing_period,
         currency: @subscription.currency,
         invoice_number: generate_invoice_number,
@@ -58,4 +57,3 @@ module Invoice
       format("%08d", last + 1)
     end
   end
-end
