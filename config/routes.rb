@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  resource :session, only: [:new, :create, :destroy]
-  resource :registration, only: [:new, :create]
-  resources :passwords, param: :token, only: [:new, :create, :edit, :update]
+  resource :session, only: %i[new create destroy]
+  resource :registration, only: %i[new create]
+  resources :passwords, param: :token, only: %i[new create edit update]
   resources :inquiries do
   end
-  resources :build, controller: 'inquiries/build'
+  resources :build, controller: "inquiries/build"
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
   # STATIC PAGES ROUTES
-  root 'static_pages#index'
-  get 'products', to: 'static_pages#products', as: 'products'
-  get '/products/namarunu-store', to: 'static_pages#store-sell', as: 'store_sell'
-  get 'products/web-administration-services', to: 'static_pages#web-administration', as: 'web_administration'
-  get 'products/startup-package', to: 'static_pages#startup-package', as: 'startup_package'
-  get '/pricing', to: 'static_pages#pricing', as: 'pricing'
+  root "static_pages#index"
+  get "products", to: "static_pages#products", as: "products"
+  get "/products/namarunu-store", to: "static_pages#store-sell", as: "store_sell"
+  get "products/web-administration-services", to: "static_pages#web-administration", as: "web_administration"
+  get "products/startup-package", to: "static_pages#startup-package", as: "startup_package"
+  get "/pricing", to: "static_pages#pricing", as: "pricing"
 
   get "up", to: "rails/health#show", as: :rails_health_check
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class InquiriesController < ApplicationController
-  allow_unauthenticated_access except: %i[ index show ]
+  allow_unauthenticated_access except: %i[index show]
   before_action :set_inquiry, only: %i[show edit update destroy]
 
   # GET /inquiries
@@ -27,13 +27,13 @@ class InquiriesController < ApplicationController
   def create
     @inquiry = Inquiry.new(inquiry_params)
 
-    unless verify_recaptcha(action: 'inquiry_submit', minimum_score: 0.5)
+    unless verify_recaptcha(action: "inquiry_submit", minimum_score: 0.5)
       respond_to do |format|
         format.html do
-          flash[:alert] = 'We could not verify you are human. Please try again.'
+          flash[:alert] = "We could not verify you are human. Please try again."
           redirect_to build_path(:contact_information)
         end
-        format.json { render json: { error: 'recaptcha_failed' }, status: :unprocessable_entity }
+        format.json { render json: { error: "recaptcha_failed" }, status: :unprocessable_entity }
       end
       return
     end
@@ -55,7 +55,7 @@ class InquiriesController < ApplicationController
   def update
     respond_to do |format|
       if @inquiry.update(inquiry_params)
-        format.html { redirect_to @inquiry, notice: 'Inquiry was successfully updated.' }
+        format.html { redirect_to @inquiry, notice: "Inquiry was successfully updated." }
         format.json { render :show, status: :ok, location: @inquiry }
       else
         format.html { render :edit }
@@ -69,7 +69,7 @@ class InquiriesController < ApplicationController
   def destroy
     @inquiry.destroy
     respond_to do |format|
-      format.html { redirect_to inquiries_url, notice: 'Inquiry was successfully destroyed.' }
+      format.html { redirect_to inquiries_url, notice: "Inquiry was successfully destroyed." }
       format.json { head :no_content }
     end
   end

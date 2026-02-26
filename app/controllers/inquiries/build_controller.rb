@@ -32,8 +32,8 @@ module Inquiries
     private
 
     def inquiry_params
-      params.expect(inquiry: [ :full_name, :phone_number, :email, :store_name, :domain_name, :preffered_name,
-                                      :plan, :billing_type, :web_administration, :message ])
+      params.expect(inquiry: %i[full_name phone_number email store_name domain_name preffered_name
+                                plan billing_type web_administration message])
     end
   end
 end
