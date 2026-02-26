@@ -1,0 +1,17 @@
+glow_mpesa_pending:
+  invoice: glow_feb_draft
+  provider: mpesa
+  provider_ref: MPESA001ABC
+  status: pending
+  amount_cents: 195000
+  currency: KES
+
+glow_mpesa_succeeded:
+  invoice: glow_feb_paid
+  provider: mpesa
+  provider_ref: MPESA002XYZ
+  status: succeeded
+  amount_cents: 195000
+  currency: KES
+  paid_at: "2026-02-01 10:00:00"
+

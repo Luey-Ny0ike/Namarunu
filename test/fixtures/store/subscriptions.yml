@@ -1,0 +1,23 @@
+glow_sungura:
+  store: glow_organics
+  plan_code: sungura
+  billing_period: monthly
+  currency: KES
+  current_period_start: 2026-03-26
+  current_period_end: 2026-04-25
+  cancel_at_period_end: false
+  status: active
+  quantity: 1
+  unit_amount_cents: 195000
+
+glow_sungura_semi:
+  store: glow_organics
+  plan_code: sungura
+  billing_period: semi_annually
+  currency: KES
+  current_period_start: 2026-02-26
+  current_period_end: 2026-08-25
+  cancel_at_period_end: false
+  status: active
+  quantity: 1
+  unit_amount_cents: 900000
