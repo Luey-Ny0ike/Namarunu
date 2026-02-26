@@ -208,6 +208,61 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_06_032000) do
     t.index ["temperature"], name: "index_leads_on_temperature"
   end
 
+  create_table "invoice_line_items", force: :cascade do |t|
+    t.bigint "amount_cents", null: false
+    t.datetime "created_at", null: false
+    t.string "description", null: false
+    t.bigint "invoice_id", null: false
+    t.string "kind", default: "subscription", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.integer "quantity", default: 1, null: false
+    t.bigint "unit_amount_cents", null: false
+    t.index ["invoice_id"], name: "index_invoice_line_items_on_invoice_id"
+  end
+
+  create_table "invoice_payments", force: :cascade do |t|
+    t.bigint "amount_cents", null: false
+    t.datetime "created_at", null: false
+    t.string "currency", null: false
+    t.bigint "invoice_id", null: false
+    t.datetime "paid_at"
+    t.string "provider", null: false
+    t.string "provider_ref"
+    t.jsonb "raw_payload", default: {}, null: false
+    t.string "status", default: "pending", null: false
+    t.index ["invoice_id"], name: "index_invoice_payments_on_invoice_id"
+    t.index ["provider", "provider_ref"], name: "index_invoice_payments_on_provider_and_provider_ref"
+  end
+
+  create_table "invoices", force: :cascade do |t|
+    t.bigint "amount_due_cents", default: 0, null: false
+    t.bigint "amount_paid_cents", default: 0, null: false
+    t.string "billing_period", null: false
+    t.date "billing_period_end", null: false
+    t.date "billing_period_start", null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "KES", null: false
+    t.bigint "discount_cents", default: 0, null: false
+    t.datetime "due_at"
+    t.string "invoice_number", null: false
+    t.datetime "issued_at"
+    t.text "notes"
+    t.string "plan_code", null: false
+    t.string "plan_type", null: false
+    t.string "status", default: "draft", null: false
+    t.bigint "store_id", null: false
+    t.bigint "store_subscription_id"
+    t.bigint "subtotal_cents", default: 0, null: false
+    t.bigint "tax_cents", default: 0, null: false
+    t.bigint "total_cents", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["due_at"], name: "index_invoices_on_due_at"
+    t.index ["invoice_number"], name: "index_invoices_on_invoice_number", unique: true
+    t.index ["status"], name: "index_invoices_on_status"
+    t.index ["store_id"], name: "index_invoices_on_store_id"
+    t.index ["store_subscription_id", "billing_period_start", "billing_period_end"], name: "idx_on_store_subscription_id_billing_period_start_b_a9db99846f", unique: true
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address"
@@ -215,6 +270,34 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_06_032000) do
     t.string "user_agent"
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "store_subscriptions", force: :cascade do |t|
+    t.string "billing_period", null: false
+    t.boolean "cancel_at_period_end", default: false, null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "KES", null: false
+    t.date "current_period_end", null: false
+    t.date "current_period_start", null: false
+    t.string "plan_code", null: false
+    t.integer "quantity", default: 1, null: false
+    t.string "status", default: "active", null: false
+    t.bigint "store_id", null: false
+    t.bigint "unit_amount_cents", null: false
+    t.datetime "updated_at", null: false
+    t.index ["current_period_end"], name: "index_store_subscriptions_on_current_period_end"
+    t.index ["status"], name: "index_store_subscriptions_on_status"
+    t.index ["store_id"], name: "index_store_subscriptions_on_store_id"
+  end
+
+  create_table "stores", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "currency", default: "KES", null: false
+    t.string "email_address"
+    t.string "name", null: false
+    t.string "phone_number"
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_stores_on_email_address"
   end
 
   create_table "users", force: :cascade do |t|
