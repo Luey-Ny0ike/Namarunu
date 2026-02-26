@@ -32,82 +32,33 @@
     <label class="switch">
       <input type="checkbox" id="billing-switch" checked>
       <span class="slider round"></span>
-  </label>
-  <span class="ml-3 bv">Semi-annually</span>
+    </label>
+    <span class="ml-3 bv">Semi-annually</span>
   </div>
   <div class="row pricing-column">
-    <div class="card col-md-4 col-sm-4 col-xs-12 pricing-box">
-      <p><strong>SUNGURA</strong></p>
-      <div class="semi-annually">
-        <p class="price ke">KES <span class="number">1,500</span>/ month</p>
-        <p class="price us">$ <span class="number">15</span>/ month</p>
-        <p class="price tz">TSH <span class="number">32,000</span>/ month</p>
-        <p>Billed every 6 months</p>
+    <% Plan.startup.each do |plan| %>
+      <div class="card col-md-4 col-sm-4 col-xs-12 pricing-box <%= 'value' if plan.featured? %>">
+        <p><strong><%= plan.name.upcase %></strong></p>
+        <div class="semi-annually">
+          <p class="price ke">KES <span class="number"><%= number_with_delimiter(plan.monthly_equivalent_for(currency: "KES", billing_period: :semi_annually) / 100) %></span>/ month</p>
+          <p class="price us">$ <span class="number"><%= number_with_delimiter(plan.monthly_equivalent_for(currency: "USD", billing_period: :semi_annually) / 100) %></span>/ month</p>
+          <p class="price tz">TSH <span class="number"><%= number_with_delimiter(plan.monthly_equivalent_for(currency: "TZS", billing_period: :semi_annually) / 100) %></span>/ month</p>
+          <p>Billed every 6 months</p>
+        </div>
+        <div class="monthly">
+          <p class="price ke">KES <span class="number"><%= number_with_delimiter(plan.price_for(currency: "KES", billing_period: :monthly) / 100) %></span>/ month</p>
+          <p class="price us">$ <span class="number"><%= number_with_delimiter(plan.price_for(currency: "USD", billing_period: :monthly) / 100) %></span>/ month</p>
+          <p class="price tz">TSH <span class="number"><%= number_with_delimiter(plan.price_for(currency: "TZS", billing_period: :monthly) / 100) %></span>/ month</p>
+          <p>Billed every month</p>
+        </div>
+        <hr>
+        <ul class="plan-features">
+          <% plan.features.each do |feature| %>
+            <li><%= feature %></li>
+          <% end %>
+        </ul>
       </div>
-      <div class="monthly">
-        <p class="price ke">KES <span class="number">1,950</span>/ month</p>
-        <p class="price us">$ <span class="number">20</span>/ month</p>
-        <p class="price tz">TSH <span class="number">42,000</span>/ month</p>
-        <p>Billed every month</p>
-      </div>
-      <hr>
-      <ul class="plan-features">
-        <li><strong>Online store</strong></li>
-        <li><strong>100</strong> Listings</li>
-        <li><strong>100</strong> users</li>
-        <li><strong>150</strong> SMSs</li>
-        <li>24/7 support</li>
-        <li>Dedicated email support</li><br>
-      </ul>
-    </div>
-    <div class="card col-md-4 col-sm-4 col-xs-12 pricing-box value">
-      <p><strong>CHIPUKIZI</strong></p>
-      <div class="semi-annually">
-        <p class="price ke">KES <span class="number">2,500</span>/ month</p>
-        <p class="price us">$ <span class="number">25</span>/ month</p>
-        <p class="price tz">TSH <span class="number">52,000</span>/ month</p>
-        <p>Billed every 6 months</p>
-      </div>
-      <div class="monthly">
-        <p class="price ke">KES <span class="number">3,250</span>/ month</p>
-        <p class="price us">$ <span class="number">33</span>/ month</p>
-        <p class="price tz">TSH <span class="number">68,000</span>/ month</p>
-        <p>Billed every month</p>
-      </div>
-      <hr>
-      <ul class="plan-features">
-        <li><strong>Online store</strong></li>
-        <li><strong>200</strong> listings</li>
-        <li><strong>200</strong> users</li>
-        <li><strong>250</strong> SMSs</li>
-        <li>Faster perfomance</li>
-        <li>All of the sungura package features</li>
-      </ul>
-    </div>
-    <div class="card col-md-4 col-sm-4 col-xs-12 pricing-box">
-      <p><strong>NDOVU</strong></p>
-      <div class="semi-annually">
-        <p class="price ke">KES <span class="number">3,500</span>/ month</p>
-        <p class="price us">$ <span class="number">35</span>/ month</p>
-        <p class="price tz">TSH <span class="number">73,000</span>/ month</p>
-        <p>Billed every 6 months</p>
-      </div>
-      <div class="monthly">
-        <p class="price ke">KES <span class="number">4,550</span>/ month</p>
-        <p class="price us">$ <span class="number">46</span>/ month</p>
-        <p class="price tz">TSH <span class="number">95,000</span>/ month</p>
-        <p>Billed every month</p>
-      </div>
-      <hr>
-      <ul class="plan-features">
-        <li><strong>Online store </strong></li>
-        <li><strong>300</strong> listings</li>
-        <li><strong>300</strong> users</li>
-        <li><strong>350</strong> SMSs</li>
-        <li>Faster perfomance</li>
-        <li>All of the sungura package features</li>
-      </ul>
-    </div>
+    <% end %>
   </div>
   <div class="pricing-extra-content">
     <ol>
