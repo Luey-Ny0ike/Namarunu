@@ -1,6 +1,6 @@
 <div class="container wizard-steps-layout">
   <h3>Contact Information</h3>
-  <%= form_for @inquiry do |form| %>
+  <%= form_for @inquiry, data: { controller: "recaptcha", action: "submit->recaptcha#submit", recaptcha_function_value: "executeRecaptchaForInquirySubmitAsync" } do |form| %>
       <div class="row justify-content-center">
         <% if @inquiry.errors.any? %>
           <div id="error_explanation">
@@ -27,6 +27,9 @@
       <div class="field col-md-8 mt-1">
         <%= form.label :email, "Email (optional)" %>
         <%= form.text_field :email, class:"form-control" %>
+      </div>
+      <div class="field col-md-8 mt-2">
+        <%= recaptcha_v3(action: "inquiry_submit", turbo: true) %>
       </div>
       <div class="field col-md-8">
         <br>

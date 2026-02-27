@@ -1,16 +1,18 @@
+# frozen_string_literal: true
+
 class InquiriesController < ApplicationController
-  before_action :set_inquiry, only: [:show, :edit, :update, :destroy]
+  allow_unauthenticated_access except: %i[ index show ]
+  before_action :set_inquiry, only: %i[show edit update destroy]
 
   # GET /inquiries
   # GET /inquiries.json
   def index
-    @inquiries = Inquiry.paginate(page: params[:page], per_page: 20).order('id DESC')
+    @inquiries = set_page_and_extract_portion_from Inquiry.order(created_at: :desc)
   end
 
   # GET /inquiries/1
   # GET /inquiries/1.json
-  def show
-  end
+  def show; end
 
   # GET /inquiries/new
   def new
@@ -18,13 +20,23 @@ class InquiriesController < ApplicationController
   end
 
   # GET /inquiries/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /inquiries
   # POST /inquiries.json
   def create
     @inquiry = Inquiry.new(inquiry_params)
+
+    unless verify_recaptcha(action: 'inquiry_submit', minimum_score: 0.5)
+      respond_to do |format|
+        format.html do
+          flash[:alert] = 'We could not verify you are human. Please try again.'
+          redirect_to build_path(:contact_information)
+        end
+        format.json { render json: { error: 'recaptcha_failed' }, status: :unprocessable_entity }
+      end
+      return
+    end
 
     respond_to do |format|
       if @inquiry.save
@@ -63,13 +75,15 @@ class InquiriesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_inquiry
-      @inquiry = Inquiry.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def inquiry_params
-      params.require(:inquiry).permit(:full_name, :phone_number, :email, :store_name, :domain_name, :preffered_name, :plan, :billing_type, :web_administration, :message)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_inquiry
+    @inquiry = Inquiry.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def inquiry_params
+    params.require(:inquiry).permit(:full_name, :phone_number, :email, :store_name, :domain_name, :preffered_name,
+                                    :plan, :billing_type, :web_administration, :message)
+  end
 end

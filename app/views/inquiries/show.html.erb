@@ -1,52 +1,74 @@
-<p id="notice"><%= notice %></p>
+<div class="container py-4">
+  <% if notice.present? %>
+    <div class="alert alert-info" role="alert" id="notice"><%= notice %></div>
+  <% end %>
 
-<p>
-  <strong>Full name:</strong>
-  <%= @inquiry.full_name %>
-</p>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h3 mb-1"><%= @inquiry.full_name %></h1>
+      <p class="text-muted mb-0">Inquiry details and preferences.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to 'Edit', edit_inquiry_path(@inquiry), class: 'btn btn-primary' %>
+      <%= link_to 'Back', inquiries_path, class: 'btn btn-outline-secondary' %>
+    </div>
+  </div>
 
-<p>
-  <strong>Phone number:</strong>
-  <%= @inquiry.phone_number %>
-</p>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <dl class="row mb-0">
+            <dt class="col-sm-5 text-muted">Full name</dt>
+            <dd class="col-sm-7 fw-semibold"><%= @inquiry.full_name %></dd>
 
-<p>
-  <strong>Email:</strong>
-  <%= @inquiry.email %>
-</p>
+            <dt class="col-sm-5 text-muted">Phone number</dt>
+            <dd class="col-sm-7"><%= @inquiry.phone_number %></dd>
 
-<p>
-  <strong>Store name:</strong>
-  <%= @inquiry.store_name %>
-</p>
+            <dt class="col-sm-5 text-muted">Email</dt>
+            <dd class="col-sm-7"><%= @inquiry.email %></dd>
 
-<p>
-  <strong>Domain name:</strong>
-  <%= @inquiry.domain_name %>
-</p>
+            <dt class="col-sm-5 text-muted">Store name</dt>
+            <dd class="col-sm-7"><%= @inquiry.store_name %></dd>
 
-<p>
-  <strong>Preffered name:</strong>
-  <%= @inquiry.preffered_name %>
-</p>
+            <dt class="col-sm-5 text-muted">Domain name</dt>
+            <dd class="col-sm-7"><%= @inquiry.domain_name %></dd>
+          </dl>
+        </div>
+        <div class="col-lg-6">
+          <dl class="row mb-0">
+            <dt class="col-sm-5 text-muted">Preferred name</dt>
+            <dd class="col-sm-7"><%= @inquiry.preffered_name %></dd>
 
-<p>
-  <strong>Plan:</strong>
-  <%= @inquiry.plan %>
-</p>
+            <dt class="col-sm-5 text-muted">Plan</dt>
+            <dd class="col-sm-7">
+              <% if @inquiry.plan.present? %>
+                <span class="badge bg-info text-dark"><%= @inquiry.plan %></span>
+              <% else %>
+                <span class="text-muted">-</span>
+              <% end %>
+            </dd>
 
-<p>
-  <strong>Billing type:</strong>
-  <%= @inquiry.billing_type %>
-</p>
-<p>
-<strong>Message: </strong>
-<%= @inquiry.message %>
-</p>
-<p>
-  <strong>Web administration:</strong>
-  <%= @inquiry.web_administration %>
-</p>
+            <dt class="col-sm-5 text-muted">Billing type</dt>
+            <dd class="col-sm-7">
+              <% if @inquiry.billing_type.present? %>
+                <span class="badge bg-secondary"><%= @inquiry.billing_type %></span>
+              <% else %>
+                <span class="text-muted">-</span>
+              <% end %>
+            </dd>
 
-<%= link_to 'Edit', edit_inquiry_path(@inquiry) %> |
-<%= link_to 'Back', inquiries_path %>
+            <dt class="col-sm-5 text-muted">Web administration</dt>
+            <dd class="col-sm-7"><%= @inquiry.web_administration %></dd>
+          </dl>
+        </div>
+        <div class="col-12">
+          <div class="border rounded-3 p-3 bg-light">
+            <div class="text-muted text-uppercase small fw-semibold mb-2">Message</div>
+            <div class="mb-0"><%= @inquiry.message.presence || '-' %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

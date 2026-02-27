@@ -1,4 +1,13 @@
-$(document).on("turbolinks:load", function() {
+import $ from "jquery";
+window.$ = $;
+window.jQuery = $;
+
+$(document).on('turbo:load', function() {
+  // Initialize visibility states
+  $(".monthly").hide();
+  $(".us").hide();
+  $(".tz").hide();
+  
   $(".box").click(function() {
     $(".content", this).toggle(100);
   });
@@ -14,8 +23,8 @@ $(document).on("turbolinks:load", function() {
       $(".preffered_name").hide(150);
     }
   });
-  $(".switch").click(function() {
-    if ($("#billing-switch").is(":checked")) {
+  $("#billing-switch").change(function() {
+    if ($(this).is(":checked")) {
       $(".semi-annually").show();
       $(".monthly").hide();
     } else {
@@ -23,19 +32,20 @@ $(document).on("turbolinks:load", function() {
       $(".monthly").show();
     }
   });
-  $(".kenya").click(function() {
-    $(".ke").show();
-    $(".us").hide();
-    $(".tz").hide();
-  });
-  $(".usa").click(function() {
-    $(".us").show();
-    $(".ke").hide();
-    $(".tz").hide();
-  });
-  $(".tanzania").click(function() {
-    $(".tz").show();
-    $(".us").hide();
-    $(".ke").hide();
+  $("#inputCurrency").change(function() {
+    var selectedCurrency = $(this).val();
+    if (selectedCurrency === "KES") {
+      $(".ke").show();
+      $(".us").hide();
+      $(".tz").hide();
+    } else if (selectedCurrency === "$") {
+      $(".us").show();
+      $(".ke").hide();
+      $(".tz").hide();
+    } else if (selectedCurrency === "TZS") {
+      $(".tz").show();
+      $(".us").hide();
+      $(".ke").hide();
+    }
   });
 });

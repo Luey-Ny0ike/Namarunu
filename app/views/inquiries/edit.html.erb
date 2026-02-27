@@ -1,9 +1,26 @@
-<div class="container">
-  <h1>Editing Inquiry</h1>
+<div class="container py-4">
+  <% if notice.present? %>
+    <div class="alert alert-info" role="alert" id="notice"><%= notice %></div>
+  <% end %>
 
-  <%= render 'form', inquiry: @inquiry %>
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h3 mb-1">Edit Inquiry</h1>
+      <p class="text-muted mb-0">Update the inquiry details below.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to 'View', @inquiry, class: 'btn btn-outline-primary' %>
+      <%= link_to 'Back', inquiries_path, class: 'btn btn-outline-secondary' %>
+    </div>
+  </div>
 
-  <%= link_to 'Show', @inquiry %> |
-  <%= link_to 'Back', inquiries_path %>
-
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <%= render 'form', inquiry: @inquiry %>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
