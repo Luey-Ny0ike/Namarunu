@@ -1,0 +1,294 @@
+# frozen_string_literal: true
+
+class Invoice::PdfGenerator
+  BRAND_GREEN   = "31DE79"
+  DARK_TEXT     = "111111"
+  MID_GRAY      = "3A3A3A"
+  BORDER_BLACK  = "111111"
+  PAPER_GRAY    = "FFFFFF"
+  BODY_SIZE     = 13.2
+
+  def initialize(invoice)
+    @invoice = invoice
+    @store   = invoice.store
+  end
+
+  def render
+    doc = Prawn::Document.new(page_size: "A4", margin: [16, 16, 16, 16])
+    configure_fonts(doc)
+    doc.font(@body_font)
+    draw_background(doc)
+    draw_header(doc)
+    draw_invoice_meta(doc)
+    draw_line_items(doc)
+    draw_payment_info(doc)
+    draw_bottom_bar(doc)
+    doc.render
+  end
+
+  private
+
+  def draw_background(pdf)
+    pdf.fill_color PAPER_GRAY
+    pdf.fill_rectangle [0, pdf.bounds.top], pdf.bounds.width, pdf.bounds.height
+
+    pdf.stroke_color BORDER_BLACK
+    pdf.line_width 1
+    pdf.stroke_rectangle [0, pdf.bounds.top], pdf.bounds.width, pdf.bounds.height
+    pdf.fill_color DARK_TEXT
+  end
+
+  def draw_header(pdf)
+    top = pdf.bounds.top
+    header_height = 104
+    logo_width = 150
+
+    pdf.stroke_color BORDER_BLACK
+    pdf.line_width 0.7
+    pdf.stroke_vertical_line top, top - header_height, at: logo_width
+
+    pdf.fill_color BRAND_GREEN
+    with_logo_font(pdf) do
+      pdf.text_box "NAMARUNU",
+                   at: [10, top - 38], width: logo_width - 20, height: 28,
+                   size: 18, align: :center, valign: :center
+    end
+
+    pdf.fill_color DARK_TEXT
+    pdf.text_box "NAMARUNU SOLUTIONS",
+                 at: [logo_width + 24, top - 20], width: 320, height: 22,
+                 size: 16, character_spacing: 1.4
+
+    pdf.fill_color BRAND_GREEN
+    pdf.text_box "HELPING BUSINESSES GROW",
+                 at: [logo_width + 24, top - 42], width: 320, height: 16,
+                 size: 10.5, style: :bold, character_spacing: 1.7
+
+    pdf.fill_color MID_GRAY
+    pdf.text_box "NAMARUNU@GMAIL.COM / WWW.NAMARUNU.COM",
+                 at: [logo_width + 24, top - 61], width: 340, height: 12,
+                 size: 5.9, character_spacing: 0.8
+
+    y = top - header_height
+    pdf.stroke_color BORDER_BLACK
+    pdf.line_width 3
+    pdf.stroke_horizontal_line 0, pdf.bounds.width, at: y
+  end
+
+  def draw_invoice_meta(pdf)
+    base_y = pdf.bounds.top - 136
+    left_x = 46
+    right_x = pdf.bounds.width / 2 + 16
+
+    pdf.fill_color DARK_TEXT
+    pdf.font(@body_font) do
+      pdf.text_box "INVOICE NUMBER", at: [left_x, base_y], width: 260, height: 16,
+                   size: BODY_SIZE, style: :bold, character_spacing: 1.2
+      pdf.text_box @invoice.invoice_number.to_s, at: [left_x, base_y - 20], width: 260, height: 16,
+                   size: BODY_SIZE
+    end
+
+    row_y = base_y - 58
+    pdf.font(@body_font) do
+      pdf.text_box "DATE ISSUED", at: [left_x, row_y], width: 260, height: 16,
+                   size: BODY_SIZE, style: :bold, character_spacing: 1.2
+      pdf.text_box "ISSUED TO", at: [right_x, row_y], width: 260, height: 16,
+                   size: BODY_SIZE, style: :bold, character_spacing: 1.2
+
+      pdf.text_box issued_date, at: [left_x, row_y - 20], width: 260, height: 16, size: BODY_SIZE
+      pdf.text_box @store.name, at: [right_x, row_y - 20], width: 260, height: 16, size: BODY_SIZE
+    end
+
+    table_top = row_y - 44
+    pdf.stroke_color BORDER_BLACK
+    pdf.line_width 1.3
+    pdf.stroke_horizontal_line left_x, pdf.bounds.width - 66, at: table_top
+
+    header_y = table_top - 20
+    pdf.font(@body_font) do
+      pdf.text_box "SERVICE DESCRIPTION", at: [left_x, header_y], width: 240, height: 16,
+                   size: BODY_SIZE, style: :bold, character_spacing: 0.8
+      pdf.text_box "QTY", at: [336, header_y], width: 34, height: 16,
+                   size: BODY_SIZE, style: :bold, character_spacing: 0.8
+      pdf.text_box "PRICE", at: [388, header_y], width: 48, height: 16,
+                   size: BODY_SIZE, style: :bold, character_spacing: 0.8
+      pdf.text_box "TOTAL", at: [446, header_y], width: 48, height: 16,
+                   size: BODY_SIZE, style: :bold, character_spacing: 0.8
+    end
+    @line_item_y = header_y - 36
+  end
+
+  def draw_line_items(pdf)
+    left_x = 46
+    table_y = @line_item_y || (pdf.bounds.top - 280)
+    description = @invoice.line_items.first&.description.presence || "Sungura package"
+    qty = @invoice.line_items.first&.quantity.to_i
+    qty = 1 if qty <= 0
+    unit_amount = @invoice.line_items.first&.unit_amount_cents || @invoice.total_cents
+    row_total = @invoice.line_items.first&.amount_cents || @invoice.total_cents
+
+    pdf.fill_color DARK_TEXT
+    pdf.font(@body_font) do
+      pdf.text_box description, at: [left_x, table_y], width: 250, height: 16, size: BODY_SIZE
+      pdf.text_box format("%02d", qty), at: [336, table_y], width: 34, height: 16, size: BODY_SIZE
+      pdf.text_box plain_amount(unit_amount), at: [388, table_y], width: 48, height: 16, size: BODY_SIZE
+      pdf.text_box plain_amount(row_total), at: [446, table_y], width: 52, height: 16, size: BODY_SIZE
+    end
+
+    summary_line = table_y - 28
+    pdf.stroke_color BORDER_BLACK
+    pdf.line_width 1.8
+    pdf.stroke_horizontal_line left_x, pdf.bounds.width - 66, at: summary_line
+
+    pdf.font(@body_font, style: :bold) do
+      pdf.text_box "TOTAL", at: [352, summary_line - 18], width: 54, height: 16,
+                   size: BODY_SIZE, style: :bold, character_spacing: 0.8
+      pdf.text_box currency_total(@invoice.total_cents), at: [432, summary_line - 18], width: 120, height: 16,
+                   size: BODY_SIZE, style: :bold
+    end
+  end
+
+  def draw_payment_info(pdf)
+    y = pdf.bounds.bottom + 160
+
+    pdf.fill_color DARK_TEXT
+    pdf.font(@body_font, style: :bold) do
+      pdf.text_box "Payments can be made here:", at: [56, y], width: 260, height: 16,
+                   size: 12
+    end
+
+    lines = [
+      { text: "Bank name: Equity bank", style: :normal },
+      { text: "Account no: 1450286637983", style: :normal },
+      { text: "Account Name: Namarunu Solutions Ltd", style: :normal },
+      { text: "", style: :normal },
+      { text: "or", style: :bold },
+      { text: "", style: :normal },
+      { text: "Paybill: 247247", style: :normal },
+      { text: "Account no: 714247", style: :normal }
+    ]
+
+    row_y = y - 22
+    lines.each do |line|
+      if line[:text].empty?
+        row_y -= 10
+        next
+      end
+
+      pdf.font(@body_font, style: line[:style]) do
+        pdf.text_box line[:text], at: [56, row_y], width: 320, height: 16, size: 12
+      end
+      row_y -= 17
+    end
+  end
+
+  def draw_bottom_bar(pdf)
+    pdf.fill_color BRAND_GREEN
+    pdf.fill_rectangle [0, pdf.bounds.bottom + 8], pdf.bounds.width, 8
+    pdf.fill_color DARK_TEXT
+  end
+
+  def configure_fonts(pdf)
+    body_normal = first_existing_path(
+      "app/assets/fonts/Raleway-Regular.ttf",
+      "app/assets/fonts/Raleway-VariableFont_wght.ttf",
+      "app/assets/fonts/raleway/Raleway-Regular.ttf",
+      "app/assets/fonts/raleway/Raleway-VariableFont_wght.ttf",
+      "/usr/share/fonts/truetype/raleway/Raleway-Regular.ttf",
+      "/usr/share/fonts/raleway/Raleway-Regular.ttf",
+      "/usr/local/share/fonts/Raleway-Regular.ttf",
+      File.expand_path("~/.local/share/fonts/Raleway-Regular.ttf")
+    )
+
+    body_bold = first_existing_path(
+      "app/assets/fonts/Raleway-Bold.ttf",
+      "app/assets/fonts/Raleway-VariableFont_wght.ttf",
+      "app/assets/fonts/raleway/Raleway-Bold.ttf",
+      "app/assets/fonts/raleway/Raleway-VariableFont_wght.ttf",
+      "/usr/share/fonts/truetype/raleway/Raleway-Bold.ttf",
+      "/usr/share/fonts/raleway/Raleway-Bold.ttf",
+      "/usr/local/share/fonts/Raleway-Bold.ttf",
+      File.expand_path("~/.local/share/fonts/Raleway-Bold.ttf")
+    ) || body_normal
+
+    if body_normal
+      pdf.font_families.update(
+        "RalewayCustom" => {
+          normal: body_normal,
+          bold: body_bold,
+          italic: body_normal,
+          bold_italic: body_bold
+        }
+      )
+      @body_font = "RalewayCustom"
+    else
+      @body_font = "Helvetica"
+    end
+
+    logo = first_existing_path(
+      "app/assets/fonts/ArchivoBlack-Regular.ttf",
+      "app/assets/fonts/archivo-black/ArchivoBlack-Regular.ttf",
+      "/usr/share/fonts/truetype/archivo-black/ArchivoBlack-Regular.ttf",
+      "/usr/share/fonts/archivo-black/ArchivoBlack-Regular.ttf",
+      "/usr/local/share/fonts/ArchivoBlack-Regular.ttf",
+      File.expand_path("~/.local/share/fonts/ArchivoBlack-Regular.ttf")
+    )
+
+    if logo
+      pdf.font_families.update(
+        "ArchivoBlackCustom" => {
+          normal: logo,
+          bold: logo,
+          italic: logo,
+          bold_italic: logo
+        }
+      )
+      @logo_font = "ArchivoBlackCustom"
+    else
+      @logo_font = @body_font
+    end
+  end
+
+  def with_logo_font(pdf, &block)
+    pdf.font(@logo_font, &block)
+  end
+
+  def first_existing_path(*paths)
+    paths.find { |path| valid_font_file?(path) }
+  end
+
+  def valid_font_file?(path)
+    return false unless File.exist?(path)
+    return false unless path.downcase.end_with?(".ttf", ".otf")
+
+    File.size(path) > 1024
+  end
+
+  def issued_date
+    date = @invoice.issued_at&.to_date || @invoice.created_at.to_date
+    "#{date.day.ordinalize} #{date.strftime('%B %Y')}"
+  end
+
+  def plain_amount(cents)
+    amount = cents.to_i / 100.0
+    format("%.0f", amount)
+  end
+
+  def currency_total(cents)
+    amount = cents.to_i / 100.0
+    case @invoice.currency
+    when "KES"
+      "KES #{with_delimiter(amount.to_i)}"
+    when "USD"
+      "USD #{with_delimiter(amount.to_i)}"
+    when "TZS"
+      "TZS #{with_delimiter(amount.to_i)}"
+    else
+      "#{@invoice.currency} #{with_delimiter(amount.to_i)}"
+    end
+  end
+
+  def with_delimiter(number)
+    number.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\1,').reverse
+  end
+end
