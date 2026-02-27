@@ -63,6 +63,10 @@ end
 
 gem "bcrypt", "~> 3.1"
 
+gem "matrix"
+gem "prawn"
+gem "prawn-table"
+
 gem "kamal", "~> 2.10"
 
 gem "thruster", "~> 0.1.17"

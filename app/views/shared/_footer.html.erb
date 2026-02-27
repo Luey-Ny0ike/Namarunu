@@ -23,7 +23,7 @@
     <% phone = "+254726160664" %>
     <% email = "namarunu@gmail.com" %>
 
-    <%= link_to phone.insert(4, " "), "tel:#{phone}" %><br>
+    <%= link_to "#{phone[0, 4]} #{phone[4..]}", "tel:#{phone}" %><br>
     <%= link_to email, "mailto:#{email}" %>
   </div>
 </div>
