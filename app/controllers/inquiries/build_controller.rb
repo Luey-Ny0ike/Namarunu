@@ -4,36 +4,50 @@ module Inquiries
   class BuildController < ApplicationController
     include Wicked::Wizard
     allow_unauthenticated_access
-    steps :contact_information, :store_information, :billing_information, :final_step
+    steps :get_started, :business_context, :thanks
 
     def show
       case step
-      when :contact_information
+      when :get_started
         @inquiry = Inquiry.new
         session[:inquiry_id] = nil
-      when :billing_information
-        skip_step
+      when :business_context
+        @inquiry = inquiry_from_session
+      when :thanks
+        @inquiry = inquiry_from_session
+        session.delete(:inquiry_id)
       else
-        @inquiry = Inquiry.find(session[:inquiry_id])
+        @inquiry = inquiry_from_session
       end
       render_wizard
+    rescue ActiveRecord::RecordNotFound
+      redirect_to build_path(:get_started), alert: "Please start your inquiry again."
     end
 
     def update
-      @inquiry = Inquiry.find(session[:inquiry_id])
-      @inquiry.update(inquiry_params)
-      if step == steps.last
-        # InquiryMailer.with(inquiry: @inquiry).new_inquiry_email.deliver_now
-        @inquiry.send_sms
+      @inquiry = inquiry_from_session
+      @inquiry.require_business_context = true
+
+      if @inquiry.update(business_context_params)
+        render_wizard @inquiry
+      else
+        render step, status: :unprocessable_entity
       end
-      render_wizard @inquiry
+    rescue ActiveRecord::RecordNotFound
+      redirect_to build_path(:get_started), alert: "Please start your inquiry again."
     end
 
     private
 
-    def inquiry_params
-      params.expect(inquiry: [ :full_name, :phone_number, :email, :store_name, :domain_name, :preffered_name,
-                                      :plan, :billing_type, :web_administration, :message ])
+    def inquiry_from_session
+      inquiry_id = session[:inquiry_id]
+      raise ActiveRecord::RecordNotFound if inquiry_id.blank?
+
+      Inquiry.find(inquiry_id)
+    end
+
+    def business_context_params
+      params.require(:inquiry).permit(:business_type, :sell_in_store, :business_link, :intent)
     end
   end
 end

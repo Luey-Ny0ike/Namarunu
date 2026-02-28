@@ -32,38 +32,34 @@
       </div>
 
       <div class="field col-md-12">
-        <%= form.label :store_name %>
-        <%= form.text_field :store_name, class: "form-control" %>
+        <%= form.label :business_name %>
+        <%= form.text_field :business_name, class: "form-control" %>
       </div>
 
       <div class="field col-md-6">
-        <%= form.label :domain_name %>
-        <%= form.text_field :domain_name, class: "form-control" %>
+        <%= form.label :business_type %>
+        <%= form.select :business_type,
+                        ["Fashion", "Beauty", "Electronics", "Food & Grocery", "Services", "Other"],
+                        { include_blank: "Select business type" },
+                        class: "form-control" %>
       </div>
 
       <div class="field col-md-6">
-        <%= form.label :preffered_name %>
-        <%= form.text_field :preffered_name, class: "form-control" %>
-      </div>
-
-      <div class="field col-md-6">
-        <%= form.label :plan %>
-        <%= form.text_field :plan, class: "form-control" %>
-      </div>
-
-      <div class="field col-md-6">
-        <%= form.label :billing_type %>
-        <%= form.text_field :billing_type, class: "form-control" %>
+        <%= form.label :sell_in_store %>
+        <%= form.select :sell_in_store, [["Yes", true], ["No", false]], { include_blank: "Select an option" }, class: "form-control" %>
       </div>
 
       <div class="field col-md-12">
-        <%= form.label :web_administration %>
-        <%= form.text_field :web_administration, class: "form-control" %>
+        <%= form.label :business_link %>
+        <%= form.text_field :business_link, class: "form-control" %>
       </div>
 
-      <div class="field col-12">
-        <%= form.label :message, "Any questions or feedback for us?" %>
-        <%= form.text_area :message, class: "form-control" %>
+      <div class="field col-md-12">
+        <%= form.label :intent %>
+        <%= form.select :intent,
+                        Inquiry::INTENT_OPTIONS.map { |value| [value == "need_both" ? "Need both POS and online store" : value.humanize, value] },
+                        { include_blank: "Select an option" },
+                        class: "form-control" %>
       </div>
       <% if inquiry.new_record? %>
         <div class="field col-12">
@@ -71,7 +67,7 @@
         </div>
       <% end %>
       <div class="actions col-12 pt-2">
-        <%= form.submit 'Submit', class: "btn btn-primary w-100" %>
+        <%= form.submit 'Submit', class: "btn btn-namarunu w-100" %>
       </div>
     </div>
   <% end %>

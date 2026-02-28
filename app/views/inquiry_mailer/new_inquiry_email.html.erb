@@ -1,22 +1,33 @@
-<div style="border: 1px solid black; padding:20px;">
-  <h1 style="text-align:center; padding-bottom:30px;">NAMARUNU</h1>
-  <h2>New Inquiry submitted. The details are listed below.</h2>
-  <h3>Contact Information</h3>
-  <p>Full Name: <%= @inquiry.full_name %></p>
-  <p>Phone Number: <%= @inquiry.phone_number %></p>
-  <p>Email: <%= @inquiry.email %></p>
-  <hr>
-  <h3>Store Information</h3>
-  <p>Store Name: <%= @inquiry.store_name %></p>
-  <p>Do you have a domain name: <%= @inquiry.domain_name %></p>
-  <p>What is your preffered store name: <%= @inquiry.preffered_name %></p>
-  <hr>
-  <h3>Billing Information</h3>
-  <p>Which plan suites your business: <%= @inquiry.plan %></p>
-  <p>What is your preffered billing cycle?: <%= @inquiry.billing_type %></p>
-  <p>Would you like professional web administration?: <%= @inquiry.web_administration %></p>
-  <hr>
-  <h3>Feedback</h3>
-  <p>Questions and feedback: <%= @inquiry.message %></p>
+<div style="border: 1px solid black; padding: 20px;">
+  <h1 style="text-align: center; padding-bottom: 20px;">NAMARUNU</h1>
+  <h2>New Get Started lead submitted.</h2>
 
+  <h3>Contact Information</h3>
+  <p><strong>Full Name:</strong> <%= @inquiry.full_name %></p>
+  <p><strong>Phone Number:</strong> <%= @inquiry.phone_number %></p>
+  <p><strong>Email:</strong> <%= @inquiry.email.presence || "Not provided" %></p>
+  <p><strong>Business Name:</strong> <%= @inquiry.business_name %></p>
+
+  <hr>
+
+  <h3>Business Context</h3>
+  <p><strong>Business Type:</strong> <%= @inquiry.business_type.presence || "Not provided yet" %></p>
+  <p><strong>Sells In Store:</strong> <%= @inquiry.sell_in_store.nil? ? "Not provided yet" : (@inquiry.sell_in_store ? "Yes" : "No") %></p>
+  <p><strong>Business Link:</strong> <%= @inquiry.business_link.presence || "Not provided" %></p>
+  <p><strong>Intent:</strong> <%= @inquiry.intent.presence || "Not provided" %></p>
+
+  <hr>
+
+  <h3>Tracking</h3>
+  <p><strong>Source:</strong> <%= @inquiry.source %></p>
+  <p><strong>Status:</strong> <%= @inquiry.status %></p>
+  <p><strong>UTM Source:</strong> <%= @inquiry.utm_source.presence || "-" %></p>
+  <p><strong>UTM Medium:</strong> <%= @inquiry.utm_medium.presence || "-" %></p>
+  <p><strong>UTM Campaign:</strong> <%= @inquiry.utm_campaign.presence || "-" %></p>
+  <p><strong>UTM Term:</strong> <%= @inquiry.utm_term.presence || "-" %></p>
+  <p><strong>UTM Content:</strong> <%= @inquiry.utm_content.presence || "-" %></p>
+
+  <hr>
+
+  <p><strong>Admin Link:</strong> <%= link_to "View lead", @admin_link %></p>
 </div>

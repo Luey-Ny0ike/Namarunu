@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 class InquiryMailer < ApplicationMailer
-  default from: 'notifications@namarunu.com'
+  default from: 'info@namarunu.com'
+
   def new_inquiry_email
     @inquiry = params[:inquiry]
-    mail(to: 'namarunu@gmail.com', subject: 'New Sign up for namarunu')
+    @admin_link = inquiry_url(@inquiry)
+
+    mail(to: 'namarunu@gmail.com', subject: "New marketing lead: #{@inquiry.business_name}")
   end
 end
