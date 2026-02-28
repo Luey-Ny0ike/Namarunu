@@ -1,0 +1,14 @@
+<div class="container wizard-steps-layout">
+  <h3>Thanks, <%= @inquiry.full_name.split&.first %></h3>
+  <p class="mb-2">We&rsquo;ll reach out ASAP.</p>
+  <p class="mb-3">Need immediate help? Message us on WhatsApp.</p>
+
+  <% whatsapp_number = "+254751553508" %>
+  <% whatsapp_message = "Hi Namarunu, I just completed the Get Started form. Business: #{@inquiry.business_name}. Phone: #{@inquiry.phone_number}. I'm looking forward to your response" %>
+  <% whatsapp_link = "https://api.whatsapp.com/send?phone=#{whatsapp_number.delete_prefix('+')}&text=#{CGI.escape(whatsapp_message)}" %>
+
+  <p><strong>WhatsApp:</strong> <%= whatsapp_number %></p>
+  <div class="text-center">
+    <%= link_to "Chat on WhatsApp", whatsapp_link, class: "btn btn-success", target: "_blank", rel: "noreferrer" %>
+  </div>
+</div>

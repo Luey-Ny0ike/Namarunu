@@ -10,22 +10,34 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_01_23_073422) do
+ActiveRecord::Schema[8.2].define(version: 2026_02_28_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "inquiries", force: :cascade do |t|
     t.string "billing_type"
+    t.string "business_link"
+    t.string "business_name"
+    t.string "business_type"
     t.datetime "created_at", null: false
     t.string "domain_name"
     t.string "email"
     t.string "full_name"
+    t.string "intent"
     t.text "message"
     t.string "phone_number"
     t.string "plan"
     t.string "preffered_name"
+    t.boolean "sell_in_store"
+    t.string "source", default: "marketing_get_started", null: false
+    t.string "status", default: "new", null: false
     t.string "store_name"
     t.datetime "updated_at", null: false
+    t.string "utm_campaign"
+    t.string "utm_content"
+    t.string "utm_medium"
+    t.string "utm_source"
+    t.string "utm_term"
     t.string "web_administration"
   end
 

@@ -6,10 +6,10 @@
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
       <h1 class="h3 mb-1"><%= @inquiry.full_name %></h1>
-      <p class="text-muted mb-0">Inquiry details and preferences.</p>
+      <p class="text-muted mb-0">Lead details and marketing context.</p>
     </div>
     <div class="d-flex gap-2">
-      <%= link_to 'Edit', edit_inquiry_path(@inquiry), class: 'btn btn-primary' %>
+      <%= link_to 'Edit', edit_inquiry_path(@inquiry), class: 'btn btn-namarunu' %>
       <%= link_to 'Back', inquiries_path, class: 'btn btn-outline-secondary' %>
     </div>
   </div>
@@ -26,46 +26,43 @@
             <dd class="col-sm-7"><%= @inquiry.phone_number %></dd>
 
             <dt class="col-sm-5 text-muted">Email</dt>
-            <dd class="col-sm-7"><%= @inquiry.email %></dd>
+            <dd class="col-sm-7"><%= @inquiry.email.presence || '-' %></dd>
 
-            <dt class="col-sm-5 text-muted">Store name</dt>
-            <dd class="col-sm-7"><%= @inquiry.store_name %></dd>
+            <dt class="col-sm-5 text-muted">Business name</dt>
+            <dd class="col-sm-7"><%= @inquiry.business_name %></dd>
 
-            <dt class="col-sm-5 text-muted">Domain name</dt>
-            <dd class="col-sm-7"><%= @inquiry.domain_name %></dd>
+            <dt class="col-sm-5 text-muted">Business type</dt>
+            <dd class="col-sm-7"><%= @inquiry.business_type.presence || '-' %></dd>
+
+            <dt class="col-sm-5 text-muted">Sell in-store</dt>
+            <dd class="col-sm-7"><%= @inquiry.sell_in_store.nil? ? '-' : (@inquiry.sell_in_store ? 'Yes' : 'No') %></dd>
           </dl>
         </div>
         <div class="col-lg-6">
           <dl class="row mb-0">
-            <dt class="col-sm-5 text-muted">Preferred name</dt>
-            <dd class="col-sm-7"><%= @inquiry.preffered_name %></dd>
+            <dt class="col-sm-5 text-muted">Intent</dt>
+            <dd class="col-sm-7"><%= @inquiry.intent.present? ? @inquiry.intent.humanize : '-' %></dd>
 
-            <dt class="col-sm-5 text-muted">Plan</dt>
-            <dd class="col-sm-7">
-              <% if @inquiry.plan.present? %>
-                <span class="badge bg-info text-dark"><%= @inquiry.plan %></span>
-              <% else %>
-                <span class="text-muted">-</span>
-              <% end %>
-            </dd>
+            <dt class="col-sm-5 text-muted">Business link</dt>
+            <dd class="col-sm-7"><%= @inquiry.business_link.presence || '-' %></dd>
 
-            <dt class="col-sm-5 text-muted">Billing type</dt>
-            <dd class="col-sm-7">
-              <% if @inquiry.billing_type.present? %>
-                <span class="badge bg-secondary"><%= @inquiry.billing_type %></span>
-              <% else %>
-                <span class="text-muted">-</span>
-              <% end %>
-            </dd>
+            <dt class="col-sm-5 text-muted">Source</dt>
+            <dd class="col-sm-7"><%= @inquiry.source %></dd>
 
-            <dt class="col-sm-5 text-muted">Web administration</dt>
-            <dd class="col-sm-7"><%= @inquiry.web_administration %></dd>
+            <dt class="col-sm-5 text-muted">Status</dt>
+            <dd class="col-sm-7"><%= @inquiry.status %></dd>
           </dl>
         </div>
         <div class="col-12">
           <div class="border rounded-3 p-3 bg-light">
-            <div class="text-muted text-uppercase small fw-semibold mb-2">Message</div>
-            <div class="mb-0"><%= @inquiry.message.presence || '-' %></div>
+            <div class="text-muted text-uppercase small fw-semibold mb-2">UTM Tracking</div>
+            <div class="row g-2">
+              <div class="col-md-4"><strong>Source:</strong> <%= @inquiry.utm_source.presence || '-' %></div>
+              <div class="col-md-4"><strong>Medium:</strong> <%= @inquiry.utm_medium.presence || '-' %></div>
+              <div class="col-md-4"><strong>Campaign:</strong> <%= @inquiry.utm_campaign.presence || '-' %></div>
+              <div class="col-md-4"><strong>Term:</strong> <%= @inquiry.utm_term.presence || '-' %></div>
+              <div class="col-md-8"><strong>Content:</strong> <%= @inquiry.utm_content.presence || '-' %></div>
+            </div>
           </div>
         </div>
       </div>

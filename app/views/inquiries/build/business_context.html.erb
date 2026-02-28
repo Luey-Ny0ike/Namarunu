@@ -1,0 +1,60 @@
+<div class="container wizard-steps-layout">
+  <h3>Business Context</h3>
+  <p class="mb-4">A few quick details so we can recommend the right setup.</p>
+
+  <%= form_with model: @inquiry, url: wizard_path, method: :patch, local: true do |form| %>
+    <div class="row justify-content-center">
+      <% if @inquiry.errors.any? %>
+        <div id="error_explanation" class="col-md-8">
+          <h2><%= pluralize(@inquiry.errors.count, "error") %> prevented your submission:</h2>
+          <ul>
+            <% @inquiry.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="field col-md-8">
+        <%= form.label :business_type, "Business type" %>
+        <%= form.select :business_type,
+                        ["Fashion", "Beauty", "Electronics", "Food & Grocery", "Services", "Other"],
+                        { prompt: "Select business type" },
+                        { class: "form-control", required: true } %>
+      </div>
+
+      <div class="field col-md-8 mt-3">
+        <label class="form-label d-block">Do you also sell in-store?</label>
+        <div class="form-check form-check-inline">
+          <%= form.radio_button :sell_in_store, true, required: true, class: "form-check-input" %>
+          <%= form.label :sell_in_store_true, "Yes", class: "form-check-label" %>
+        </div>
+        <div class="form-check form-check-inline">
+          <%= form.radio_button :sell_in_store, false, required: true, class: "form-check-input" %>
+          <%= form.label :sell_in_store_false, "No", class: "form-check-label" %>
+        </div>
+      </div>
+
+      <div class="field col-md-8 mt-3">
+        <%= form.label :business_link, "Business link (optional)" %>
+        <%= form.url_field :business_link, class: "form-control", placeholder: "Instagram, TikTok, or website" %>
+      </div>
+
+      <div class="field col-md-8 mt-3">
+        <label class="form-label d-block">What do you need? (optional)</label>
+        <% Inquiry::INTENT_OPTIONS.each do |intent| %>
+          <% label = intent == "need_both" ? "Need both POS and online store" : intent.humanize %>
+          <div class="form-check">
+            <%= form.radio_button :intent, intent, class: "form-check-input", id: "inquiry_intent_#{intent}" %>
+            <%= form.label "intent_#{intent}", label, class: "form-check-label" %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="field col-md-8 mt-3">
+        <%= link_to "Back", build_path(:get_started), class: "btn btn-outline-secondary previous-button" %>
+        <%= form.submit "Continue", class: "btn btn-outline-success next-button" %>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -1,31 +1,86 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: inquiries
+#
+#  id                 :bigint           not null, primary key
+#  billing_type       :string
+#  business_link      :string
+#  business_name      :string
+#  business_type      :string
+#  created_at         :datetime         not null
+#  domain_name        :string
+#  email              :string
+#  full_name          :string
+#  intent             :string
+#  message            :text
+#  phone_number       :string
+#  plan               :string
+#  preffered_name     :string
+#  sell_in_store      :boolean
+#  source             :string           default("marketing_get_started"), not null
+#  status             :string           default("new"), not null
+#  store_name         :string
+#  updated_at         :datetime         not null
+#  utm_campaign       :string
+#  utm_content        :string
+#  utm_medium         :string
+#  utm_source         :string
+#  utm_term           :string
+#  web_administration :string
+#
 class Inquiry < ApplicationRecord
-  # Validations
-  validates_presence_of :full_name, :phone_number
+  INTENT_OPTIONS = %w[
+    start_selling_online
+    improve_existing_online_store
+    need_pos
+    need_both
+    more_information
+  ].freeze
 
-  require 'AfricasTalking'
-  def send_sms
-    username = Rails.application.credentials.dig(:africastalking, :username)
-    apikey = Rails.application.credentials.dig(:africastalking, :api_key)
-    at = AfricasTalking::Initialize.new(username, apikey)
-    sms = at.sms
-    to = '+254726160664'
-    @message = 'New signup on namarunu.com, check your email'
-    # from = "NAMARUNU"
-    options = {
-      'to' => to,
-      'message' => @message.html_safe
-      # "from" => from
-    }
-    begin
-      # Thats it, hit send and we'll take care of the rest.
-      reports = sms.send options
-      reports.each do |report|
-        puts report.to_yaml
-      end
-    rescue AfricasTalking::AfricasTalkingException => e
-      puts "Encountered an error: #{e.message}"
+  NORMALIZED_STRING_FIELDS = %i[
+    full_name
+    phone_number
+    email
+    business_name
+    business_type
+    business_link
+    intent
+    source
+    status
+    utm_source
+    utm_medium
+    utm_campaign
+    utm_term
+    utm_content
+  ].freeze
+
+  attr_accessor :website, :require_business_context
+
+  before_validation :normalize_string_fields
+
+  validates :full_name, :phone_number, :business_name, presence: true
+  validates :intent, inclusion: { in: INTENT_OPTIONS }, allow_blank: true
+  validates :business_type, presence: true, if: :require_business_context
+  validates :sell_in_store, inclusion: { in: [true, false] }, if: :require_business_context
+
+  validate :phone_number_has_reasonable_length
+
+  private
+
+  def normalize_string_fields
+    NORMALIZED_STRING_FIELDS.each do |field|
+      self[field] = self[field].to_s.strip.presence
     end
+  end
+
+  def phone_number_has_reasonable_length
+    return if phone_number.blank?
+
+    digits = phone_number.gsub(/\D/, "")
+    return if digits.length.between?(7, 15)
+
+    errors.add(:phone_number, "is invalid")
   end
 end

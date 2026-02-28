@@ -25,26 +25,27 @@ class InquiriesController < ApplicationController
   # POST /inquiries
   # POST /inquiries.json
   def create
-    @inquiry = Inquiry.new(inquiry_params)
+    @inquiry = Inquiry.new(contact_params.merge(tracking_params))
+    @inquiry.source ||= "marketing_get_started"
+    @inquiry.status ||= "new"
 
-    unless verify_recaptcha(action: 'inquiry_submit', minimum_score: 0.5)
-      respond_to do |format|
-        format.html do
-          flash[:alert] = 'We could not verify you are human. Please try again.'
-          redirect_to build_path(:contact_information)
-        end
-        format.json { render json: { error: 'recaptcha_failed' }, status: :unprocessable_entity }
-      end
+    if @inquiry.website.present? # honepot field
+      redirect_to build_path(:get_started), alert: "Unable to submit. Please try again."
       return
     end
 
     respond_to do |format|
       if @inquiry.save
         session[:inquiry_id] = @inquiry.id
-        format.html { redirect_to build_path(:store_information) }
+        InquiryMailer.with(inquiry: @inquiry).new_inquiry_email.deliver_later
+        LeadSmsNotificationJob.perform_later(@inquiry.id)
+        format.html { redirect_to build_path(:business_context) }
         format.json { render :show, status: :created, location: @inquiry }
       else
-        format.html { redirect_to build_path(:contact_information) }
+        format.html do
+          flash.now[:alert] = "Please review the highlighted fields."
+          render "inquiries/build/get_started", status: :unprocessable_entity
+        end
         format.json { render json: @inquiry.errors, status: :unprocessable_entity }
       end
     end
@@ -83,7 +84,17 @@ class InquiriesController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def inquiry_params
-    params.require(:inquiry).permit(:full_name, :phone_number, :email, :store_name, :domain_name, :preffered_name,
+    params.require(:inquiry).permit(:full_name, :phone_number, :email, :business_name, :business_type, :sell_in_store,
+                                    :business_link, :intent, :source, :status, :utm_source, :utm_medium, :utm_campaign,
+                                    :utm_term, :utm_content, :website, :store_name, :domain_name, :preffered_name,
                                     :plan, :billing_type, :web_administration, :message)
+  end
+
+  def contact_params
+    inquiry_params.slice(:full_name, :phone_number, :email, :business_name).merge(website: inquiry_params[:website])
+  end
+
+  def tracking_params
+    params.permit(:utm_source, :utm_medium, :utm_campaign, :utm_term, :utm_content)
   end
 end
