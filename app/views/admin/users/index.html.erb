@@ -1,0 +1,46 @@
+<div class="container py-4">
+  <% if notice.present? %>
+    <div class="alert alert-info" role="alert"><%= notice %></div>
+  <% end %>
+  <% if alert.present? %>
+    <div class="alert alert-danger" role="alert"><%= alert %></div>
+  <% end %>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h3 mb-1">User Role Management</h1>
+      <p class="text-muted mb-0">Assign roles for internal team access.</p>
+    </div>
+    <%= link_to "Back to Leads", inquiries_path, class: "btn btn-outline-secondary" %>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Current role</th>
+            <th style="width: 260px;">Change role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @users.each do |user| %>
+            <tr>
+              <td><%= user.full_name.presence || "-" %></td>
+              <td><%= user.email_address %></td>
+              <td><span class="badge bg-secondary-subtle text-dark"><%= user.role.humanize %></span></td>
+              <td>
+                <%= form_with model: [:admin, user], method: :patch, local: true, class: "d-flex gap-2" do |form| %>
+                  <%= form.select :role, User.roles.keys.map { |role| [role.humanize, role] }, {}, class: "form-select form-select-sm" %>
+                  <%= form.submit "Save", class: "btn btn-sm btn-namarunu" %>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

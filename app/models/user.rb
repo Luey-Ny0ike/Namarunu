@@ -19,8 +19,21 @@
 #  index_users_on_full_name_and_email_address_and_role   (full_name,email_address,role)
 #
 class User < ApplicationRecord
+  ROLES = {
+    super_admin: "super_admin",
+    sales_manager: "sales_manager",
+    sales_rep: "sales_rep",
+    support: "support",
+    finance: "finance"
+  }.freeze
+
   has_secure_password
   has_many :sessions, dependent: :destroy
+  has_many :owned_inquiries, class_name: "Inquiry", foreign_key: :owner_id, inverse_of: :owner, dependent: :nullify
+  has_many :checked_out_inquiries, class_name: "Inquiry", foreign_key: :checked_out_by_id, inverse_of: :checked_out_by, dependent: :nullify
 
+  enum :role, ROLES, default: :sales_rep
+
+  validates :role, inclusion: { in: roles.keys }
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 end

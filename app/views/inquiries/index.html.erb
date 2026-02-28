@@ -8,7 +8,14 @@
       <h1 class="h3 mb-1">Inquiries</h1>
       <p class="text-muted mb-0">Track and review marketing lead submissions.</p>
     </div>
-    <%= link_to 'New Inquiry', new_inquiry_path, class: 'btn btn-namarunu' %>
+    <div class="d-flex gap-2">
+      <% if policy(Inquiry).create? %>
+        <%= link_to 'New Inquiry', new_inquiry_path, class: 'btn btn-namarunu' %>
+      <% end %>
+      <% if policy(Inquiry).won_deals? %>
+        <%= link_to 'Won Deals', won_deals_inquiries_path, class: 'btn btn-outline-secondary' %>
+      <% end %>
+    </div>
   </div>
 
   <%= with_automatic_pagination("inquiries", @page) do %>

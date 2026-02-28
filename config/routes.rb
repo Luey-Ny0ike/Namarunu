@@ -5,8 +5,23 @@ Rails.application.routes.draw do
   resource :registration, only: [:new, :create]
   resources :passwords, param: :token, only: [:new, :create, :edit, :update]
   resources :inquiries do
+    collection do
+      get :won_deals
+    end
+
+    member do
+      patch :reassign_checkout
+    end
   end
   resources :build, controller: 'inquiries/build'
+
+  namespace :admin do
+    resources :users, only: %i[index update]
+  end
+
+  namespace :finance do
+    resources :payouts, only: :index
+  end
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
   # STATIC PAGES ROUTES

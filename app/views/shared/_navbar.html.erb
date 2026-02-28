@@ -19,7 +19,22 @@
         <a class="nav-link" href="#">Learn</a>
       </li> -->
     </ul>
-    <%= link_to 'Get Started', build_path(:get_started), class: "btn btn my-2 my-sm-0 g-button" %>
+    <% if authenticated? %>
+      <div class="d-flex gap-2 my-2 my-sm-0">
+        <%= link_to "Leads", inquiries_path, class: "btn btn-outline-secondary" %>
+        <% if policy(Inquiry).won_deals? %>
+          <%= link_to "Won Deals", won_deals_inquiries_path, class: "btn btn-outline-secondary" %>
+        <% end %>
+        <% if policy([:finance, :payout]).index? %>
+          <%= link_to "Payouts", finance_payouts_path, class: "btn btn-outline-secondary" %>
+        <% end %>
+        <% if Current.user&.super_admin? %>
+          <%= link_to "Manage Users", admin_users_path, class: "btn btn-outline-secondary" %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= link_to 'Get Started', build_path(:get_started), class: "btn btn my-2 my-sm-0 g-button" %>
+    <% end %>
   </div>
 </div>
 </nav>
