@@ -1,0 +1,102 @@
+<div class="container py-4">
+  <% if notice.present? %>
+    <div class="alert alert-info" role="alert" id="notice"><%= notice %></div>
+  <% end %>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h3 mb-1"><%= @lead.business_name %></h1>
+      <p class="text-muted mb-0">Lead profile and activity timeline.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <% if policy(@lead).edit? %>
+        <%= link_to "Edit", edit_lead_path(@lead), class: "btn btn-namarunu" %>
+      <% end %>
+      <%= link_to "Back", leads_path, class: "btn btn-outline-secondary" %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <dl class="row mb-0">
+            <dt class="col-sm-5 text-muted">Location</dt>
+            <dd class="col-sm-7"><%= @lead.location.presence || "-" %></dd>
+
+            <dt class="col-sm-5 text-muted">Industry</dt>
+            <dd class="col-sm-7"><%= @lead.industry.presence || "-" %></dd>
+
+            <dt class="col-sm-5 text-muted">Source</dt>
+            <dd class="col-sm-7"><%= @lead.source.presence || "-" %></dd>
+
+            <dt class="col-sm-5 text-muted">Owner</dt>
+            <dd class="col-sm-7"><%= @lead.owner_user&.full_name || @lead.owner_user&.email_address || "Unassigned" %></dd>
+          </dl>
+        </div>
+        <div class="col-lg-6">
+          <dl class="row mb-0">
+            <dt class="col-sm-5 text-muted">Status</dt>
+            <dd class="col-sm-7"><%= @lead.status.humanize %></dd>
+
+            <dt class="col-sm-5 text-muted">Temperature</dt>
+            <dd class="col-sm-7"><%= @lead.temperature.humanize %></dd>
+
+            <dt class="col-sm-5 text-muted">Next action</dt>
+            <dd class="col-sm-7"><%= @lead.next_action_at ? l(@lead.next_action_at, format: :short) : "-" %></dd>
+
+            <dt class="col-sm-5 text-muted">Last contacted</dt>
+            <dd class="col-sm-7"><%= @lead.last_contacted_at ? l(@lead.last_contacted_at, format: :short) : "-" %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Contacts</h2>
+      <div class="row g-3">
+        <% @lead.lead_contacts.each do |contact| %>
+          <div class="col-md-6">
+            <div class="border rounded-3 p-3 h-100">
+              <div class="fw-semibold"><%= contact.name %></div>
+              <div class="small text-muted mb-2"><%= contact.role.presence || "-" %></div>
+              <div><strong>Phone:</strong> <%= contact.phone.presence || "-" %></div>
+              <div><strong>Email:</strong> <%= contact.email.presence || "-" %></div>
+              <div><strong>Preferred:</strong> <%= contact.preferred_channel.presence&.humanize || "-" %></div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Activity Timeline</h2>
+      <% if @activities.any? %>
+        <div class="list-group list-group-flush">
+          <% @activities.each do |activity| %>
+            <div class="list-group-item px-0">
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <div>
+                  <div class="fw-semibold"><%= activity.timeline_label %></div>
+                  <div class="small text-muted">
+                    by <%= activity.actor_user.full_name.presence || activity.actor_user.email_address %>
+                    <% if activity.metadata["changed_fields"].present? %>
+                      • fields: <%= activity.metadata["changed_fields"].join(", ") %>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="small text-muted"><%= l(activity.occurred_at, format: :short) %></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted mb-0">No activity yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>
