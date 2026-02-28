@@ -1,33 +1,41 @@
 # frozen_string_literal: true
 
 class InquiriesController < ApplicationController
-  allow_unauthenticated_access except: %i[ index show ]
-  before_action :set_inquiry, only: %i[show edit update destroy]
+  allow_unauthenticated_access only: %i[create]
+  before_action :set_inquiry, only: %i[show edit update destroy reassign_checkout]
 
   # GET /inquiries
   # GET /inquiries.json
   def index
-    @inquiries = set_page_and_extract_portion_from Inquiry.order(created_at: :desc)
+    authorize Inquiry
+    @inquiries = set_page_and_extract_portion_from(policy_scope(Inquiry).order(created_at: :desc))
   end
 
   # GET /inquiries/1
   # GET /inquiries/1.json
-  def show; end
+  def show
+    authorize @inquiry
+  end
 
   # GET /inquiries/new
   def new
+    authorize Inquiry
     @inquiry = Inquiry.new
   end
 
   # GET /inquiries/1/edit
-  def edit; end
+  def edit
+    authorize @inquiry
+  end
 
   # POST /inquiries
   # POST /inquiries.json
   def create
     @inquiry = Inquiry.new(contact_params.merge(tracking_params))
+    @inquiry.owner ||= Current.user if authenticated?
     @inquiry.source ||= "marketing_get_started"
     @inquiry.status ||= "new"
+    authorize(@inquiry, authenticated? ? :create? : :public_create?)
 
     if @inquiry.website.present? # honepot field
       redirect_to build_path(:get_started), alert: "Unable to submit. Please try again."
@@ -36,10 +44,14 @@ class InquiriesController < ApplicationController
 
     respond_to do |format|
       if @inquiry.save
-        session[:inquiry_id] = @inquiry.id
-        InquiryMailer.with(inquiry: @inquiry).new_inquiry_email.deliver_later
-        LeadSmsNotificationJob.perform_later(@inquiry.id)
-        format.html { redirect_to build_path(:business_context) }
+        if authenticated?
+          format.html { redirect_to @inquiry, notice: "Lead created successfully." }
+        else
+          session[:inquiry_id] = @inquiry.id
+          InquiryMailer.with(inquiry: @inquiry).new_inquiry_email.deliver_later
+          LeadSmsNotificationJob.perform_later(@inquiry.id)
+          format.html { redirect_to build_path(:business_context) }
+        end
         format.json { render :show, status: :created, location: @inquiry }
       else
         format.html do
@@ -54,6 +66,7 @@ class InquiriesController < ApplicationController
   # PATCH/PUT /inquiries/1
   # PATCH/PUT /inquiries/1.json
   def update
+    authorize @inquiry
     respond_to do |format|
       if @inquiry.update(inquiry_params)
         format.html { redirect_to @inquiry, notice: 'Inquiry was successfully updated.' }
@@ -68,11 +81,26 @@ class InquiriesController < ApplicationController
   # DELETE /inquiries/1
   # DELETE /inquiries/1.json
   def destroy
+    authorize @inquiry
     @inquiry.destroy
     respond_to do |format|
       format.html { redirect_to inquiries_url, notice: 'Inquiry was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def won_deals
+    authorize Inquiry, :won_deals?
+    @inquiries = set_page_and_extract_portion_from(Inquiry.where(status: "won").order(created_at: :desc))
+    render :index
+  end
+
+  def reassign_checkout
+    authorize @inquiry, :reassign_checkout?
+    @inquiry.update!(checked_out_by: User.find(params.expect(:checked_out_by_id)))
+    redirect_to @inquiry, notice: "Lead checkout reassigned."
+  rescue ActiveRecord::RecordNotFound
+    redirect_to @inquiry, alert: "User not found."
   end
 
   private

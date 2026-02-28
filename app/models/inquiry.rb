@@ -31,6 +31,9 @@
 #  web_administration :string
 #
 class Inquiry < ApplicationRecord
+  belongs_to :owner, class_name: "User", optional: true, inverse_of: :owned_inquiries
+  belongs_to :checked_out_by, class_name: "User", optional: true, inverse_of: :checked_out_inquiries
+
   INTENT_OPTIONS = %w[
     start_selling_online
     improve_existing_online_store
@@ -66,6 +69,12 @@ class Inquiry < ApplicationRecord
   validates :sell_in_store, inclusion: { in: [true, false] }, if: :require_business_context
 
   validate :phone_number_has_reasonable_length
+
+  def owned_or_checked_out_by?(user)
+    return false if user.blank?
+
+    owner_id == user.id || checked_out_by_id == user.id
+  end
 
   private
 

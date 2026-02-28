@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_02_28_090000) do
+ActiveRecord::Schema[8.2].define(version: 2026_02_28_132100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -19,12 +19,14 @@ ActiveRecord::Schema[8.2].define(version: 2026_02_28_090000) do
     t.string "business_link"
     t.string "business_name"
     t.string "business_type"
+    t.bigint "checked_out_by_id"
     t.datetime "created_at", null: false
     t.string "domain_name"
     t.string "email"
     t.string "full_name"
     t.string "intent"
     t.text "message"
+    t.bigint "owner_id"
     t.string "phone_number"
     t.string "plan"
     t.string "preffered_name"
@@ -39,6 +41,8 @@ ActiveRecord::Schema[8.2].define(version: 2026_02_28_090000) do
     t.string "utm_source"
     t.string "utm_term"
     t.string "web_administration"
+    t.index ["checked_out_by_id"], name: "index_inquiries_on_checked_out_by_id"
+    t.index ["owner_id"], name: "index_inquiries_on_owner_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -56,11 +60,13 @@ ActiveRecord::Schema[8.2].define(version: 2026_02_28_090000) do
     t.string "full_name"
     t.string "password_digest", null: false
     t.string "phone_number"
-    t.string "role", default: "user", null: false
+    t.string "role", default: "sales_rep", null: false
     t.datetime "updated_at", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
     t.index ["full_name", "email_address", "role"], name: "index_users_on_full_name_and_email_address_and_role"
   end
 
+  add_foreign_key "inquiries", "users", column: "checked_out_by_id"
+  add_foreign_key "inquiries", "users", column: "owner_id"
   add_foreign_key "sessions", "users"
 end
