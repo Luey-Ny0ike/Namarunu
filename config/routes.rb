@@ -13,6 +13,7 @@ Rails.application.routes.draw do
       patch :reassign_checkout
     end
   end
+  resources :leads, only: %i[index show new create edit update]
   resources :build, controller: 'inquiries/build'
 
   namespace :admin do
