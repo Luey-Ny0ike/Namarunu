@@ -80,4 +80,44 @@ RSpec.describe "Contribute::Submissions", type: :request do
     expect(response).to redirect_to(contribute_submission_path(submission))
     expect(submission.reload.business_name).to eq("Acme Co")
   end
+
+  it "renders a sanitized contributor timeline on submission show" do
+    contributor = build_user(:lead_contributor)
+    rep = build_user(:sales_rep)
+    lead = Lead.create!(
+      business_name: "Timeline Lead",
+      owner_user: rep,
+      lead_contacts_attributes: [{ name: "Lead Contact", phone: "+15550006060" }]
+    )
+    submission = LeadSubmission.create!(
+      business_name: "Timeline Lead",
+      instagram_url: "https://instagram.com/timelinelead",
+      submitted_by_user: contributor,
+      lead: lead
+    )
+    Activity.create!(
+      actor_user: rep,
+      subject: lead,
+      action_type: "call_attempt_logged",
+      metadata: { outcome: "follow_up", notes: "internal notes should not render" },
+      occurred_at: 2.hours.ago
+    )
+    Activity.create!(
+      actor_user: rep,
+      subject: lead,
+      action_type: "lead_updated",
+      metadata: { notes: "internal sales note" },
+      occurred_at: 1.hour.ago
+    )
+
+    sign_in_as(contributor)
+    get contribute_submission_path(submission)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Timeline")
+    expect(response.body).to include("Call logged (Follow up)")
+    expect(response.body).not_to include("internal notes should not render")
+    expect(response.body).not_to include("internal sales note")
+    expect(response.body).not_to include("Lead updated")
+  end
 end

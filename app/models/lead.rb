@@ -98,7 +98,64 @@ class Lead < ApplicationRecord
     active_assignment(time)&.user || owner_user
   end
 
+  def contributor_timeline
+    timeline_events = []
+
+    contributor_activities.includes(:actor_user).find_each do |activity|
+      event = contributor_timeline_event_for(activity)
+      timeline_events << event if event.present?
+    end
+
+    demos.where(status: %i[completed no_show]).includes(:assigned_to_user).find_each do |demo|
+      timeline_events << {
+        label: "Demo done",
+        occurred_at: demo.updated_at || demo.scheduled_at,
+        actor_name: demo.assigned_to_user&.full_name.presence || demo.assigned_to_user&.email_address
+      }
+    end
+
+    timeline_events.sort_by { |event| event[:occurred_at] || Time.zone.at(0) }.reverse
+  end
+
   private
+
+  def contributor_activities
+    activities.where(action_type: %w[
+      lead_created_from_submission
+      submission_attached
+      call_logged
+      call_attempt_logged
+      demo_booked
+      demo_completed
+      converted
+      status_changed
+      lead_status_changed
+    ])
+  end
+
+  def contributor_timeline_event_for(activity)
+    actor_name = activity.actor_user&.full_name.presence || activity.actor_user&.email_address
+
+    case activity.action_type
+    when "lead_created_from_submission"
+      { label: "Lead created from submission", occurred_at: activity.occurred_at, actor_name: actor_name }
+    when "submission_attached"
+      { label: "Submission attached to existing lead", occurred_at: activity.occurred_at, actor_name: actor_name }
+    when "call_logged", "call_attempt_logged"
+      outcome = activity.metadata["outcome"].presence || "unknown"
+      { label: "Call logged (#{outcome.to_s.humanize})", occurred_at: activity.occurred_at, actor_name: actor_name }
+    when "demo_booked"
+      { label: "Demo booked", occurred_at: activity.occurred_at, actor_name: actor_name }
+    when "demo_completed"
+      { label: "Demo done", occurred_at: activity.occurred_at, actor_name: actor_name }
+    when "converted"
+      { label: "Lead won", occurred_at: activity.occurred_at, actor_name: actor_name }
+    when "status_changed", "lead_status_changed"
+      from = activity.metadata["from"].presence || "-"
+      to = activity.metadata["to"].presence || activity.metadata["status"].presence || "-"
+      { label: "Status changed: #{from.to_s.humanize} -> #{to.to_s.humanize}", occurred_at: activity.occurred_at, actor_name: actor_name }
+    end
+  end
 
   def must_have_at_least_one_contact
     return if source.to_s.casecmp("contributor").zero?

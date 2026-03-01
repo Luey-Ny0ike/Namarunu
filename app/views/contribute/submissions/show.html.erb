@@ -89,3 +89,37 @@
     </div>
   </div>
 </div>
+
+<% if @linked_lead.present? %>
+  <div class="card border-0 shadow-sm mt-3">
+    <div class="card-header bg-white fw-semibold">Timeline</div>
+    <div class="card-body">
+      <% timeline = @linked_lead.contributor_timeline %>
+      <% if timeline.any? %>
+        <ul class="list-unstyled mb-0">
+          <% timeline.each_with_index do |event, index| %>
+            <li class="d-flex">
+              <div class="me-3 d-flex flex-column align-items-center">
+                <span class="rounded-circle bg-primary d-inline-block" style="width: 10px; height: 10px; margin-top: 6px;"></span>
+                <% unless index == timeline.length - 1 %>
+                  <span class="bg-secondary-subtle d-inline-block mt-1" style="width: 2px; min-height: 28px;"></span>
+                <% end %>
+              </div>
+              <div class="pb-2">
+                <div class="fw-semibold"><%= event[:label] %></div>
+                <div class="small text-muted">
+                  <%= l(event[:occurred_at], format: :short) if event[:occurred_at].present? %>
+                  <% if event[:actor_name].present? %>
+                    · <%= event[:actor_name] %>
+                  <% end %>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-muted mb-0">No timeline events yet.</p>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -239,4 +239,73 @@ RSpec.describe Lead, type: :model do
 
     expect(lead.contributor_assigned_rep).to be_nil
   end
+
+  it "returns a sanitized contributor timeline with restricted event types only" do
+    rep = User.create!(
+      email_address: "timeline-rep-#{SecureRandom.hex(4)}@example.com",
+      password: "password123",
+      password_confirmation: "password123",
+      full_name: "Timeline Rep",
+      role: :sales_rep
+    )
+    creator = User.create!(
+      email_address: "timeline-demo-#{SecureRandom.hex(4)}@example.com",
+      password: "password123",
+      password_confirmation: "password123",
+      role: :sales_rep
+    )
+    lead = described_class.create!(
+      business_name: "Timeline Co",
+      lead_contacts_attributes: [{ name: "Timeline Contact", phone: "+15550005050" }]
+    )
+
+    Activity.create!(
+      actor_user: rep,
+      subject: lead,
+      action_type: "lead_updated",
+      metadata: { notes: "internal-only note" },
+      occurred_at: 5.hours.ago
+    )
+    Activity.create!(
+      actor_user: rep,
+      subject: lead,
+      action_type: "call_attempt_logged",
+      metadata: { outcome: "no_answer", notes: "secret rep notes" },
+      occurred_at: 4.hours.ago
+    )
+    Activity.create!(
+      actor_user: rep,
+      subject: lead,
+      action_type: "lead_status_changed",
+      metadata: { from: "new", to: "qualified", notes: "do not expose" },
+      occurred_at: 3.hours.ago
+    )
+    Activity.create!(
+      actor_user: rep,
+      subject: lead,
+      action_type: "converted",
+      metadata: { private_reason: "internal" },
+      occurred_at: 2.hours.ago
+    )
+    Demo.create!(
+      lead: lead,
+      created_by_user: creator,
+      assigned_to_user: rep,
+      scheduled_at: 1.day.ago,
+      duration_minutes: 30,
+      status: :completed
+    )
+
+    timeline = lead.contributor_timeline
+    labels = timeline.map { |event| event[:label] }
+
+    expect(labels).to include("Call logged (No answer)")
+    expect(labels).to include("Status changed: New -> Qualified")
+    expect(labels).to include("Lead won")
+    expect(labels).to include("Demo done")
+    expect(labels).not_to include("Lead updated")
+    expect(labels.join(" ")).not_to include("secret")
+    expect(labels.join(" ")).not_to include("internal-only")
+    expect(timeline.first).to include(:label, :occurred_at)
+  end
 end
