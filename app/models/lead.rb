@@ -40,6 +40,7 @@ class Lead < ApplicationRecord
   belongs_to :owner_user, class_name: "User", optional: true, inverse_of: :owned_leads
 
   has_many :lead_contacts, dependent: :destroy, inverse_of: :lead
+  has_many :lead_submissions, dependent: :nullify
   has_many :lead_assignments, dependent: :destroy
   has_many :activities, as: :subject, dependent: :destroy
   has_many :demos, dependent: :nullify
@@ -86,6 +87,8 @@ class Lead < ApplicationRecord
   private
 
   def must_have_at_least_one_contact
+    return if source.to_s.casecmp("contributor").zero?
+
     remaining_contacts = lead_contacts.reject(&:marked_for_destruction?)
     errors.add(:lead_contacts, "must include at least one contact") if remaining_contacts.empty?
   end
