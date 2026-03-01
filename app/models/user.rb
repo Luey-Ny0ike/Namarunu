@@ -24,7 +24,8 @@ class User < ApplicationRecord
     sales_manager: "sales_manager",
     sales_rep: "sales_rep",
     support: "support",
-    finance: "finance"
+    finance: "finance",
+    lead_contributor: "lead_contributor"
   }.freeze
 
   has_secure_password

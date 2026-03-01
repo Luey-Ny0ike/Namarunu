@@ -21,7 +21,8 @@ RSpec.describe User, type: :model do
       "sales_manager",
       "sales_rep",
       "support",
-      "finance"
+      "finance",
+      "lead_contributor"
     )
   end
 end

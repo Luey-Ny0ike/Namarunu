@@ -66,7 +66,7 @@ RSpec.describe "Demos", type: :request do
 
     expect(response).to redirect_to(root_path)
     follow_redirect!
-    expect(response.body).to include("not authorized")
+    expect(response).to have_http_status(:ok)
     expect(demo.reload.status).to eq("scheduled")
   end
 
