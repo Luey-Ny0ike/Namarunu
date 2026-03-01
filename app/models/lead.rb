@@ -40,6 +40,7 @@ class Lead < ApplicationRecord
   belongs_to :owner_user, class_name: "User", optional: true, inverse_of: :owned_leads
 
   has_many :lead_contacts, dependent: :destroy, inverse_of: :lead
+  has_many :lead_submissions, dependent: :nullify
   has_many :lead_assignments, dependent: :destroy
   has_many :activities, as: :subject, dependent: :destroy
   has_many :demos, dependent: :nullify

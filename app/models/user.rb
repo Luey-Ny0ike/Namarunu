@@ -33,6 +33,11 @@ class User < ApplicationRecord
   has_many :owned_inquiries, class_name: "Inquiry", foreign_key: :owner_id, inverse_of: :owner, dependent: :nullify
   has_many :checked_out_inquiries, class_name: "Inquiry", foreign_key: :checked_out_by_id, inverse_of: :checked_out_by, dependent: :nullify
   has_many :owned_leads, class_name: "Lead", foreign_key: :owner_user_id, inverse_of: :owner_user, dependent: :nullify
+  has_many :submitted_lead_submissions,
+           class_name: "LeadSubmission",
+           foreign_key: :submitted_by_user_id,
+           inverse_of: :submitted_by_user,
+           dependent: :restrict_with_exception
   has_many :lead_assignments, dependent: :restrict_with_exception
   has_many :activities, class_name: "Activity", foreign_key: :actor_user_id, inverse_of: :actor_user, dependent: :restrict_with_exception
   has_many :created_demos, class_name: "Demo", foreign_key: :created_by_user_id, inverse_of: :created_by_user, dependent: :restrict_with_exception
