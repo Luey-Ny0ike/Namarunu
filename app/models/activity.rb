@@ -18,6 +18,19 @@ class Activity < ApplicationRecord
       from = metadata["from"].presence || "-"
       to = metadata["to"].presence || "-"
       "Status changed from #{from.humanize} to #{to.humanize}"
+    when "checked_out"
+      if metadata["expires_at"].present?
+        parsed_expires_at = Time.zone.parse(metadata["expires_at"].to_s)
+        parsed_expires_at ? "Lead checked out until #{I18n.l(parsed_expires_at, format: :short)}" : "Lead checked out"
+      else
+        "Lead checked out"
+      end
+    when "released"
+      "Lead checkout released"
+    when "reassigned"
+      "Lead checkout reassigned"
+    when "expired"
+      "Lead checkout expired"
     else
       action_type.humanize
     end

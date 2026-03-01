@@ -2,6 +2,9 @@
   <% if notice.present? %>
     <div class="alert alert-info" role="alert" id="notice"><%= notice %></div>
   <% end %>
+  <% if alert.present? %>
+    <div class="alert alert-warning" role="alert"><%= alert %></div>
+  <% end %>
 
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
@@ -13,6 +16,52 @@
         <%= link_to "Edit", edit_lead_path(@lead), class: "btn btn-namarunu" %>
       <% end %>
       <%= link_to "Back", leads_path, class: "btn btn-outline-secondary" %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h2 class="h5 mb-2">Checkout</h2>
+      <% if @active_assignment.present? %>
+        <p class="mb-3">
+          Checked out by
+          <strong><%= @active_assignment.user.full_name.presence || @active_assignment.user.email_address %></strong>
+          until <strong><%= l(@active_assignment.expires_at, format: :short) %></strong>.
+        </p>
+      <% else %>
+        <p class="text-muted mb-3">This lead is currently available for checkout.</p>
+      <% end %>
+
+      <div class="d-flex flex-wrap gap-2">
+        <% if policy(@lead).checkout? %>
+          <%= button_to "Check out", checkout_lead_path(@lead), method: :patch, class: "btn btn-namarunu" %>
+        <% end %>
+
+        <% if policy(@lead).release? && @active_assignment.present? && @active_assignment.user_id == Current.user.id %>
+          <%= button_to "Release", release_lead_path(@lead), method: :patch, class: "btn btn-outline-secondary" %>
+        <% end %>
+
+        <% if policy(@lead).force_release? && @active_assignment.present? %>
+          <%= button_to "Force release", force_release_lead_path(@lead), method: :patch, class: "btn btn-outline-danger" %>
+        <% end %>
+      </div>
+
+      <% if policy(@lead).reassign_checkout? %>
+        <hr>
+        <h3 class="h6 mb-3">Reassign Checkout</h3>
+        <%= form_with url: reassign_checkout_lead_path(@lead), method: :patch, local: true, class: "row g-2 align-items-end" do |form| %>
+          <div class="col-md-8">
+            <%= form.label :user_id, "Assign to", class: "form-label" %>
+            <%= form.select :user_id,
+                            options_for_select(@assignable_users.map { |user| [user.full_name.presence || user.email_address, user.id] }, @active_assignment&.user_id),
+                            {},
+                            class: "form-select" %>
+          </div>
+          <div class="col-md-4">
+            <%= form.submit "Reassign", class: "btn btn-namarunu w-100" %>
+          </div>
+        <% end %>
+      <% end %>
     </div>
   </div>
 

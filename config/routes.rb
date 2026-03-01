@@ -13,7 +13,14 @@ Rails.application.routes.draw do
       patch :reassign_checkout
     end
   end
-  resources :leads, only: %i[index show new create edit update]
+  resources :leads, only: %i[index show new create edit update] do
+    member do
+      patch :checkout
+      patch :release
+      patch :force_release
+      patch :reassign_checkout
+    end
+  end
   resources :build, controller: 'inquiries/build'
 
   namespace :admin do

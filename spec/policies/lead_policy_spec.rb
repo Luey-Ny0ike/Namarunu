@@ -14,6 +14,7 @@ RSpec.describe LeadPolicy do
   end
 
   let(:owner) { build_user(:sales_rep) }
+  let(:assignee) { build_user(:sales_rep) }
   let(:lead) do
     Lead.create!(
       business_name: "Acme Inc",
@@ -41,10 +42,40 @@ RSpec.describe LeadPolicy do
 
   it "allows sales_rep to update owned leads only" do
     own_policy = described_class.new(owner, lead)
-    other_policy = described_class.new(build_user(:sales_rep), lead)
+    other_rep = build_user(:sales_rep)
+    other_policy = described_class.new(other_rep, lead)
+
+    LeadAssignment.create!(
+      lead: lead,
+      user: assignee,
+      checked_out_at: Time.current,
+      expires_at: 2.hours.from_now
+    )
+    assignee_policy = described_class.new(assignee, lead)
 
     expect(own_policy.update?).to be(true)
+    expect(assignee_policy.update?).to be(true)
     expect(other_policy.update?).to be(false)
+  end
+
+  it "allows assignee to release and managers to force release and reassign" do
+    assignment = LeadAssignment.create!(
+      lead: lead,
+      user: assignee,
+      checked_out_at: Time.current,
+      expires_at: 2.hours.from_now
+    )
+
+    assignee_policy = described_class.new(assignee, lead)
+    manager = build_user(:sales_manager)
+    manager_policy = described_class.new(manager, lead)
+    other_rep_policy = described_class.new(build_user(:sales_rep), lead)
+
+    expect(assignment).to be_active
+    expect(assignee_policy.release?).to be(true)
+    expect(other_rep_policy.release?).to be(false)
+    expect(manager_policy.force_release?).to be(true)
+    expect(manager_policy.reassign_checkout?).to be(true)
   end
 
   it "scopes sales reps to owned leads" do
@@ -59,5 +90,24 @@ RSpec.describe LeadPolicy do
 
     expect(result).to contain_exactly(lead)
     expect(result).not_to include(other_lead)
+  end
+
+  it "includes actively checked out leads in sales rep scope" do
+    another_rep = build_user(:sales_rep)
+    lead_with_checkout = Lead.create!(
+      business_name: "Checkout Scoped Co",
+      owner_user: another_rep,
+      lead_contacts_attributes: [{ name: "Scoped Contact", phone: "+15550002222" }]
+    )
+    LeadAssignment.create!(
+      lead: lead_with_checkout,
+      user: owner,
+      checked_out_at: Time.current,
+      expires_at: 2.hours.from_now
+    )
+
+    result = described_class::Scope.new(owner, Lead).resolve
+
+    expect(result).to include(lead_with_checkout)
   end
 end

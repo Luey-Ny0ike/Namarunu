@@ -17,17 +17,44 @@ class LeadPolicy < ApplicationPolicy
     return true if super_admin? || sales_manager?
     return false unless sales_rep?
 
-    record.owned_by?(user)
+    record.editable_by?(user)
   end
 
   def destroy?
     super_admin?
   end
 
+  def checkout?
+    super_admin? || sales_manager? || sales_rep?
+  end
+
+  def release?
+    super_admin? || sales_manager? || record.checked_out_by?(user)
+  end
+
+  def force_release?
+    super_admin? || sales_manager?
+  end
+
+  def reassign_checkout?
+    super_admin? || sales_manager?
+  end
+
   class Scope < Scope
     def resolve
       return scope.all if user&.super_admin? || user&.sales_manager?
-      return scope.where(owner_user_id: user.id) if user&.sales_rep?
+      if user&.sales_rep?
+        return scope
+          .left_outer_joins(:lead_assignments)
+          .where(owner_user_id: user.id)
+          .or(
+            scope
+              .left_outer_joins(:lead_assignments)
+              .where(lead_assignments: { user_id: user.id, released_at: nil })
+              .where("lead_assignments.expires_at > ?", Time.current)
+          )
+          .distinct
+      end
 
       scope.none
     end
