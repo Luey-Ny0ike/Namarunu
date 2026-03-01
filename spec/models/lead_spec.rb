@@ -69,4 +69,10 @@ RSpec.describe Lead, type: :model do
     expect(lead.editable_by?(assignee)).to be(true)
     expect(lead.editable_by?(other)).to be(false)
   end
+
+  it "maps call outcomes to pipeline statuses" do
+    expect(described_class.call_outcome_status_transition("booked_demo")).to eq("demo_booked")
+    expect(described_class.call_outcome_status_transition("interested")).to eq("qualified")
+    expect(described_class.call_outcome_status_transition("unknown")).to be_nil
+  end
 end

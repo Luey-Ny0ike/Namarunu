@@ -14,11 +14,16 @@ Rails.application.routes.draw do
     end
   end
   resources :leads, only: %i[index show new create edit update] do
+    collection do
+      get :my_tasks
+    end
+
     member do
       patch :checkout
       patch :release
       patch :force_release
       patch :reassign_checkout
+      post :log_call_attempt
     end
   end
   resources :build, controller: 'inquiries/build'

@@ -21,6 +21,33 @@
 
   <div class="card shadow-sm mb-3">
     <div class="card-body">
+      <% if policy(@lead).update? %>
+        <div class="border rounded-3 p-3 mb-4">
+          <h2 class="h5 mb-3">Log Call Attempt</h2>
+          <%= form_with url: log_call_attempt_lead_path(@lead), method: :post, local: true, scope: :call_attempt, class: "row g-2 align-items-end" do |form| %>
+            <div class="col-md-4">
+              <%= form.label :outcome, class: "form-label" %>
+              <%= form.select :outcome,
+                              options_for_select(Lead::CALL_OUTCOMES.keys.map { |value| [value.to_s.humanize, value] }),
+                              { include_blank: "Select outcome" },
+                              class: "form-select",
+                              required: true %>
+            </div>
+            <div class="col-md-4">
+              <%= form.label :follow_up_at, "Follow-up at (for Follow up outcome)", class: "form-label" %>
+              <%= form.datetime_local_field :follow_up_at, class: "form-control" %>
+            </div>
+            <div class="col-md-4">
+              <%= form.label :notes, class: "form-label" %>
+              <%= form.text_field :notes, class: "form-control", placeholder: "Optional notes" %>
+            </div>
+            <div class="col-12 d-grid d-md-flex justify-content-md-end">
+              <%= form.submit "Log Call Attempt", class: "btn btn-namarunu" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
       <h2 class="h5 mb-2">Checkout</h2>
       <% if @active_assignment.present? %>
         <p class="mb-3">
@@ -135,6 +162,15 @@
                     by <%= activity.actor_user.full_name.presence || activity.actor_user.email_address %>
                     <% if activity.metadata["changed_fields"].present? %>
                       • fields: <%= activity.metadata["changed_fields"].join(", ") %>
+                    <% end %>
+                    <% if activity.action_type == "call_attempt_logged" %>
+                      • outcome: <%= activity.metadata["outcome"].to_s.humanize %>
+                      <% if activity.metadata["next_action_at"].present? %>
+                        • follow-up: <%= l(Time.zone.parse(activity.metadata["next_action_at"]), format: :short) %>
+                      <% end %>
+                      <% if activity.metadata["notes"].present? %>
+                        • notes: <%= activity.metadata["notes"] %>
+                      <% end %>
                     <% end %>
                   </div>
                 </div>

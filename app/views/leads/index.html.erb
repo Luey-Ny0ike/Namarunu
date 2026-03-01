@@ -8,9 +8,14 @@
       <h1 class="h3 mb-1">CRM Leads</h1>
       <p class="text-muted mb-0">Prioritize follow-ups and keep your pipeline current.</p>
     </div>
-    <% if policy(Lead).create? %>
-      <%= link_to "New Lead", new_lead_path, class: "btn btn-namarunu" %>
-    <% end %>
+    <div class="d-flex gap-2">
+      <% if Current.user&.sales_rep? %>
+        <%= link_to "My Tasks", my_tasks_leads_path, class: "btn btn-outline-secondary" %>
+      <% end %>
+      <% if policy(Lead).create? %>
+        <%= link_to "New Lead", new_lead_path, class: "btn btn-namarunu" %>
+      <% end %>
+    </div>
   </div>
 
   <div class="card shadow-sm mb-3">
