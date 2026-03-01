@@ -24,7 +24,8 @@
     <% email = "namarunu@gmail.com" %>
 
     <%= link_to phone.insert(4, " "), "tel:#{phone}" %><br>
-    <%= link_to email, "mailto:#{email}" %>
+    <%= link_to email, "mailto:#{email}" %><br>
+    <small><%= link_to "Team login", login_path, class: "text-muted text-decoration-none" %></small>
   </div>
 </div>
 </footer>
