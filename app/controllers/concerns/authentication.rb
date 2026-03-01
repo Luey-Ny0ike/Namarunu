@@ -35,7 +35,13 @@ module Authentication
     end
 
     def after_authentication_url
-      session.delete(:return_to_after_authenticating) || root_url
+      session.delete(:return_to_after_authenticating) || default_post_login_url
+    end
+
+    def default_post_login_url
+      return contribute_root_path if Current.user&.role.to_s == "lead_contributor"
+
+      app_root_path
     end
 
     def start_new_session_for(user)

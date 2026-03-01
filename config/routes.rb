@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  get "/login", to: "sessions#new", as: :login
   resource :session, only: [:new, :create, :destroy]
   resource :registration, only: [:new, :create]
   resources :passwords, param: :token, only: [:new, :create, :edit, :update]
@@ -39,6 +40,15 @@ Rails.application.routes.draw do
   namespace :finance do
     resources :payouts, only: :index
   end
+
+  namespace :app do
+    root "dashboard#index"
+  end
+
+  namespace :contribute do
+    root "dashboard#index"
+  end
+
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
   # STATIC PAGES ROUTES
