@@ -207,4 +207,55 @@ RSpec.describe "Leads", type: :request do
     expect(response.body).not_to include("Follow Up Co")
     expect(response.body).not_to include("Not Due Co")
   end
+
+  it "books a demo from a lead and writes lead activity" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = Lead.create!(
+      business_name: "Demo Lead Co",
+      owner_user: rep,
+      lead_contacts_attributes: [{ name: "Contact", phone: "+15550009999" }]
+    )
+
+    expect do
+      post book_demo_lead_path(lead), params: {
+        demo: {
+          scheduled_at: 1.day.from_now.strftime("%Y-%m-%dT%H:%M"),
+          duration_minutes: 45,
+          notes: "Tailored walkthrough",
+          demo_link: "https://meet.example.com/demo-1"
+        }
+      }
+    end.to change(Demo, :count).by(1)
+      .and change(Activity, :count).by(3)
+
+    demo = Demo.last
+    expect(response).to redirect_to(demo_path(demo))
+    expect(demo.lead).to eq(lead)
+    expect(demo.created_by_user).to eq(rep)
+    expect(demo.assigned_to_user).to eq(rep)
+
+    lead.reload
+    expect(lead.status).to eq("demo_booked")
+    expect(lead.activities.order(:created_at).pluck(:action_type)).to include("demo_booked", "lead_status_changed")
+  end
+
+  it "shows demo metrics on lead dashboard" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+
+    Demo.create!(scheduled_at: 1.day.ago, duration_minutes: 30, status: :completed, created_by_user: rep, assigned_to_user: rep)
+    Demo.create!(scheduled_at: 2.days.ago, duration_minutes: 30, status: :no_show, created_by_user: rep, assigned_to_user: rep)
+    Demo.create!(scheduled_at: 1.day.from_now, duration_minutes: 30, status: :scheduled, created_by_user: rep, assigned_to_user: rep)
+
+    get leads_path
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Demos Booked")
+    expect(response.body).to include("3")
+    expect(response.body).to include("Demos Completed")
+    expect(response.body).to include("1")
+    expect(response.body).to include("Show Rate")
+    expect(response.body).to include("50.0%")
+  end
 end

@@ -1,0 +1,26 @@
+<div class="row g-3 mb-3">
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="small text-muted">Demos Booked</div>
+        <div class="display-6 fw-semibold"><%= @demo_metrics[:demos_booked] %></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="small text-muted">Demos Completed</div>
+        <div class="display-6 fw-semibold"><%= @demo_metrics[:demos_completed] %></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="small text-muted">Show Rate</div>
+        <div class="display-6 fw-semibold"><%= number_to_percentage(@demo_metrics[:show_rate], precision: 1) %></div>
+      </div>
+    </div>
+  </div>
+</div>

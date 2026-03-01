@@ -34,6 +34,20 @@ class Activity < ApplicationRecord
     when "call_attempt_logged"
       outcome = metadata["outcome"].presence || "unknown"
       "Call attempt logged (#{outcome.humanize})"
+    when "demo_booked"
+      scheduled_at = metadata["scheduled_at"].presence
+      if scheduled_at.present?
+        parsed_scheduled_at = Time.zone.parse(scheduled_at.to_s)
+        parsed_scheduled_at ? "Demo booked for #{I18n.l(parsed_scheduled_at, format: :short)}" : "Demo booked"
+      else
+        "Demo booked"
+      end
+    when "demo_updated"
+      "Demo details updated"
+    when "demo_status_changed"
+      from = metadata["from"].presence || "-"
+      to = metadata["to"].presence || "-"
+      "Demo status changed from #{from.humanize} to #{to.humanize}"
     else
       action_type.humanize
     end

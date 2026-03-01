@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 class LeadsController < ApplicationController
-  before_action :set_lead, only: %i[show edit update checkout release force_release reassign_checkout log_call_attempt]
+  before_action :set_lead, only: %i[show edit update book_demo checkout release force_release reassign_checkout log_call_attempt]
   before_action :load_assignable_users, only: %i[index show new create edit update reassign_checkout]
+  before_action :load_demo_metrics, only: %i[index my_tasks]
 
   def index
     authorize Lead
@@ -29,6 +30,7 @@ class LeadsController < ApplicationController
     authorize @lead
     @active_assignment = @lead.active_assignment
     @activities = @lead.activities.includes(:actor_user).recent_first
+    @demos = policy_scope(Demo).where(lead_id: @lead.id).order(scheduled_at: :asc)
   end
 
   def new
@@ -72,6 +74,71 @@ class LeadsController < ApplicationController
       @lead.lead_contacts.build if @lead.lead_contacts.empty?
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def book_demo
+    authorize @lead, :update?
+
+    requested_assignee_id = demo_booking_params[:assigned_to_user_id].presence
+    assigned_user = assignee_for_booking(requested_assignee_id)
+    scheduled_at = parse_scheduled_at(demo_booking_params[:scheduled_at])
+
+    if scheduled_at.blank?
+      redirect_to @lead, alert: "Scheduled time is required."
+      return
+    end
+
+    demo = nil
+
+    Lead.transaction do
+      demo = Demo.new(
+        lead: @lead,
+        account_id: demo_booking_params[:account_id].presence,
+        scheduled_at: scheduled_at,
+        duration_minutes: demo_booking_params[:duration_minutes].presence || 30,
+        notes: demo_booking_params[:notes].to_s.strip.presence,
+        demo_link: demo_booking_params[:demo_link].to_s.strip.presence,
+        assigned_to_user: assigned_user,
+        created_by_user: Current.user
+      )
+      authorize demo, :create?
+      demo.save!
+
+      previous_status = @lead.status
+      @lead.update!(status: :demo_booked, next_action_at: scheduled_at)
+
+      write_activity!(
+        @lead,
+        "demo_booked",
+        metadata: {
+          demo_id: demo.id,
+          scheduled_at: demo.scheduled_at.iso8601,
+          assigned_to_user_id: demo.assigned_to_user_id,
+          duration_minutes: demo.duration_minutes
+        }
+      )
+      if previous_status != @lead.status
+        write_activity!(@lead, "lead_status_changed", metadata: { from: previous_status, to: @lead.status, source: "demo_booking" })
+      end
+
+      Activity.create!(
+        actor_user: Current.user,
+        subject: demo,
+        action_type: "demo_booked",
+        metadata: {
+          lead_id: @lead.id,
+          scheduled_at: demo.scheduled_at.iso8601,
+          duration_minutes: demo.duration_minutes
+        },
+        occurred_at: Time.current
+      )
+    end
+
+    redirect_to demo_path(demo), notice: "Demo booked successfully."
+  rescue ActiveRecord::RecordNotFound
+    redirect_to @lead, alert: "Assignee not found."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to @lead, alert: "Unable to book demo: #{e.record.errors.full_messages.to_sentence}"
   end
 
   def checkout
@@ -309,6 +376,19 @@ class LeadsController < ApplicationController
     @assignable_users = User.order(:full_name, :email_address)
   end
 
+  def load_demo_metrics
+    demo_scope = policy_scope(Demo)
+    demos_completed = demo_scope.status_completed.count
+    demos_no_show = demo_scope.status_no_show.count
+    show_rate_denominator = demos_completed + demos_no_show
+
+    @demo_metrics = {
+      demos_booked: demo_scope.count,
+      demos_completed: demos_completed,
+      show_rate: show_rate_denominator.positive? ? ((demos_completed.to_f / show_rate_denominator) * 100).round(1) : 0.0
+    }
+  end
+
   def write_activity!(lead, action_type, metadata: {})
     Activity.create!(
       actor_user: Current.user,
@@ -367,5 +447,23 @@ class LeadsController < ApplicationController
     Time.zone.parse(raw_value.to_s)
   rescue ArgumentError
     nil
+  end
+
+  def demo_booking_params
+    params.require(:demo).permit(:scheduled_at, :duration_minutes, :notes, :demo_link, :assigned_to_user_id, :account_id)
+  end
+
+  def parse_scheduled_at(raw_value)
+    return if raw_value.blank?
+
+    Time.zone.parse(raw_value.to_s)
+  rescue ArgumentError
+    nil
+  end
+
+  def assignee_for_booking(requested_assignee_id)
+    return Current.user if requested_assignee_id.blank? || Current.user.sales_rep?
+
+    User.find(requested_assignee_id)
   end
 end

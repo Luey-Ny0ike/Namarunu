@@ -23,13 +23,21 @@ RSpec.describe "Role-based auxiliary policies" do
     expect(AccountPolicy.new(support_user, converted).update?).to be(false)
   end
 
-  it "allows support to view demos related to converted accounts only" do
-    support_user = build_user(:support)
-    converted_account = Account.new(converted: true)
-    open_account = Account.new(converted: false)
+  it "allows reps to manage only their own demos and managers all demos" do
+    rep = build_user(:sales_rep)
+    other_rep = build_user(:sales_rep)
+    manager = build_user(:sales_manager)
+    lead = Lead.create!(
+      business_name: "Policy Co",
+      owner_user: rep,
+      lead_contacts_attributes: [{ name: "Contact", phone: "+15551230000" }]
+    )
+    own_demo = Demo.new(lead: lead, scheduled_at: 1.day.from_now, duration_minutes: 30, created_by_user: rep, assigned_to_user: rep)
+    other_demo = Demo.new(lead: lead, scheduled_at: 1.day.from_now, duration_minutes: 30, created_by_user: other_rep, assigned_to_user: other_rep)
 
-    expect(DemoPolicy.new(support_user, Demo.new(account: converted_account)).show?).to be(true)
-    expect(DemoPolicy.new(support_user, Demo.new(account: open_account)).show?).to be(false)
+    expect(DemoPolicy.new(rep, own_demo).show?).to be(true)
+    expect(DemoPolicy.new(rep, other_demo).show?).to be(false)
+    expect(DemoPolicy.new(manager, other_demo).update?).to be(true)
   end
 
   it "allows sales_manager to manage activities" do

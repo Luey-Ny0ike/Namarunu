@@ -19,6 +19,7 @@ Rails.application.routes.draw do
     end
 
     member do
+      post :book_demo
       patch :checkout
       patch :release
       patch :force_release
@@ -26,6 +27,7 @@ Rails.application.routes.draw do
       post :log_call_attempt
     end
   end
+  resources :demos, only: %i[show update]
   resources :build, controller: 'inquiries/build'
 
   namespace :admin do
