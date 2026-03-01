@@ -19,6 +19,15 @@ RSpec.describe Lead, type: :model do
     expect(lead).to be_valid
   end
 
+  it "allows zero contacts when source is contributor" do
+    lead = described_class.new(
+      business_name: "Contributor Lead",
+      source: "contributor"
+    )
+
+    expect(lead).to be_valid
+  end
+
   it "returns only due follow-ups" do
     due = described_class.create!(
       business_name: "Due Co",
