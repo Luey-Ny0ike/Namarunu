@@ -12,6 +12,7 @@
           <th>Submitted</th>
           <th>Result</th>
           <th>Progress</th>
+          <th>Assigned rep</th>
           <th>Status</th>
           <th></th>
         </tr>
@@ -29,6 +30,15 @@
             </td>
             <td>
               <span class="badge <%= lead_progress_badge_class(submission.lead) %>"><%= lead_progress_label(submission.lead) %></span>
+            </td>
+            <td>
+              <% if submission.lead&.contributor_assigned_rep.present? %>
+                <%= submission.lead.contributor_assigned_rep.full_name.presence || submission.lead.contributor_assigned_rep.email_address %>
+              <% elsif submission.lead.present? %>
+                <span class="text-muted">Unassigned</span>
+              <% else %>
+                <span class="text-muted">-</span>
+              <% end %>
             </td>
             <td>
               <% if submission.editable_now? %>

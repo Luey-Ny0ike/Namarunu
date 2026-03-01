@@ -84,4 +84,159 @@ RSpec.describe Lead, type: :model do
     expect(described_class.call_outcome_status_transition("interested")).to eq("qualified")
     expect(described_class.call_outcome_status_transition("unknown")).to be_nil
   end
+
+  it "returns contributor progress stage as Won when status is won" do
+    lead = described_class.create!(
+      business_name: "Won Co",
+      status: :won,
+      lead_contacts_attributes: [{ name: "Won Contact", phone: "+15550004444" }]
+    )
+
+    expect(lead.contributor_progress_stage).to eq("Won")
+  end
+
+  it "returns contributor progress stage as Lost when status is lost" do
+    lead = described_class.create!(
+      business_name: "Lost Co",
+      status: :lost,
+      lead_contacts_attributes: [{ name: "Lost Contact", phone: "+15550005555" }]
+    )
+
+    expect(lead.contributor_progress_stage).to eq("Lost")
+  end
+
+  it "returns Demo done when lead status is demo_completed" do
+    lead = described_class.create!(
+      business_name: "Done Co",
+      status: :demo_completed,
+      lead_contacts_attributes: [{ name: "Done Contact", phone: "+15550006666" }]
+    )
+
+    expect(lead.contributor_progress_stage).to eq("Demo done")
+  end
+
+  it "returns Demo done when a demo is completed or no_show" do
+    creator = User.create!(
+      email_address: "demo-creator-#{SecureRandom.hex(4)}@example.com",
+      password: "password123",
+      password_confirmation: "password123",
+      role: :sales_rep
+    )
+    lead = described_class.create!(
+      business_name: "Demo Evidence Co",
+      status: :in_progress,
+      lead_contacts_attributes: [{ name: "Demo Contact", phone: "+15550007777" }]
+    )
+    Demo.create!(
+      lead: lead,
+      created_by_user: creator,
+      scheduled_at: 1.day.ago,
+      duration_minutes: 30,
+      status: :no_show
+    )
+
+    expect(lead.contributor_progress_stage).to eq("Demo done")
+  end
+
+  it "returns Demo booked when status is demo_booked or scheduled demo exists" do
+    creator = User.create!(
+      email_address: "demo-booked-creator-#{SecureRandom.hex(4)}@example.com",
+      password: "password123",
+      password_confirmation: "password123",
+      role: :sales_rep
+    )
+    lead = described_class.create!(
+      business_name: "Booked Co",
+      status: :contacted,
+      lead_contacts_attributes: [{ name: "Booked Contact", phone: "+15550008888" }]
+    )
+    Demo.create!(
+      lead: lead,
+      created_by_user: creator,
+      scheduled_at: 1.day.from_now,
+      duration_minutes: 30,
+      status: :scheduled
+    )
+
+    expect(lead.contributor_progress_stage).to eq("Demo booked")
+  end
+
+  it "returns Contacted for contacted or qualified when no demo stage applies" do
+    contacted = described_class.create!(
+      business_name: "Contacted Co",
+      status: :contacted,
+      lead_contacts_attributes: [{ name: "Contacted", phone: "+15550009991" }]
+    )
+    qualified = described_class.create!(
+      business_name: "Qualified Co",
+      status: :qualified,
+      lead_contacts_attributes: [{ name: "Qualified", phone: "+15550009992" }]
+    )
+
+    expect(contacted.contributor_progress_stage).to eq("Contacted")
+    expect(qualified.contributor_progress_stage).to eq("Contacted")
+  end
+
+  it "returns New when none of the contributor progress conditions apply" do
+    lead = described_class.create!(
+      business_name: "New Co",
+      status: :new,
+      lead_contacts_attributes: [{ name: "New Contact", phone: "+15550001010" }]
+    )
+
+    expect(lead.contributor_progress_stage).to eq("New")
+  end
+
+  it "prefers active assignment user over owner for contributor assigned rep" do
+    owner = User.create!(
+      email_address: "rep-owner-#{SecureRandom.hex(4)}@example.com",
+      password: "password123",
+      password_confirmation: "password123",
+      role: :sales_rep
+    )
+    assignee = User.create!(
+      email_address: "rep-assignee-#{SecureRandom.hex(4)}@example.com",
+      password: "password123",
+      password_confirmation: "password123",
+      role: :sales_rep
+    )
+    lead = described_class.create!(
+      business_name: "Assigned Co",
+      owner_user: owner,
+      lead_contacts_attributes: [{ name: "Assigned Contact", phone: "+15550002020" }]
+    )
+    LeadAssignment.create!(
+      lead: lead,
+      user: assignee,
+      checked_out_at: Time.current,
+      expires_at: 2.hours.from_now
+    )
+
+    expect(lead.contributor_assigned_rep).to eq(assignee)
+  end
+
+  it "falls back to owner user when no active assignment exists" do
+    owner = User.create!(
+      email_address: "rep-fallback-owner-#{SecureRandom.hex(4)}@example.com",
+      password: "password123",
+      password_confirmation: "password123",
+      role: :sales_rep
+    )
+    lead = described_class.create!(
+      business_name: "Owner Fallback Co",
+      owner_user: owner,
+      lead_contacts_attributes: [{ name: "Owner Contact", phone: "+15550003030" }]
+    )
+
+    expect(lead.contributor_assigned_rep).to eq(owner)
+  end
+
+  it "returns nil assigned rep when neither assignment nor owner exists" do
+    lead = described_class.create!(
+      business_name: "No Rep Co",
+      lead_contacts_attributes: [{ name: "No Rep Contact", phone: "+15550004040" }]
+    )
+
+    expect(lead.contributor_assigned_rep).to be_nil
+  end
 end

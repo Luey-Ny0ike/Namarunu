@@ -14,8 +14,7 @@ module Contribute
     def show
       authorize @submission
       @linked_lead = @submission.lead
-      @active_assignment = @linked_lead&.active_assignment
-      @assigned_rep = @active_assignment&.user || @linked_lead&.owner_user
+      @assigned_rep = @linked_lead&.contributor_assigned_rep
     end
 
     def new
@@ -108,23 +107,27 @@ module Contribute
     def lead_progress_label(lead)
       return "Unmatched" if lead.blank?
 
-      lead.status.to_s.humanize
+      lead.contributor_progress_stage
     end
 
     def lead_progress_badge_class(lead)
       return "bg-secondary" if lead.blank?
 
-      case lead.status.to_s
-      when "new"
+      case lead.contributor_progress_stage
+      when "New"
         "bg-secondary"
-      when "in_progress", "contacted"
+      when "Contacted"
         "bg-info text-dark"
-      when "qualified", "demo_booked", "demo_completed"
+      when "Demo booked"
         "bg-primary"
-      when "won"
+      when "Demo done"
+        "bg-warning text-dark"
+      when "Won"
         "bg-success"
-      else
+      when "Lost"
         "bg-dark"
+      else
+        "bg-secondary"
       end
     end
 

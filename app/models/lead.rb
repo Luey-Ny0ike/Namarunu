@@ -84,6 +84,20 @@ class Lead < ApplicationRecord
     status_qualified? || status_demo_booked? || status_demo_completed?
   end
 
+  def contributor_progress_stage
+    return "Won" if status_won?
+    return "Lost" if status_lost?
+    return "Demo done" if status_demo_completed? || demos.where(status: %i[completed no_show]).exists?
+    return "Demo booked" if status_demo_booked? || demos.where(status: %i[scheduled rescheduled]).exists?
+    return "Contacted" if status_contacted? || status_qualified?
+
+    "New"
+  end
+
+  def contributor_assigned_rep(time = Time.current)
+    active_assignment(time)&.user || owner_user
+  end
+
   private
 
   def must_have_at_least_one_contact
