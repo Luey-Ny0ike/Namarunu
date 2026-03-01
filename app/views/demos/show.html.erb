@@ -1,0 +1,118 @@
+<div class="container py-4">
+  <% if notice.present? %>
+    <div class="alert alert-info" role="alert" id="notice"><%= notice %></div>
+  <% end %>
+  <% if alert.present? %>
+    <div class="alert alert-warning" role="alert"><%= alert %></div>
+  <% end %>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h3 mb-1">Demo #<%= @demo.id %></h1>
+      <p class="text-muted mb-0">Track demo status and capture outcome details.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <% if @demo.lead.present? %>
+        <%= link_to "Back to Lead", lead_path(@demo.lead), class: "btn btn-outline-secondary" %>
+      <% else %>
+        <%= link_to "Back", leads_path, class: "btn btn-outline-secondary" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <dl class="row mb-4">
+        <dt class="col-sm-3 text-muted">Scheduled at</dt>
+        <dd class="col-sm-9"><%= l(@demo.scheduled_at, format: :short) %></dd>
+
+        <dt class="col-sm-3 text-muted">Duration</dt>
+        <dd class="col-sm-9"><%= @demo.duration_minutes %> minutes</dd>
+
+        <dt class="col-sm-3 text-muted">Status</dt>
+        <dd class="col-sm-9"><span class="badge bg-success-subtle text-dark"><%= @demo.status.humanize %></span></dd>
+
+        <dt class="col-sm-3 text-muted">Outcome</dt>
+        <dd class="col-sm-9"><%= @demo.outcome&.humanize || "-" %></dd>
+
+        <dt class="col-sm-3 text-muted">Assigned to</dt>
+        <dd class="col-sm-9"><%= @demo.assigned_to_user&.full_name.presence || @demo.assigned_to_user&.email_address || "-" %></dd>
+
+        <dt class="col-sm-3 text-muted">Created by</dt>
+        <dd class="col-sm-9"><%= @demo.created_by_user.full_name.presence || @demo.created_by_user.email_address %></dd>
+
+        <dt class="col-sm-3 text-muted">Demo link</dt>
+        <dd class="col-sm-9">
+          <% if @demo.demo_link.present? %>
+            <%= link_to @demo.demo_link, @demo.demo_link, target: "_blank", rel: "noopener" %>
+          <% else %>
+            -
+          <% end %>
+        </dd>
+      </dl>
+
+      <% if policy(@demo).update? %>
+        <div class="border rounded-3 p-3">
+          <h2 class="h5 mb-3">Update Demo Outcome</h2>
+          <%= form_with model: @demo, method: :patch, local: true, class: "row g-2 align-items-end" do |form| %>
+            <div class="col-md-4">
+              <%= form.label :status, class: "form-label" %>
+              <%= form.select :status,
+                              options_for_select(Demo.statuses.keys.map { |value| [value.humanize, value] }, @demo.status),
+                              {},
+                              class: "form-select" %>
+            </div>
+            <div class="col-md-4">
+              <%= form.label :outcome, class: "form-label" %>
+              <%= form.select :outcome,
+                              options_for_select(Demo.outcomes.keys.map { |value| [value.humanize, value] }, @demo.outcome),
+                              { include_blank: "No outcome yet" },
+                              class: "form-select" %>
+            </div>
+            <div class="col-md-4">
+              <%= form.label :demo_link, class: "form-label" %>
+              <%= form.url_field :demo_link, class: "form-control", placeholder: "https://meet.example.com/..." %>
+            </div>
+            <div class="col-12">
+              <%= form.label :notes, "Outcome Notes", class: "form-label" %>
+              <%= form.text_area :notes, class: "form-control", rows: 3, placeholder: "What happened, blockers, and next steps" %>
+            </div>
+            <div class="col-12 d-grid d-md-flex justify-content-md-end gap-2">
+              <%= form.submit "Save Update", class: "btn btn-namarunu" %>
+              <%= form.button "Mark Completed", name: "demo[status]", value: "completed", class: "btn btn-outline-success" %>
+              <%= form.button "Mark No Show", name: "demo[status]", value: "no_show", class: "btn btn-outline-warning" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Timeline</h2>
+      <% if @activities.any? %>
+        <div class="list-group list-group-flush">
+          <% @activities.each do |activity| %>
+            <div class="list-group-item px-0">
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <div>
+                  <div class="fw-semibold"><%= activity.timeline_label %></div>
+                  <div class="small text-muted">
+                    by <%= activity.actor_user.full_name.presence || activity.actor_user.email_address %>
+                    <% if activity.metadata["changed_fields"].present? %>
+                      • fields: <%= activity.metadata["changed_fields"].join(", ") %>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="small text-muted"><%= l(activity.occurred_at, format: :short) %></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted mb-0">No timeline activity yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

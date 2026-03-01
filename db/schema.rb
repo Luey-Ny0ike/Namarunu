@@ -10,9 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_01_030000) do
+ActiveRecord::Schema[8.2].define(version: 2026_03_01_101000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "accounts", force: :cascade do |t|
+    t.boolean "converted", default: false, null: false
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+    t.index ["converted"], name: "index_accounts_on_converted"
+  end
 
   create_table "activities", force: :cascade do |t|
     t.string "action_type", null: false
@@ -28,6 +36,29 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_01_030000) do
     t.index ["metadata"], name: "index_activities_on_metadata", using: :gin
     t.index ["occurred_at"], name: "index_activities_on_occurred_at"
     t.index ["subject_type", "subject_id"], name: "index_activities_on_subject"
+  end
+
+  create_table "demos", force: :cascade do |t|
+    t.bigint "account_id"
+    t.bigint "assigned_to_user_id"
+    t.datetime "created_at", null: false
+    t.bigint "created_by_user_id", null: false
+    t.string "demo_link"
+    t.integer "duration_minutes", default: 30, null: false
+    t.bigint "lead_id"
+    t.text "notes"
+    t.string "outcome"
+    t.datetime "scheduled_at", null: false
+    t.string "status", default: "scheduled", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_demos_on_account_id"
+    t.index ["assigned_to_user_id", "scheduled_at"], name: "index_demos_on_assigned_to_user_id_and_scheduled_at"
+    t.index ["assigned_to_user_id"], name: "index_demos_on_assigned_to_user_id"
+    t.index ["created_by_user_id"], name: "index_demos_on_created_by_user_id"
+    t.index ["lead_id"], name: "index_demos_on_lead_id"
+    t.index ["outcome"], name: "index_demos_on_outcome"
+    t.index ["scheduled_at"], name: "index_demos_on_scheduled_at"
+    t.index ["status"], name: "index_demos_on_status"
   end
 
   create_table "inquiries", force: :cascade do |t|
@@ -131,6 +162,10 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_01_030000) do
   end
 
   add_foreign_key "activities", "users", column: "actor_user_id"
+  add_foreign_key "demos", "accounts"
+  add_foreign_key "demos", "leads"
+  add_foreign_key "demos", "users", column: "assigned_to_user_id"
+  add_foreign_key "demos", "users", column: "created_by_user_id"
   add_foreign_key "inquiries", "users", column: "checked_out_by_id"
   add_foreign_key "inquiries", "users", column: "owner_id"
   add_foreign_key "lead_assignments", "leads"

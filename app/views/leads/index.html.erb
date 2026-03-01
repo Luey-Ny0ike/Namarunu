@@ -55,6 +55,8 @@
     </div>
   </div>
 
+  <%= render "demo_metrics" %>
+
   <%= with_automatic_pagination("leads", @page) do %>
     <div class="row g-3">
       <% @leads.each do |lead| %>
