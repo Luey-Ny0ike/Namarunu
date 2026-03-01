@@ -62,4 +62,13 @@ RSpec.describe "Role-based auxiliary policies" do
     expect(Admin::UserPolicy.new(super_admin, target).update?).to be(true)
     expect(Admin::UserPolicy.new(manager, target).update?).to be(false)
   end
+
+  it "does not allow lead_contributor to access internal CRM policies" do
+    contributor = build_user(:lead_contributor)
+    inquiry = Inquiry.new
+    lead = Lead.new
+
+    expect(InquiryPolicy.new(contributor, inquiry).index?).to be(false)
+    expect(LeadPolicy.new(contributor, lead).index?).to be(false)
+  end
 end
