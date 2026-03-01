@@ -13,14 +13,12 @@ RSpec.describe "Role-based auxiliary policies" do
     )
   end
 
-  it "allows support to view converted accounts only" do
+  it "allows support to view accounts but not update them" do
     support_user = build_user(:support)
-    converted = Account.new(converted: true)
-    not_converted = Account.new(converted: false)
+    account = Account.new(name: "Support Visible")
 
-    expect(AccountPolicy.new(support_user, converted).show?).to be(true)
-    expect(AccountPolicy.new(support_user, not_converted).show?).to be(false)
-    expect(AccountPolicy.new(support_user, converted).update?).to be(false)
+    expect(AccountPolicy.new(support_user, account).show?).to be(true)
+    expect(AccountPolicy.new(support_user, account).update?).to be(false)
   end
 
   it "allows reps to manage only their own demos and managers all demos" do

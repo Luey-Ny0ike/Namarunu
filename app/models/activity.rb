@@ -48,6 +48,8 @@ class Activity < ApplicationRecord
       from = metadata["from"].presence || "-"
       to = metadata["to"].presence || "-"
       "Demo status changed from #{from.humanize} to #{to.humanize}"
+    when "converted"
+      "Lead converted to account"
     else
       action_type.humanize
     end

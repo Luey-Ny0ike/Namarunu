@@ -19,6 +19,7 @@ Rails.application.routes.draw do
     end
 
     member do
+      post :convert
       post :book_demo
       patch :checkout
       patch :release
@@ -27,6 +28,7 @@ Rails.application.routes.draw do
       post :log_call_attempt
     end
   end
+  resources :accounts, only: %i[show]
   resources :demos, only: %i[show update]
   resources :build, controller: 'inquiries/build'
 

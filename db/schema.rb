@@ -10,16 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_01_101000) do
+ActiveRecord::Schema[8.2].define(version: 2026_03_01_113000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "accounts", force: :cascade do |t|
-    t.boolean "converted", default: false, null: false
+    t.bigint "converted_from_lead_id"
     t.datetime "created_at", null: false
     t.string "name"
     t.datetime "updated_at", null: false
-    t.index ["converted"], name: "index_accounts_on_converted"
+    t.index ["converted_from_lead_id"], name: "index_accounts_on_converted_from_lead_id"
   end
 
   create_table "activities", force: :cascade do |t|
@@ -36,6 +36,17 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_01_101000) do
     t.index ["metadata"], name: "index_activities_on_metadata", using: :gin
     t.index ["occurred_at"], name: "index_activities_on_occurred_at"
     t.index ["subject_type", "subject_id"], name: "index_activities_on_subject"
+  end
+
+  create_table "contacts", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "name", null: false
+    t.string "phone"
+    t.string "role"
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_contacts_on_account_id"
   end
 
   create_table "demos", force: :cascade do |t|
@@ -161,7 +172,9 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_01_101000) do
     t.index ["full_name", "email_address", "role"], name: "index_users_on_full_name_and_email_address_and_role"
   end
 
+  add_foreign_key "accounts", "leads", column: "converted_from_lead_id"
   add_foreign_key "activities", "users", column: "actor_user_id"
+  add_foreign_key "contacts", "accounts"
   add_foreign_key "demos", "accounts"
   add_foreign_key "demos", "leads"
   add_foreign_key "demos", "users", column: "assigned_to_user_id"

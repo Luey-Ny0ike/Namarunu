@@ -12,6 +12,12 @@
       <p class="text-muted mb-0">Lead profile and activity timeline.</p>
     </div>
     <div class="d-flex gap-2">
+      <% if @lead.converted_account.present? %>
+        <%= link_to "View Account", account_path(@lead.converted_account), class: "btn btn-outline-secondary" %>
+      <% end %>
+      <% if policy(@lead).convert? %>
+        <%= button_to "Convert Lead", convert_lead_path(@lead), method: :post, class: "btn btn-success" %>
+      <% end %>
       <% if policy(@lead).edit? %>
         <%= link_to "Edit", edit_lead_path(@lead), class: "btn btn-namarunu" %>
       <% end %>
@@ -186,6 +192,9 @@
 
             <dt class="col-sm-5 text-muted">Last contacted</dt>
             <dd class="col-sm-7"><%= @lead.last_contacted_at ? l(@lead.last_contacted_at, format: :short) : "-" %></dd>
+
+            <dt class="col-sm-5 text-muted">Converted</dt>
+            <dd class="col-sm-7"><%= @lead.converted_at ? l(@lead.converted_at, format: :short) : "-" %></dd>
           </dl>
         </div>
       </div>

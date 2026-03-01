@@ -258,4 +258,66 @@ RSpec.describe "Leads", type: :request do
     expect(response.body).to include("Show Rate")
     expect(response.body).to include("50.0%")
   end
+
+  it "converts a qualified lead into an account and links demos" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = Lead.create!(
+      business_name: "Convert Co",
+      owner_user: rep,
+      status: :qualified,
+      lead_contacts_attributes: [
+        { name: "Primary Contact", phone: "+15553334444", email: "primary@example.com", role: "Founder" },
+        { name: "Secondary Contact", phone: "+15553335555", email: "secondary@example.com", role: "Ops" }
+      ]
+    )
+    demo = Demo.create!(
+      lead: lead,
+      scheduled_at: 1.day.from_now,
+      duration_minutes: 30,
+      status: :scheduled,
+      created_by_user: rep,
+      assigned_to_user: rep
+    )
+
+    expect do
+      post convert_lead_path(lead)
+    end.to change(Account, :count).by(1)
+      .and change(Contact, :count).by(1)
+      .and change(Activity, :count).by(1)
+
+    account = Account.last
+    expect(response).to redirect_to(account_path(account))
+    expect(account.name).to eq("Convert Co")
+    expect(account.converted_from_lead).to eq(lead)
+
+    contact = account.contacts.first
+    expect(contact.name).to eq("Primary Contact")
+    expect(contact.phone).to eq("+15553334444")
+    expect(contact.email).to eq("primary@example.com")
+    expect(contact.role).to eq("Founder")
+
+    expect(demo.reload.account).to eq(account)
+    lead.reload
+    expect(lead.converted_at).to be_present
+    expect(lead.status).to eq("demo_booked")
+    expect(lead.activities.order(:created_at).last.action_type).to eq("converted")
+  end
+
+  it "does not allow converting non-eligible leads" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = Lead.create!(
+      business_name: "Not Ready Co",
+      owner_user: rep,
+      status: :new,
+      lead_contacts_attributes: [{ name: "Contact", phone: "+15556667777" }]
+    )
+
+    expect do
+      post convert_lead_path(lead)
+    end.not_to change(Account, :count)
+
+    expect(response).to redirect_to(root_path)
+  end
 end
