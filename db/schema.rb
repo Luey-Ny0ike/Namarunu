@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_01_020000) do
+ActiveRecord::Schema[8.2].define(version: 2026_03_01_030000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,6 +59,23 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_01_020000) do
     t.string "web_administration"
     t.index ["checked_out_by_id"], name: "index_inquiries_on_checked_out_by_id"
     t.index ["owner_id"], name: "index_inquiries_on_owner_id"
+  end
+
+  create_table "lead_assignments", force: :cascade do |t|
+    t.datetime "checked_out_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.bigint "lead_id", null: false
+    t.string "release_reason"
+    t.datetime "released_at"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["expires_at"], name: "index_lead_assignments_on_expires_at"
+    t.index ["lead_id", "released_at"], name: "index_lead_assignments_on_lead_id_and_released_at"
+    t.index ["lead_id"], name: "index_lead_assignments_on_lead_id"
+    t.index ["lead_id"], name: "index_lead_assignments_on_lead_id_unreleased", unique: true, where: "(released_at IS NULL)"
+    t.index ["released_at"], name: "index_lead_assignments_on_released_at"
+    t.index ["user_id"], name: "index_lead_assignments_on_user_id"
   end
 
   create_table "lead_contacts", force: :cascade do |t|
@@ -116,6 +133,8 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_01_020000) do
   add_foreign_key "activities", "users", column: "actor_user_id"
   add_foreign_key "inquiries", "users", column: "checked_out_by_id"
   add_foreign_key "inquiries", "users", column: "owner_id"
+  add_foreign_key "lead_assignments", "leads"
+  add_foreign_key "lead_assignments", "users"
   add_foreign_key "lead_contacts", "leads"
   add_foreign_key "leads", "users", column: "owner_user_id"
   add_foreign_key "sessions", "users"
