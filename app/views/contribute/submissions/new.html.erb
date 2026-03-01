@@ -1,0 +1,8 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Submit Lead</h1>
+  <%= link_to "My Leads", contribute_submissions_path, class: "btn btn-outline-secondary btn-sm" %>
+</div>
+
+<p class="text-muted">Share lead details. If this looks like an existing lead, we will attach your submission instead of duplicating it.</p>
+
+<%= render "form", submission: @submission, possible_duplicate: @possible_duplicate %>

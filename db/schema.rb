@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_01_113000) do
+ActiveRecord::Schema[8.2].define(version: 2026_03_02_012000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -132,6 +132,32 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_01_113000) do
     t.index ["lead_id"], name: "index_lead_contacts_on_lead_id"
   end
 
+  create_table "lead_submissions", force: :cascade do |t|
+    t.string "business_name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "editable_until", default: -> { "(CURRENT_TIMESTAMP + 'PT30M'::interval)" }, null: false
+    t.string "instagram_handle"
+    t.string "instagram_url"
+    t.bigint "lead_id"
+    t.string "location"
+    t.datetime "locked_at"
+    t.string "match_outcome"
+    t.string "matched_field"
+    t.text "notes"
+    t.string "phone_normalized"
+    t.string "phone_raw"
+    t.bigint "submitted_by_user_id", null: false
+    t.string "tiktok_handle"
+    t.string "tiktok_url"
+    t.datetime "updated_at", null: false
+    t.index ["instagram_handle"], name: "index_lead_submissions_on_instagram_handle"
+    t.index ["lead_id"], name: "index_lead_submissions_on_lead_id"
+    t.index ["match_outcome"], name: "index_lead_submissions_on_match_outcome"
+    t.index ["phone_normalized"], name: "index_lead_submissions_on_phone_normalized"
+    t.index ["submitted_by_user_id"], name: "index_lead_submissions_on_submitted_by_user_id"
+    t.index ["tiktok_handle"], name: "index_lead_submissions_on_tiktok_handle"
+  end
+
   create_table "leads", force: :cascade do |t|
     t.string "business_name", null: false
     t.datetime "converted_at"
@@ -184,6 +210,8 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_01_113000) do
   add_foreign_key "lead_assignments", "leads"
   add_foreign_key "lead_assignments", "users"
   add_foreign_key "lead_contacts", "leads"
+  add_foreign_key "lead_submissions", "leads"
+  add_foreign_key "lead_submissions", "users", column: "submitted_by_user_id"
   add_foreign_key "leads", "users", column: "owner_user_id"
   add_foreign_key "sessions", "users"
 end
