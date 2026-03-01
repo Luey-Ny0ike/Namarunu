@@ -3,17 +3,38 @@
 class Lead < ApplicationRecord
   STATUSES = {
     new: "new",
+    in_progress: "in_progress",
     contacted: "contacted",
     qualified: "qualified",
-    proposal_sent: "proposal_sent",
+    demo_booked: "demo_booked",
+    demo_completed: "demo_completed",
     won: "won",
-    lost: "lost"
+    lost: "lost",
+    unresponsive: "unresponsive"
   }.freeze
 
   TEMPERATURES = {
     cold: "cold",
     warm: "warm",
     hot: "hot"
+  }.freeze
+
+  CALL_OUTCOMES = {
+    no_answer: "no_answer",
+    wrong_number: "wrong_number",
+    interested: "interested",
+    not_interested: "not_interested",
+    follow_up: "follow_up",
+    booked_demo: "booked_demo"
+  }.freeze
+
+  CALL_OUTCOME_STATUS_TRANSITIONS = {
+    "no_answer" => "in_progress",
+    "wrong_number" => "lost",
+    "interested" => "qualified",
+    "not_interested" => "lost",
+    "follow_up" => "contacted",
+    "booked_demo" => "demo_booked"
   }.freeze
 
   belongs_to :owner_user, class_name: "User", optional: true, inverse_of: :owned_leads
@@ -31,6 +52,14 @@ class Lead < ApplicationRecord
   validate :must_have_at_least_one_contact
 
   scope :follow_ups_due, -> { where.not(next_action_at: nil).where(next_action_at: ..Time.zone.now.end_of_day) }
+
+  def self.call_outcome_status_transition(outcome)
+    CALL_OUTCOME_STATUS_TRANSITIONS[outcome.to_s]
+  end
+
+  def self.follow_up_outcome?(outcome)
+    outcome.to_s == CALL_OUTCOMES[:follow_up]
+  end
 
   def owned_by?(user)
     user.present? && owner_user_id == user.id

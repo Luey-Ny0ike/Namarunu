@@ -31,6 +31,9 @@ class Activity < ApplicationRecord
       "Lead checkout reassigned"
     when "expired"
       "Lead checkout expired"
+    when "call_attempt_logged"
+      outcome = metadata["outcome"].presence || "unknown"
+      "Call attempt logged (#{outcome.humanize})"
     else
       action_type.humanize
     end

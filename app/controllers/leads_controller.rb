@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class LeadsController < ApplicationController
-  before_action :set_lead, only: %i[show edit update checkout release force_release reassign_checkout]
+  before_action :set_lead, only: %i[show edit update checkout release force_release reassign_checkout log_call_attempt]
   before_action :load_assignable_users, only: %i[index show new create edit update reassign_checkout]
 
   def index
@@ -10,6 +10,19 @@ class LeadsController < ApplicationController
     leads_scope = policy_scope(Lead).includes(:owner_user, :lead_contacts)
     leads_scope = apply_filters(leads_scope)
     @leads = set_page_and_extract_portion_from(leads_scope.order(next_action_at: :asc, created_at: :desc))
+  end
+
+  def my_tasks
+    authorize Lead, :index?
+
+    now = Time.current
+    scoped_leads = policy_scope(Lead).includes(:owner_user, :lead_contacts)
+    @checked_out_leads = scoped_leads
+      .joins(:lead_assignments)
+      .merge(LeadAssignment.active_at(now).where(user_id: Current.user.id))
+      .distinct
+      .order(next_action_at: :asc, created_at: :desc)
+    @follow_up_leads = scoped_leads.follow_ups_due.order(next_action_at: :asc, created_at: :desc)
   end
 
   def show
@@ -202,6 +215,61 @@ class LeadsController < ApplicationController
     redirect_to @lead, alert: "Unable to reassign checkout: #{e.record.errors.full_messages.to_sentence}"
   end
 
+  def log_call_attempt
+    authorize @lead, :update?
+
+    outcome = call_attempt_params[:outcome].to_s
+    notes = call_attempt_params[:notes].to_s.strip
+    now = Time.current
+
+    unless Lead::CALL_OUTCOMES.value?(outcome)
+      redirect_to @lead, alert: "Invalid call outcome."
+      return
+    end
+
+    follow_up_at = parse_follow_up_at(call_attempt_params[:follow_up_at])
+    if Lead.follow_up_outcome?(outcome) && follow_up_at.blank?
+      redirect_to @lead, alert: "Follow-up date is required when outcome is Follow up."
+      return
+    end
+
+    previous_status = @lead.status
+    previous_next_action_at = @lead.next_action_at
+
+    updates = {
+      last_contacted_at: now,
+      status: Lead.call_outcome_status_transition(outcome)
+    }.compact
+    updates[:next_action_at] = follow_up_at if Lead.follow_up_outcome?(outcome)
+
+    Lead.transaction do
+      @lead.update!(updates)
+
+      write_activity!(
+        @lead,
+        "call_attempt_logged",
+        metadata: {
+          outcome: outcome,
+          notes: notes.presence,
+          previous_status: previous_status,
+          status: @lead.status,
+          previous_next_action_at: previous_next_action_at&.iso8601,
+          next_action_at: @lead.next_action_at&.iso8601,
+          last_contacted_at: @lead.last_contacted_at&.iso8601
+        }.compact
+      )
+
+      if @lead.saved_change_to_status?
+        from, to = @lead.saved_change_to_status
+        write_activity!(@lead, "lead_status_changed", metadata: { from: from, to: to, source: "call_attempt" })
+      end
+    end
+
+    redirect_to @lead, notice: "Call attempt logged."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to @lead, alert: "Unable to log call attempt: #{e.record.errors.full_messages.to_sentence}"
+  end
+
   private
 
   def set_lead
@@ -222,6 +290,10 @@ class LeadsController < ApplicationController
       :converted_at,
       lead_contacts_attributes: %i[id name phone email role preferred_channel _destroy]
     )
+  end
+
+  def call_attempt_params
+    params.require(:call_attempt).permit(:outcome, :notes, :follow_up_at)
   end
 
   def apply_filters(scope)
@@ -287,5 +359,13 @@ class LeadsController < ApplicationController
 
   def user_display_name(user)
     user.full_name.presence || user.email_address
+  end
+
+  def parse_follow_up_at(raw_value)
+    return if raw_value.blank?
+
+    Time.zone.parse(raw_value.to_s)
+  rescue ArgumentError
+    nil
   end
 end
