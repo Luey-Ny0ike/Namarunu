@@ -40,6 +40,10 @@ class LeadPolicy < ApplicationPolicy
     super_admin? || sales_manager?
   end
 
+  def convert?
+    update? && record.conversion_eligible? && record.converted_account.blank?
+  end
+
   class Scope < Scope
     def resolve
       return scope.all if user&.super_admin? || user&.sales_manager?

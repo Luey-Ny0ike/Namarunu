@@ -2,14 +2,11 @@
 
 class AccountPolicy < ApplicationPolicy
   def index?
-    super_admin? || sales_manager? || support?
+    super_admin? || sales_manager? || sales_rep? || support?
   end
 
   def show?
-    return true if super_admin? || sales_manager?
-    return false unless support?
-
-    record.converted?
+    index?
   end
 
   def update?
@@ -18,10 +15,9 @@ class AccountPolicy < ApplicationPolicy
 
   class Scope < Scope
     def resolve
-      return scope.all if user&.super_admin? || user&.sales_manager?
-      return scope.select(&:converted?) if user&.support?
+      return scope.all if user&.super_admin? || user&.sales_manager? || user&.sales_rep? || user&.support?
 
-      []
+      scope.none
     end
   end
 end

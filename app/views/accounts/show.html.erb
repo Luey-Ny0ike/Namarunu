@@ -1,0 +1,85 @@
+<div class="container py-4">
+  <% if notice.present? %>
+    <div class="alert alert-info" role="alert" id="notice"><%= notice %></div>
+  <% end %>
+  <% if alert.present? %>
+    <div class="alert alert-warning" role="alert"><%= alert %></div>
+  <% end %>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h3 mb-1"><%= @account.name %></h1>
+      <p class="text-muted mb-0">Account profile, contacts, and demo history.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <% if @account.converted_from_lead.present? %>
+        <%= link_to "View Lead", lead_path(@account.converted_from_lead), class: "btn btn-outline-secondary" %>
+      <% else %>
+        <%= link_to "Back to Leads", leads_path, class: "btn btn-outline-secondary" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3 text-muted">Converted from lead</dt>
+        <dd class="col-sm-9">
+          <% if @account.converted_from_lead.present? %>
+            <%= link_to @account.converted_from_lead.business_name, lead_path(@account.converted_from_lead) %>
+          <% else %>
+            -
+          <% end %>
+        </dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Contacts</h2>
+      <% if @account.contacts.any? %>
+        <div class="row g-3">
+          <% @account.contacts.each do |contact| %>
+            <div class="col-md-6">
+              <div class="border rounded-3 p-3 h-100">
+                <div class="fw-semibold"><%= contact.name %></div>
+                <div class="small text-muted mb-2"><%= contact.role.presence || "-" %></div>
+                <div><strong>Phone:</strong> <%= contact.phone.presence || "-" %></div>
+                <div><strong>Email:</strong> <%= contact.email.presence || "-" %></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted mb-0">No contacts yet.</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Demo History</h2>
+      <% if @demos.any? %>
+        <div class="list-group list-group-flush">
+          <% @demos.each do |demo| %>
+            <div class="list-group-item px-0">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                  <div class="fw-semibold"><%= l(demo.scheduled_at, format: :short) %> • <%= demo.status.humanize %></div>
+                  <div class="small text-muted">
+                    Duration: <%= demo.duration_minutes %> min
+                    • Assignee: <%= demo.assigned_to_user&.full_name.presence || demo.assigned_to_user&.email_address || "-" %>
+                  </div>
+                </div>
+                <%= link_to "Open", demo_path(demo), class: "btn btn-outline-secondary btn-sm" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-muted mb-0">No demos linked to this account yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class LeadsController < ApplicationController
-  before_action :set_lead, only: %i[show edit update book_demo checkout release force_release reassign_checkout log_call_attempt]
+  before_action :set_lead, only: %i[show edit update convert book_demo checkout release force_release reassign_checkout log_call_attempt]
   before_action :load_assignable_users, only: %i[index show new create edit update reassign_checkout]
   before_action :load_demo_metrics, only: %i[index my_tasks]
 
@@ -74,6 +74,49 @@ class LeadsController < ApplicationController
       @lead.lead_contacts.build if @lead.lead_contacts.empty?
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def convert
+    authorize @lead, :convert?
+
+    account = nil
+    lead_status = @lead.status
+
+    Lead.transaction do
+      account = Account.create!(
+        name: @lead.business_name,
+        converted_from_lead: @lead
+      )
+
+      primary_contact = @lead.lead_contacts.order(:created_at, :id).first
+      Contact.create!(
+        account: account,
+        name: primary_contact.name,
+        phone: primary_contact.phone,
+        email: primary_contact.email,
+        role: primary_contact.role
+      )
+
+      lead_updates = { converted_at: Time.current }
+      lead_updates[:status] = :demo_booked if @lead.demos.exists? && @lead.status_qualified?
+      @lead.update!(lead_updates)
+
+      @lead.demos.where(account_id: nil).update_all(account_id: account.id)
+
+      write_activity!(
+        @lead,
+        "converted",
+        metadata: {
+          account_id: account.id,
+          previous_status: lead_status,
+          status: @lead.status
+        }
+      )
+    end
+
+    redirect_to account_path(account), notice: "Lead converted to account successfully."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to @lead, alert: "Unable to convert lead: #{e.record.errors.full_messages.to_sentence}"
   end
 
   def book_demo
@@ -340,7 +383,7 @@ class LeadsController < ApplicationController
   private
 
   def set_lead
-    @lead = Lead.includes(:lead_contacts).find(params[:id])
+    @lead = Lead.includes(:lead_contacts, :converted_account).find(params[:id])
   end
 
   def lead_params

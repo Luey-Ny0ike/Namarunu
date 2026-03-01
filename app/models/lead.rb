@@ -43,6 +43,7 @@ class Lead < ApplicationRecord
   has_many :lead_assignments, dependent: :destroy
   has_many :activities, as: :subject, dependent: :destroy
   has_many :demos, dependent: :nullify
+  has_one :converted_account, class_name: "Account", foreign_key: :converted_from_lead_id, inverse_of: :converted_from_lead, dependent: :nullify
 
   accepts_nested_attributes_for :lead_contacts, allow_destroy: true, reject_if: :all_blank
 
@@ -76,6 +77,10 @@ class Lead < ApplicationRecord
 
   def editable_by?(user)
     owned_by?(user) || checked_out_by?(user)
+  end
+
+  def conversion_eligible?
+    status_qualified? || status_demo_booked? || status_demo_completed?
   end
 
   private

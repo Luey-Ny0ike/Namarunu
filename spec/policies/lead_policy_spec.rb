@@ -110,4 +110,26 @@ RSpec.describe LeadPolicy do
 
     expect(result).to include(lead_with_checkout)
   end
+
+  it "allows conversion only for eligible statuses and when not already converted" do
+    manager = build_user(:sales_manager)
+    eligible_lead = Lead.create!(
+      business_name: "Eligible Co",
+      owner_user: owner,
+      status: :qualified,
+      lead_contacts_attributes: [{ name: "Contact", phone: "+15559990000" }]
+    )
+    ineligible_lead = Lead.create!(
+      business_name: "Ineligible Co",
+      owner_user: owner,
+      status: :new,
+      lead_contacts_attributes: [{ name: "Contact", phone: "+15559991111" }]
+    )
+
+    expect(described_class.new(manager, eligible_lead).convert?).to be(true)
+    expect(described_class.new(manager, ineligible_lead).convert?).to be(false)
+
+    Account.create!(name: "Existing Account", converted_from_lead: eligible_lead)
+    expect(described_class.new(manager, eligible_lead.reload).convert?).to be(false)
+  end
 end
