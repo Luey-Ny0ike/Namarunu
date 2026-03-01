@@ -1,0 +1,70 @@
+<%= form_with(
+  model: submission,
+  scope: :lead_submission,
+  url: submission.persisted? ? contribute_submission_path(submission) : contribute_submissions_path,
+  class: "card border-0 shadow-sm"
+) do |form| %>
+  <div class="card-body p-4">
+    <% if submission.errors.any? %>
+      <div class="alert alert-danger" role="alert">
+        <p class="mb-2 fw-semibold">Please fix the following:</p>
+        <ul class="mb-0">
+          <% submission.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <% if local_assigns[:possible_duplicate].present? && local_assigns[:possible_duplicate][:lead].present? %>
+      <div class="alert alert-warning" role="alert">
+        <div>
+          <strong>Possible duplicate.</strong>
+          A lead already exists for this contact signal.
+        </div>
+      </div>
+    <% end %>
+
+    <div class="row g-3">
+      <div class="col-12">
+        <%= form.label :business_name, class: "form-label" %>
+        <%= form.text_field :business_name, class: "form-control", required: true %>
+      </div>
+
+      <div class="col-md-4">
+        <%= form.label :instagram_url, class: "form-label" %>
+        <%= form.text_field :instagram_url, class: "form-control", placeholder: "https://instagram.com/handle" %>
+      </div>
+
+      <div class="col-md-4">
+        <%= form.label :tiktok_url, class: "form-label" %>
+        <%= form.text_field :tiktok_url, class: "form-control", placeholder: "https://tiktok.com/@handle" %>
+      </div>
+
+      <div class="col-md-4">
+        <%= form.label :phone_raw, class: "form-label" %>
+        <%= form.telephone_field :phone_raw, class: "form-control", placeholder: "+254 700 000 000" %>
+      </div>
+
+      <div class="col-md-6">
+        <%= form.label :location, class: "form-label" %>
+        <%= form.text_field :location, class: "form-control" %>
+      </div>
+
+      <div class="col-12">
+        <%= form.label :notes, class: "form-label" %>
+        <%= form.text_area :notes, class: "form-control", rows: 4 %>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-footer bg-white border-0 px-4 pb-4 d-flex gap-2">
+    <%= form.submit (submission.persisted? ? "Update submission" : "Submit lead"), class: "btn btn-primary" %>
+    <% unless submission.persisted? %>
+      <%= button_tag "Check duplicate", type: "submit", formaction: new_contribute_submission_path, formmethod: :get, class: "btn btn-outline-warning" %>
+    <% end %>
+    <% if submission.persisted? %>
+      <%= link_to "Cancel", contribute_submission_path(submission), class: "btn btn-outline-secondary" %>
+    <% end %>
+  </div>
+<% end %>

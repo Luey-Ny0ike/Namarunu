@@ -2,6 +2,7 @@
 
 class LeadSubmissionMatcher
   attr_reader :submission
+  attr_reader :matched_field, :matched_lead
 
   def initialize(submission)
     @submission = submission
@@ -14,13 +15,30 @@ class LeadSubmissionMatcher
       lead, matched_field = find_matching_lead
 
       if lead.present?
+        @matched_lead = lead
+        @matched_field = matched_field
         attach_to_existing_lead!(lead, matched_field)
       else
-        create_lead_and_attach!
+        @matched_lead = create_lead_and_attach!
+        @matched_field = nil
       end
 
       submission
     end
+  end
+
+  def preview_match
+    ensure_submission_valid!
+    lead, field = find_matching_lead
+    { lead: lead, matched_field: field }
+  end
+
+  def attached_to_existing_lead?
+    matched_lead.present? && matched_field.present?
+  end
+
+  def created_new_lead?
+    matched_lead.present? && matched_field.blank?
   end
 
   def self.normalize_phone(value)
@@ -98,7 +116,11 @@ class LeadSubmissionMatcher
   end
 
   def attach_to_existing_lead!(lead, matched_field)
-    save_submission!(lead)
+    save_submission!(
+      lead,
+      match_outcome: LeadSubmission::MATCH_OUTCOMES[:attached_existing],
+      matched_field: matched_field
+    )
     create_activity!(
       lead: lead,
       action_type: "submission_attached",
@@ -118,19 +140,27 @@ class LeadSubmissionMatcher
       owner_user_id: nil
     )
 
-    save_submission!(lead)
+    save_submission!(
+      lead,
+      match_outcome: LeadSubmission::MATCH_OUTCOMES[:created_new],
+      matched_field: nil
+    )
     create_activity!(
       lead: lead,
       action_type: "lead_created_from_submission",
       metadata: { submission_id: submission.id }
     )
+
+    lead
   end
 
-  def save_submission!(lead)
+  def save_submission!(lead, match_outcome:, matched_field:)
     if submission.persisted?
-      submission.update!(lead: lead)
+      submission.update!(lead: lead, match_outcome: match_outcome, matched_field: matched_field)
     else
       submission.lead = lead
+      submission.match_outcome = match_outcome
+      submission.matched_field = matched_field
       submission.save!
     end
   end

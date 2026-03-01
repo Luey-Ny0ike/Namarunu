@@ -1,0 +1,125 @@
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h3 mb-1"><%= @submission.business_name %></h1>
+    <div class="d-flex gap-2 align-items-center">
+      <span class="badge <%= submission_result_badge_class(@submission) %>"><%= @submission.match_outcome_label %></span>
+      <span class="badge <%= lead_progress_badge_class(@linked_lead) %>"><%= lead_progress_label(@linked_lead) %></span>
+      <% if @submission.editable_now? %>
+        <span class="text-muted small">Editable for <%= time_left_in_words(@submission) %>.</span>
+      <% else %>
+        <span class="badge bg-secondary">Locked</span>
+      <% end %>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <% if @submission.editable_now? %>
+      <%= link_to "Edit", edit_contribute_submission_path(@submission), class: "btn btn-outline-primary btn-sm" %>
+    <% end %>
+    <%= link_to "Back", contribute_submissions_path, class: "btn btn-outline-secondary btn-sm" %>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white fw-semibold">Submitted Details</div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Business name</dt>
+          <dd class="col-sm-8"><%= @submission.business_name %></dd>
+
+          <dt class="col-sm-4">Location</dt>
+          <dd class="col-sm-8"><%= @submission.location.presence || "-" %></dd>
+
+          <dt class="col-sm-4">Phone</dt>
+          <dd class="col-sm-8"><%= @submission.phone_raw.presence || "-" %></dd>
+
+          <dt class="col-sm-4">Notes</dt>
+          <dd class="col-sm-8"><%= @submission.notes.presence || "-" %></dd>
+
+          <dt class="col-sm-4">Submitted at</dt>
+          <dd class="col-sm-8"><%= l(@submission.created_at, format: :long) %></dd>
+
+          <dt class="col-sm-4">Match method</dt>
+          <dd class="col-sm-8"><%= @submission.matched_field.present? ? @submission.matched_field.humanize : "-" %></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-header bg-white fw-semibold">Social Links</div>
+      <div class="card-body d-flex flex-column gap-2">
+        <% if @submission.instagram_url.present? %>
+          <%= link_to @submission.instagram_url, target: "_blank", rel: "noopener", class: "btn btn-outline-secondary btn-sm text-start" do %>
+            <span class="me-2" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3.6A4.4 4.4 0 1 0 8 12.4 4.4 4.4 0 0 0 8 3.6zm0 7.25A2.85 2.85 0 1 1 8 5.15a2.85 2.85 0 0 1 0 5.7z"/><path d="M12.4 0H3.6A3.6 3.6 0 0 0 0 3.6v8.8A3.6 3.6 0 0 0 3.6 16h8.8a3.6 3.6 0 0 0 3.6-3.6V3.6A3.6 3.6 0 0 0 12.4 0zm2.05 12.4a2.05 2.05 0 0 1-2.05 2.05H3.6A2.05 2.05 0 0 1 1.55 12.4V3.6A2.05 2.05 0 0 1 3.6 1.55h8.8A2.05 2.05 0 0 1 14.45 3.6z"/><circle cx="12.2" cy="3.8" r="1"/></svg>
+            </span>
+            Instagram
+          <% end %>
+        <% end %>
+
+        <% if @submission.tiktok_url.present? %>
+          <%= link_to @submission.tiktok_url, target: "_blank", rel: "noopener", class: "btn btn-outline-secondary btn-sm text-start" do %>
+            <span class="me-2" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M9.5 2.2v7a2.1 2.1 0 1 1-1.5-2V5.7a3.6 3.6 0 1 0 3 3.5V6.1c.8.7 1.8 1.1 3 1.2V5.8a3.1 3.1 0 0 1-1.6-.5A2.8 2.8 0 0 1 11 2.2H9.5z"/></svg>
+            </span>
+            TikTok
+          <% end %>
+        <% end %>
+
+        <% if @submission.instagram_url.blank? && @submission.tiktok_url.blank? %>
+          <p class="text-muted small mb-0">No social links submitted.</p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">Assignment</div>
+      <div class="card-body">
+        <% if @assigned_rep.present? %>
+          <p class="mb-0">Assigned to rep: <strong><%= @assigned_rep.full_name.presence || @assigned_rep.email_address %></strong></p>
+        <% elsif @linked_lead.present? %>
+          <p class="mb-0 text-muted">No active rep assignment.</p>
+        <% else %>
+          <p class="mb-0 text-muted">Lead has not been linked yet.</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if @linked_lead.present? %>
+  <div class="card border-0 shadow-sm mt-3">
+    <div class="card-header bg-white fw-semibold">Timeline</div>
+    <div class="card-body">
+      <% timeline = @linked_lead.contributor_timeline %>
+      <% if timeline.any? %>
+        <ul class="list-unstyled mb-0">
+          <% timeline.each_with_index do |event, index| %>
+            <li class="d-flex">
+              <div class="me-3 d-flex flex-column align-items-center">
+                <span class="rounded-circle bg-primary d-inline-block" style="width: 10px; height: 10px; margin-top: 6px;"></span>
+                <% unless index == timeline.length - 1 %>
+                  <span class="bg-secondary-subtle d-inline-block mt-1" style="width: 2px; min-height: 28px;"></span>
+                <% end %>
+              </div>
+              <div class="pb-2">
+                <div class="fw-semibold"><%= event[:label] %></div>
+                <div class="small text-muted">
+                  <%= l(event[:occurred_at], format: :short) if event[:occurred_at].present? %>
+                  <% if event[:actor_name].present? %>
+                    · <%= event[:actor_name] %>
+                  <% end %>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-muted mb-0">No timeline events yet.</p>
+      <% end %>
+    </div>
+  </div>
+<% end %>

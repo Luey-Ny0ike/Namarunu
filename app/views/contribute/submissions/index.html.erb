@@ -1,0 +1,63 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">My Leads</h1>
+  <%= link_to "Submit Lead", new_contribute_submission_path, class: "btn btn-primary btn-sm" %>
+</div>
+
+<% if @submissions.any? %>
+  <div class="table-responsive card border-0 shadow-sm">
+    <table class="table mb-0 align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Business</th>
+          <th>Submitted</th>
+          <th>Result</th>
+          <th>Progress</th>
+          <th>Assigned rep</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @submissions.each do |submission| %>
+          <tr>
+            <td>
+              <div class="fw-semibold"><%= submission.business_name %></div>
+              <div class="small text-muted"><%= submission.location.presence || "No location" %></div>
+            </td>
+            <td><%= l(submission.created_at, format: :short) %></td>
+            <td>
+              <span class="badge <%= submission_result_badge_class(submission) %>"><%= submission.match_outcome_label %></span>
+            </td>
+            <td>
+              <span class="badge <%= lead_progress_badge_class(submission.lead) %>"><%= lead_progress_label(submission.lead) %></span>
+            </td>
+            <td>
+              <% if submission.lead&.contributor_assigned_rep.present? %>
+                <%= submission.lead.contributor_assigned_rep.full_name.presence || submission.lead.contributor_assigned_rep.email_address %>
+              <% elsif submission.lead.present? %>
+                <span class="text-muted">Unassigned</span>
+              <% else %>
+                <span class="text-muted">-</span>
+              <% end %>
+            </td>
+            <td>
+              <% if submission.editable_now? %>
+                <span class="badge bg-success-subtle text-success-emphasis">Editable</span>
+              <% else %>
+                <span class="badge bg-secondary">Locked</span>
+              <% end %>
+            </td>
+            <td class="text-end"><%= link_to "View", contribute_submission_path(submission), class: "btn btn-sm btn-outline-secondary" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="card border-0 shadow-sm">
+    <div class="card-body py-4 text-center">
+      <p class="text-muted mb-3">No submissions yet.</p>
+      <%= link_to "Submit your first lead", new_contribute_submission_path, class: "btn btn-primary" %>
+    </div>
+  </div>
+<% end %>

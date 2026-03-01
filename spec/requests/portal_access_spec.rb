@@ -18,6 +18,28 @@ RSpec.describe "Portal access", type: :request do
     expect(response).to have_http_status(:redirect)
   end
 
+  def marketing_nav_links
+    doc = Nokogiri::HTML.parse(response.body)
+    doc.css("#marketing-navbar a").map { |node| node.text.strip }.reject(&:blank?)
+  end
+
+  it "keeps marketing navbar links for authenticated users and hides CRM nav buttons" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+
+    get root_path
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("marketing-navbar")
+
+    links = marketing_nav_links
+    expect(links).to include("Products", "Pricing", "Support", "Get Started")
+    expect(links).not_to include("Leads")
+    expect(links).not_to include("Won Deals")
+    expect(links).not_to include("Payouts")
+    expect(links).not_to include("Manage Users")
+  end
+
   it "redirects lead_contributor away from app namespace" do
     contributor = build_user(:lead_contributor)
     sign_in_as(contributor)

@@ -1,0 +1,12 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Edit Submission</h1>
+  <%= link_to "Back", contribute_submission_path(@submission), class: "btn btn-outline-secondary btn-sm" %>
+</div>
+
+<% if @submission.editable_now? %>
+  <p class="text-muted">Editable for <%= time_left_in_words(@submission) %>.</p>
+<% else %>
+  <div class="alert alert-warning" role="alert">Locked: this submission can no longer be edited.</div>
+<% end %>
+
+<%= render "form", submission: @submission %>

@@ -37,6 +37,8 @@ RSpec.describe LeadSubmissionMatcher do
 
     expect(submission).to be_persisted
     expect(submission.lead).to eq(lead)
+    expect(submission.match_outcome).to eq("attached_existing")
+    expect(submission.matched_field).to eq("instagram")
 
     activity = Activity.last
     expect(activity.subject).to eq(lead)
@@ -62,6 +64,8 @@ RSpec.describe LeadSubmissionMatcher do
     described_class.new(submission).call
 
     expect(submission.lead).to eq(lead)
+    expect(submission.match_outcome).to eq("attached_existing")
+    expect(submission.matched_field).to eq("phone")
     expect(Activity.last.action_type).to eq("submission_attached")
     expect(Activity.last.metadata["matched_field"]).to eq("phone")
   end
@@ -82,6 +86,8 @@ RSpec.describe LeadSubmissionMatcher do
     created_lead = Lead.order(:id).last
     expect(submission).to be_persisted
     expect(submission.lead).to eq(created_lead)
+    expect(submission.match_outcome).to eq("created_new")
+    expect(submission.matched_field).to be_nil
 
     expect(created_lead.business_name).to eq("Brand New Co")
     expect(created_lead.location).to eq("Nairobi")

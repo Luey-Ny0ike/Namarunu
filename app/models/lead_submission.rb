@@ -1,8 +1,15 @@
 # frozen_string_literal: true
 
 class LeadSubmission < ApplicationRecord
+  MATCH_OUTCOMES = {
+    attached_existing: "attached_existing",
+    created_new: "created_new"
+  }.freeze
+
   belongs_to :submitted_by_user, class_name: "User", inverse_of: :submitted_lead_submissions
   belongs_to :lead, optional: true, inverse_of: :lead_submissions
+
+  enum :match_outcome, MATCH_OUTCOMES, validate: { allow_nil: true }, prefix: true
 
   before_validation :normalize_fields
   before_validation :set_default_editable_until, on: :create
@@ -24,6 +31,17 @@ class LeadSubmission < ApplicationRecord
 
   def extract_tiktok_handle(value = tiktok_url)
     extract_handle(value, domain_pattern: /tiktok\.com\/@([^\/\?#]+)/i)
+  end
+
+  def match_outcome_label
+    case match_outcome
+    when "attached_existing"
+      "Attached to existing lead"
+    when "created_new"
+      "Created new lead"
+    else
+      "Match result unavailable"
+    end
   end
 
   private

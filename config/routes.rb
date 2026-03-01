@@ -46,7 +46,8 @@ Rails.application.routes.draw do
   end
 
   namespace :contribute do
-    root "dashboard#index"
+    resources :submissions, except: :destroy
+    root "submissions#new"
   end
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
