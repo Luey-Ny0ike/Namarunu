@@ -32,6 +32,37 @@ class Invoice < ApplicationRecord
     phone_number.presence || store&.phone_number
   end
 
+  def fully_paid?
+    total_cents.to_i.positive? && amount_paid_cents.to_i >= total_cents.to_i
+  end
+
+  def sync_totals_and_payment_status!
+    subtotal = line_items.sum(:amount_cents)
+    total = subtotal + tax_cents.to_i
+    paid = amount_paid_cents.to_i
+    due = [total - paid, 0].max
+
+    next_status = status
+    if total.positive? && paid >= total
+      next_status = "paid"
+    elsif status == "paid" && due.positive?
+      next_status = "issued"
+    end
+
+    next_issued_at = issued_at
+    next_issued_at ||= Date.current if next_status == "paid"
+
+    update_columns(
+      subtotal_cents: subtotal,
+      total_cents: total,
+      amount_due_cents: due,
+      status: next_status,
+      issued_at: next_issued_at,
+      updated_at: Time.current
+    )
+    reload
+  end
+
   private
 
   def apply_store_defaults
