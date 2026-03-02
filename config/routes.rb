@@ -42,7 +42,7 @@ Rails.application.routes.draw do
   end
 
   namespace :app do
-    root "dashboard#index"
+    root "dashboard#show"
   end
 
   namespace :contribute do

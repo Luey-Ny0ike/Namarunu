@@ -1,0 +1,93 @@
+<h1 class="h3 mb-3">My Day</h1>
+
+<div class="d-grid gap-2 mb-4">
+  <% if @has_active_queue %>
+    <%= link_to "Continue Queue", my_tasks_leads_path, class: "btn btn-outline-secondary btn-lg" %>
+  <% end %>
+  <%= link_to "Pull 10 Leads", leads_path(pull: 10), class: "btn btn-primary btn-lg" %>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header fw-semibold">Today's Demos</div>
+  <div class="list-group list-group-flush">
+    <% if @todays_demos.any? %>
+      <% @todays_demos.each do |demo| %>
+        <div class="list-group-item py-3">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <div class="fw-semibold"><%= demo.lead&.business_name.presence || "Unlinked demo" %></div>
+              <div class="text-muted small">
+                <%= l(demo.scheduled_at, format: :short) %>
+                <% if demo.assigned_to_user.present? %>
+                  · <%= demo.assigned_to_user.full_name.presence || demo.assigned_to_user.email_address %>
+                <% end %>
+              </div>
+            </div>
+            <% if demo.lead.present? %>
+              <%= link_to "Open", lead_path(demo.lead), class: "btn btn-sm btn-outline-primary" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="list-group-item text-muted">No demos scheduled for today.</div>
+    <% end %>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-header fw-semibold">Follow-ups Due Today</div>
+  <div class="list-group list-group-flush">
+    <% if @follow_ups_due_today.any? %>
+      <% @follow_ups_due_today.each do |lead| %>
+        <div class="list-group-item py-3">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <div class="fw-semibold"><%= lead.business_name %></div>
+              <div class="text-muted small">
+                Due <%= lead.next_action_at.present? ? l(lead.next_action_at, format: :short) : "now" %>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <%= link_to "Open", lead_path(lead), class: "btn btn-sm btn-outline-secondary" %>
+              <%= link_to "Log attempt", lead_path(lead, anchor: "call-attempt"), class: "btn btn-sm btn-outline-primary", data: { bs_toggle: "modal", bs_target: "#logCallAttemptModal" } %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="list-group-item text-muted">No follow-ups due today.</div>
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header fw-semibold">My Active Leads</div>
+  <div class="list-group list-group-flush">
+    <% if @my_active_leads.any? %>
+      <% @my_active_leads.each do |lead| %>
+        <div class="list-group-item py-3">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <div class="fw-semibold"><%= lead.business_name %></div>
+              <div class="text-muted small">
+                Last activity:
+                <% if lead.respond_to?(:last_activity_at) && lead.last_activity_at.present? %>
+                  <%= l(lead.last_activity_at, format: :short) %>
+                <% else %>
+                  <%= l(lead.updated_at, format: :short) %>
+                <% end %>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <%= link_to "Open", lead_path(lead), class: "btn btn-sm btn-outline-secondary" %>
+              <%= link_to "Log attempt", lead_path(lead, anchor: "call-attempt"), class: "btn btn-sm btn-outline-primary", data: { bs_toggle: "modal", bs_target: "#logCallAttemptModal" } %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="list-group-item text-muted">No active leads yet.</div>
+    <% end %>
+  </div>
+</div>
