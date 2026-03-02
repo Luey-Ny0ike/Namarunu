@@ -7,6 +7,7 @@ class Invoice::PdfGenerator
   BORDER_BLACK  = "111111"
   PAPER_GRAY    = "FFFFFF"
   BODY_SIZE     = 13.2
+  STAMP_RED     = "E01E2E"
 
   def initialize(invoice)
     @invoice = invoice
@@ -16,12 +17,9 @@ class Invoice::PdfGenerator
     doc = Prawn::Document.new(page_size: "A4", margin: [16, 16, 16, 16])
     configure_fonts(doc)
     doc.font(@body_font)
-    draw_background(doc)
-    draw_header(doc)
-    draw_invoice_meta(doc)
-    draw_line_items(doc)
-    draw_payment_info(doc)
-    draw_bottom_bar(doc)
+    draw_page_shell(doc)
+    row_y = draw_line_items(doc)
+    draw_summary_and_footer(doc, row_y)
     doc.render
   end
 
@@ -121,12 +119,19 @@ class Invoice::PdfGenerator
     left_x = 46
     row_y = @line_item_y || (pdf.bounds.top - 280)
     row_height = 20
+    min_row_y = footer_bar_top(pdf) + 22
 
     line_items = @invoice.line_items.presence || [fallback_line_item]
 
     pdf.fill_color DARK_TEXT
     pdf.font(@body_font) do
       line_items.each do |line_item|
+        if (row_y - row_height) < min_row_y
+          draw_bottom_bar(pdf)
+          draw_page_shell(pdf, new_page: true)
+          row_y = @line_item_y
+        end
+
         description = line_item.description.to_s.presence || "Invoice item"
         qty = line_item.quantity.to_i
         qty = 1 if qty <= 0
@@ -141,18 +146,7 @@ class Invoice::PdfGenerator
         row_y -= row_height
       end
     end
-
-    summary_line = row_y - 8
-    pdf.stroke_color BORDER_BLACK
-    pdf.line_width 1.8
-    pdf.stroke_horizontal_line left_x, pdf.bounds.width - 66, at: summary_line
-
-    pdf.font(@body_font, style: :bold) do
-      pdf.text_box "TOTAL", at: [352, summary_line - 18], width: 54, height: 16,
-                   size: BODY_SIZE, style: :bold, character_spacing: 0.8
-      pdf.text_box currency_total(@invoice.total_cents), at: [432, summary_line - 18], width: 120, height: 16,
-                   size: BODY_SIZE, style: :bold
-    end
+    row_y
   end
 
   def fallback_line_item
@@ -165,13 +159,7 @@ class Invoice::PdfGenerator
   end
 
   def draw_payment_info(pdf)
-    y = pdf.bounds.bottom + 160
-
     pdf.fill_color DARK_TEXT
-    pdf.font(@body_font, style: :bold) do
-      pdf.text_box "Payments can be made here:", at: [56, y], width: 260, height: 16,
-                   size: 12
-    end
 
     lines = [
       { text: "Bank name: Equity bank", style: :normal },
@@ -184,39 +172,155 @@ class Invoice::PdfGenerator
       { text: "Account no: 714247", style: :normal }
     ]
 
-    row_y = y - 22
+    line_step = 17
+    blank_step = 10
+    footer_safe_gap = 38
+    min_last_line_y = footer_bar_top(pdf) + footer_safe_gap
+    steps_before_last = lines[0...-1].sum { |line| line[:text].empty? ? blank_step : line_step }
+    default_start_y = pdf.bounds.bottom + 138
+    row_y = [default_start_y, min_last_line_y + steps_before_last].max
+    payment_section_top_y = row_y + 22
+
+    pdf.font(@body_font, style: :bold) do
+      pdf.text_box "Payments can be made here:", at: [56, payment_section_top_y], width: 260, height: 16,
+                   size: 12
+    end
+
     lines.each do |line|
       if line[:text].empty?
-        row_y -= 10
+        row_y -= blank_step
         next
       end
 
       pdf.font(@body_font, style: line[:style]) do
         pdf.text_box line[:text], at: [56, row_y], width: 320, height: 16, size: 12
       end
-      row_y -= 17
+      row_y -= line_step
     end
+    payment_section_top_y
   end
 
-  def draw_bottom_bar(pdf)
-    bar_height = 34
-    bar_top = pdf.bounds.bottom + bar_height
+  def draw_summary_and_footer(pdf, row_y)
+    row_y = ensure_summary_space(pdf, row_y)
+    summary_line = draw_totals_line(pdf, row_y)
+    payment_section_top_y = payment_title_y(pdf)
+    draw_paid_stamp(pdf, gap_top_y: summary_line - 18, gap_bottom_y: payment_section_top_y)
+    draw_payment_info(pdf)
+    draw_bottom_bar(pdf)
+  end
 
-    pdf.fill_color BRAND_GREEN
-    pdf.fill_rectangle [0, bar_top], pdf.bounds.width, bar_height
+  def ensure_summary_space(pdf, row_y)
+    min_gap_for_stamp = 126
+    summary_line = row_y - 8
+    return row_y if (summary_line - payment_title_y(pdf)) >= min_gap_for_stamp
 
-    pdf.fill_color "FFFFFF"
+    draw_bottom_bar(pdf)
+    draw_page_shell(pdf, new_page: true)
+    @line_item_y
+  end
+
+  def draw_totals_line(pdf, row_y)
+    left_x = 46
+    summary_line = row_y - 8
+
+    pdf.stroke_color BORDER_BLACK
+    pdf.line_width 1.8
+    pdf.stroke_horizontal_line left_x, pdf.bounds.width - 66, at: summary_line
+
+    pdf.fill_color DARK_TEXT
     pdf.font(@body_font, style: :bold) do
-      pdf.text_box "Thank you!",
-                   at: [0, bar_top - 6],
-                   width: pdf.bounds.width,
-                   height: bar_height,
-                   align: :center,
-                   valign: :center,
-                   size: 19
+      pdf.text_box "TOTAL", at: [352, summary_line - 18], width: 54, height: 16,
+                   size: BODY_SIZE, style: :bold, character_spacing: 0.8
+      pdf.text_box currency_total(@invoice.total_cents), at: [432, summary_line - 18], width: 120, height: 16,
+                   size: BODY_SIZE, style: :bold
+    end
+
+    summary_line
+  end
+
+  def draw_paid_stamp(pdf, gap_top_y:, gap_bottom_y:)
+    return unless @invoice.status.to_s == "paid"
+    return unless gap_top_y && gap_bottom_y
+
+    center_x = pdf.bounds.width / 2.0
+    center_y = (gap_top_y + gap_bottom_y) / 2.0
+    width = 220
+    height = 88
+    x = center_x - (width / 2.0)
+    y = center_y + (height / 2.0)
+
+    pdf.save_graphics_state do
+      pdf.rotate(14, origin: [center_x, center_y]) do
+        pdf.fill_color "FFFFFF"
+        pdf.fill_rectangle [x, y], width, height
+
+        pdf.stroke_color STAMP_RED
+        pdf.line_width 4
+        pdf.stroke_rectangle [x, y], width, height
+        pdf.line_width 1.5
+        pdf.stroke_rectangle [x + 8, y - 8], width - 16, height - 16
+
+        pdf.fill_color STAMP_RED
+        pdf.font(@body_font, style: :bold) do
+          stamp_text = "PAID"
+          stamp_size = 44
+          text_width = pdf.width_of(stamp_text, size: stamp_size, character_spacing: 1.8)
+          text_x = x + ((width - text_width) / 2.0)
+          text_y = y - (height / 2.0) - (stamp_size * 0.30)
+
+          pdf.draw_text stamp_text,
+                        at: [text_x, text_y],
+                        size: stamp_size,
+                        character_spacing: 1.8
+        end
+      end
     end
 
     pdf.fill_color DARK_TEXT
+    pdf.stroke_color BORDER_BLACK
+    pdf.line_width 1
+  end
+
+  def draw_bottom_bar(pdf)
+    pdf.fill_color BRAND_GREEN
+    pdf.fill_rectangle [0, footer_bar_top(pdf)], pdf.bounds.width, footer_bar_height
+
+    pdf.fill_color "FFFFFF"
+    pdf.font(@thanks_font, style: :bold) do
+      pdf.text_box "Thank you!",
+                   at: [0, footer_bar_top(pdf) - 17], width: pdf.bounds.width, height: 28,
+                   size: 20, align: :center, valign: :center
+    end
+
+    pdf.fill_color DARK_TEXT
+  end
+
+  def draw_page_shell(pdf, new_page: false)
+    pdf.start_new_page if new_page
+    draw_background(pdf)
+    draw_header(pdf)
+    draw_invoice_meta(pdf)
+  end
+
+  def footer_bar_height
+    62
+  end
+
+  def footer_bar_top(pdf)
+    pdf.bounds.bottom + footer_bar_height
+  end
+
+  def payment_title_y(pdf)
+    line_step = 17
+    blank_step = 10
+    footer_safe_gap = 38
+    lines = 8
+    blank_lines = 2
+    steps_before_last = ((lines - 1 - blank_lines) * line_step) + (blank_lines * blank_step)
+    min_last_line_y = footer_bar_top(pdf) + footer_safe_gap
+    default_start_y = pdf.bounds.bottom + 138
+    first_line_y = [default_start_y, min_last_line_y + steps_before_last].max
+    first_line_y + 22
   end
 
   def configure_fonts(pdf)
@@ -277,6 +381,34 @@ class Invoice::PdfGenerator
       @logo_font = "ArchivoBlackCustom"
     else
       @logo_font = @body_font
+    end
+
+    thanks_regular = first_existing_path(
+      "app/assets/fonts/AbhayaLibre-Regular.ttf",
+      "app/assets/fonts/abhaya-libre/AbhayaLibre-Regular.ttf"
+    )
+
+    thanks_bold = first_existing_path(
+      "app/assets/fonts/AbhayaLibre-Bold.ttf",
+      "app/assets/fonts/AbhayaLibre-ExtraBold.ttf",
+      "app/assets/fonts/abhaya-libre/AbhayaLibre-Bold.ttf",
+      "app/assets/fonts/abhaya-libre/AbhayaLibre-ExtraBold.ttf"
+    )
+
+    if thanks_regular || thanks_bold
+      regular = thanks_regular || thanks_bold
+      bold = thanks_bold || thanks_regular
+      pdf.font_families.update(
+        "AbhayaLibreCustom" => {
+          normal: regular,
+          bold: bold,
+          italic: regular,
+          bold_italic: bold
+        }
+      )
+      @thanks_font = "AbhayaLibreCustom"
+    else
+      @thanks_font = @body_font
     end
   end
 

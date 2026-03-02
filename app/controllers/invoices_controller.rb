@@ -110,15 +110,7 @@ class InvoicesController < ApplicationController
   end
 
   def recalculate_totals(invoice)
-    invoice.reload
-    subtotal = invoice.line_items.sum(:amount_cents)
-    tax      = invoice.tax_cents
-    total    = subtotal + tax
-    invoice.update_columns(
-      subtotal_cents:    subtotal,
-      total_cents:       total,
-      amount_due_cents:  [total - invoice.amount_paid_cents, 0].max
-    )
+    invoice.sync_totals_and_payment_status!
   end
 
   def next_invoice_number
