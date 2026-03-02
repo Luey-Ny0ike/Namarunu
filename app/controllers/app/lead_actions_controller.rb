@@ -20,7 +20,7 @@ module App
 
       now = Time.current
       Lead.transaction do
-        account = ensure_converted_account!(lead, now)
+        account = ensure_converted_account!(lead, now, source: "confirm_payment")
 
         lead.update!(status: :won)
         Activity.create!(
@@ -72,15 +72,20 @@ module App
       lead = Lead.find(params[:id])
       authorize lead, :update?
 
-      previous_status = lead.status
-      lead.update!(status: :awaiting_commitment)
-      Activity.create!(
-        actor_user: Current.user,
-        subject: lead,
-        action_type: "status_changed",
-        metadata: { old: previous_status, new: lead.status },
-        occurred_at: Time.current
-      )
+      now = Time.current
+      Lead.transaction do
+        ensure_converted_account!(lead, now, source: "mark_awaiting_commitment")
+
+        previous_status = lead.status
+        lead.update!(status: :awaiting_commitment)
+        Activity.create!(
+          actor_user: Current.user,
+          subject: lead,
+          action_type: "status_changed",
+          metadata: { old: previous_status, new: lead.status },
+          occurred_at: now
+        )
+      end
 
       redirect_to success_redirect_target, notice: "Lead moved to awaiting commitment."
     rescue ActiveRecord::RecordInvalid => e
@@ -92,14 +97,18 @@ module App
       authorize lead, :update?
 
       now = Time.current
-      lead.update!(status: :invoice_sent, invoice_sent_at: now)
-      Activity.create!(
-        actor_user: Current.user,
-        subject: lead,
-        action_type: "invoice_sent",
-        metadata: { invoice_sent_at: now.iso8601 },
-        occurred_at: now
-      )
+      Lead.transaction do
+        ensure_converted_account!(lead, now, source: "mark_invoice_sent")
+
+        lead.update!(status: :invoice_sent, invoice_sent_at: now)
+        Activity.create!(
+          actor_user: Current.user,
+          subject: lead,
+          action_type: "invoice_sent",
+          metadata: { invoice_sent_at: now.iso8601 },
+          occurred_at: now
+        )
+      end
 
       redirect_to success_redirect_target, notice: "Invoice marked as sent."
     rescue ActiveRecord::RecordInvalid => e
@@ -265,7 +274,7 @@ module App
       session[:work_queue_ids] = updated_ids
     end
 
-    def ensure_converted_account!(lead, now)
+    def ensure_converted_account!(lead, now, source:)
       return lead.converted_account if lead.converted_account.present?
 
       account = Account.create!(
@@ -291,7 +300,7 @@ module App
         action_type: "converted",
         metadata: {
           account_id: account.id,
-          source: "confirm_payment"
+          source: source
         },
         occurred_at: now
       )

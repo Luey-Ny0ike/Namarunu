@@ -31,7 +31,10 @@ module App
       @current_index = @queue_ids.index(@current_lead.id) || 0
       @prev_lead_id = @current_index.positive? ? @queue_ids[@current_index - 1] : nil
       @next_lead_id = (@current_index < (@queue_ids.size - 1)) ? @queue_ids[@current_index + 1] : nil
-      @last_call_attempt = @current_lead.activities.where(action_type: "call_attempt_logged").recent_first.first
+      @last_call_attempt = @current_lead.activities
+        .where(action_type: "call_logged")
+        .order(Arel.sql("COALESCE(occurred_at, created_at) DESC"))
+        .first
       @latest_submission = @current_lead.lead_submissions.order(created_at: :desc).first
       @primary_contact = @current_lead.lead_contacts.order(:created_at).first
     end

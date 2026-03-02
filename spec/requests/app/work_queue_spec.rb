@@ -107,6 +107,33 @@ RSpec.describe "App::WorkQueue", type: :request do
     expect(response.body).to include(app_work_queue_path(lead_id: lead_three.id))
   end
 
+  it "shows the latest call_logged outcome in Last outcome" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = create_lead("Outcome Lead")
+    LeadAssignment.create!(lead: lead, user: rep, checked_out_at: Time.current, expires_at: 1.hour.from_now)
+
+    Activity.create!(
+      actor_user: rep,
+      subject: lead,
+      action_type: "call_logged",
+      metadata: { outcome: "interested" },
+      occurred_at: 2.hours.ago
+    )
+    Activity.create!(
+      actor_user: rep,
+      subject: lead,
+      action_type: "call_logged",
+      metadata: { outcome: "no_answer" },
+      occurred_at: 1.hour.ago
+    )
+
+    get app_work_queue_path(lead_id: lead.id)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("No answer")
+  end
+
   it "filters queue ids to active assignments for current rep and removes won/lost while preserving order" do
     rep = build_user(:sales_rep)
     sign_in_as(rep)

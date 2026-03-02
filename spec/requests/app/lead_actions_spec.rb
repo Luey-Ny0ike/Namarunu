@@ -72,6 +72,7 @@ RSpec.describe "App::LeadActions", type: :request do
     activity = Activity.where(subject: lead, action_type: "call_logged").order(:created_at).last
     expect(activity.metadata).to include("outcome" => "interested", "notes_present" => true)
     expect(activity.metadata).not_to have_key("notes")
+    expect(activity.occurred_at).to be_within(5.seconds).of(Time.current)
   end
 
   it "auto-advances to queue_next_lead_id when present and removes won/lost leads from queue session" do
@@ -151,6 +152,23 @@ RSpec.describe "App::LeadActions", type: :request do
     expect(activity.metadata).to include("old" => "new", "new" => "awaiting_commitment")
   end
 
+  it "auto-converts lead when marking awaiting_commitment" do
+    rep = build_user(:sales_rep)
+    lead = create_owned_lead(rep, name: "Awaiting Convert Lead")
+    sign_in_as(rep)
+
+    expect do
+      post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: lead_path(lead) }
+    end.to change(Account, :count).by(1)
+      .and change(Contact, :count).by(1)
+      .and change { Activity.where(action_type: "converted").count }.by(1)
+
+    expect(response).to redirect_to(lead_path(lead))
+    lead.reload
+    expect(lead.status).to eq("awaiting_commitment")
+    expect(lead.converted_account).to be_present
+  end
+
   it "marks invoice sent using server time and records invoice_sent activity" do
     rep = build_user(:sales_rep)
     lead = create_owned_lead(rep, name: "Invoice Lead")
@@ -169,6 +187,72 @@ RSpec.describe "App::LeadActions", type: :request do
     expect(lead.invoice_sent_at).to be_within(5.seconds).of(Time.current)
     activity = Activity.where(subject: lead, action_type: "invoice_sent").order(:created_at).last
     expect(Time.zone.parse(activity.metadata["invoice_sent_at"])).to be_within(5.seconds).of(lead.invoice_sent_at)
+  end
+
+  it "auto-converts lead when marking invoice_sent" do
+    rep = build_user(:sales_rep)
+    lead = create_owned_lead(rep, name: "Invoice Convert Lead")
+    sign_in_as(rep)
+
+    expect do
+      post mark_invoice_sent_app_lead_path(lead), params: { return_to: lead_path(lead) }
+    end.to change(Account, :count).by(1)
+      .and change(Contact, :count).by(1)
+      .and change { Activity.where(action_type: "converted").count }.by(1)
+
+    expect(response).to redirect_to(lead_path(lead))
+    lead.reload
+    expect(lead.status).to eq("invoice_sent")
+    expect(lead.converted_account).to be_present
+  end
+
+  it "allows sales reps to mark awaiting_commitment when lead is checked out to them" do
+    rep = build_user(:sales_rep)
+    owner = build_user(:sales_rep)
+    lead = create_lead(name: "Checked Out Awaiting", owner_user: owner)
+    LeadAssignment.create!(lead: lead, user: rep, checked_out_at: Time.current, expires_at: 1.hour.from_now)
+    sign_in_as(rep)
+
+    post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: lead_path(lead) }
+
+    expect(response).to redirect_to(lead_path(lead))
+    expect(lead.reload.status).to eq("awaiting_commitment")
+  end
+
+  it "prevents sales reps from marking invoice_sent when they do not own or check out the lead" do
+    rep = build_user(:sales_rep)
+    other_rep = build_user(:sales_rep)
+    lead = create_lead(name: "Other Rep Invoice", owner_user: other_rep)
+    sign_in_as(rep)
+
+    post mark_invoice_sent_app_lead_path(lead), params: { return_to: lead_path(lead) }
+
+    expect(response).to redirect_to(root_path)
+    expect(lead.reload.status).to eq("new")
+  end
+
+  it "allows sales managers to mark awaiting_commitment for any lead" do
+    manager = build_user(:sales_manager)
+    rep = build_user(:sales_rep)
+    lead = create_lead(name: "Manager Awaiting", owner_user: rep)
+    sign_in_as(manager)
+
+    post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: lead_path(lead) }
+
+    expect(response).to redirect_to(lead_path(lead))
+    expect(lead.reload.status).to eq("awaiting_commitment")
+  end
+
+  it "allows super admins to mark invoice_sent for any lead" do
+    admin = build_user(:super_admin)
+    rep = build_user(:sales_rep)
+    lead = create_lead(name: "Admin Invoice", owner_user: rep)
+    sign_in_as(admin)
+
+    post mark_invoice_sent_app_lead_path(lead), params: { return_to: lead_path(lead) }
+
+    expect(response).to redirect_to(lead_path(lead))
+    expect(lead.reload.status).to eq("invoice_sent")
   end
 
   it "requires lost_reason to mark lost" do
