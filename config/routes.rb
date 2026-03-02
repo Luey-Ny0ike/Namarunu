@@ -43,6 +43,25 @@ Rails.application.routes.draw do
 
   namespace :app do
     root "dashboard#show"
+    resources :demos, only: :index do
+      member do
+        post :complete
+      end
+    end
+    resources :leads, only: [] do
+      member do
+        post :log_attempt, to: "lead_actions#log_attempt"
+        post :book_demo, to: "lead_actions#book_demo"
+        post :mark_awaiting_commitment, to: "lead_actions#mark_awaiting_commitment"
+        post :mark_invoice_sent, to: "lead_actions#mark_invoice_sent"
+        post :mark_lost, to: "lead_actions#mark_lost"
+        post :confirm_payment, to: "lead_actions#confirm_payment"
+        post :release_and_next, to: "lead_actions#release_and_next"
+      end
+    end
+    resource :work_queue, only: :show, controller: :work_queue do
+      post :pull
+    end
   end
 
   namespace :contribute do

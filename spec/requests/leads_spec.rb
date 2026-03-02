@@ -102,6 +102,25 @@ RSpec.describe "Leads", type: :request do
     expect(response.body).to include(first_rep.full_name)
   end
 
+  it "keeps owner nil when a rep checks out and releases before demo_booked" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = Lead.create!(
+      business_name: "Unowned Pre-Demo Lead",
+      owner_user: nil,
+      status: :new,
+      lead_contacts_attributes: [{ name: "Primary Contact", phone: "+15551232222" }]
+    )
+
+    patch checkout_lead_path(lead)
+    expect(response).to redirect_to(lead_path(lead))
+    expect(lead.reload.owner_user_id).to be_nil
+
+    patch release_lead_path(lead)
+    expect(response).to redirect_to(lead_path(lead))
+    expect(lead.reload.owner_user_id).to be_nil
+  end
+
   it "allows manager to force release and reassign checkout" do
     owner = build_user(:sales_rep)
     current_rep = build_user(:sales_rep)
@@ -255,6 +274,78 @@ RSpec.describe "Leads", type: :request do
     lead.reload
     expect(lead.status).to eq("demo_booked")
     expect(lead.activities.order(:created_at).pluck(:action_type)).to include("demo_booked", "lead_status_changed")
+  end
+
+  it "sets owner to current rep on book_demo when lead has no owner" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = Lead.create!(
+      business_name: "Owner On Demo Booking",
+      owner_user: nil,
+      lead_contacts_attributes: [{ name: "Contact", phone: "+15550001111" }]
+    )
+    LeadAssignment.create!(
+      lead: lead,
+      user: rep,
+      checked_out_at: Time.current,
+      expires_at: 2.hours.from_now
+    )
+
+    post book_demo_lead_path(lead), params: {
+      demo: {
+        scheduled_at: 1.day.from_now.strftime("%Y-%m-%dT%H:%M"),
+        duration_minutes: 30
+      }
+    }
+
+    expect(response).to redirect_to(demo_path(Demo.last))
+    expect(lead.reload.owner_user).to eq(rep)
+    expect(lead.status).to eq("demo_booked")
+  end
+
+  it "does not overwrite existing owner on book_demo" do
+    owner = build_user(:sales_rep)
+    booking_rep = build_user(:sales_rep)
+    sign_in_as(booking_rep)
+    lead = Lead.create!(
+      business_name: "Keep Owner",
+      owner_user: owner,
+      lead_contacts_attributes: [{ name: "Contact", phone: "+15550002222" }]
+    )
+    LeadAssignment.create!(
+      lead: lead,
+      user: booking_rep,
+      checked_out_at: Time.current,
+      expires_at: 2.hours.from_now
+    )
+
+    post book_demo_lead_path(lead), params: {
+      demo: {
+        scheduled_at: 1.day.from_now.strftime("%Y-%m-%dT%H:%M"),
+        duration_minutes: 30
+      }
+    }
+
+    expect(response).to redirect_to(demo_path(Demo.last))
+    expect(lead.reload.owner_user).to eq(owner)
+  end
+
+  it "allows sales_manager to reassign owner_user_id at any time" do
+    manager = build_user(:sales_manager)
+    first_owner = build_user(:sales_rep)
+    new_owner = build_user(:sales_rep)
+    sign_in_as(manager)
+    lead = Lead.create!(
+      business_name: "Manager Owner Reassign",
+      owner_user: first_owner,
+      status: :demo_booked,
+      lead_contacts_attributes: [{ name: "Primary Contact", phone: "+15551233333" }]
+    )
+
+    patch lead_path(lead), params: { lead: { owner_user_id: new_owner.id } }
+
+    expect(response).to redirect_to(lead_path(lead))
+    expect(lead.reload.owner_user).to eq(new_owner)
   end
 
   it "shows demo metrics on lead dashboard" do

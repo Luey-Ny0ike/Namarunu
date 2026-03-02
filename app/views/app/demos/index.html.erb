@@ -1,0 +1,58 @@
+<h1 class="h3 mb-3">My Demos</h1>
+
+<div class="btn-group w-100 mb-3" role="group" aria-label="Demo tabs">
+  <%= link_to "Today", app_demos_path(tab: "today"), class: "btn #{ @tab == "today" ? "btn-dark" : "btn-outline-dark" }" %>
+  <%= link_to "Upcoming", app_demos_path(tab: "upcoming"), class: "btn #{ @tab == "upcoming" ? "btn-dark" : "btn-outline-dark" }" %>
+  <%= link_to "Past", app_demos_path(tab: "past"), class: "btn #{ @tab == "past" ? "btn-dark" : "btn-outline-dark" }" %>
+</div>
+
+<% if @demos.any? %>
+  <div class="d-grid gap-3">
+    <% @demos.each do |demo| %>
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <div>
+              <h2 class="h5 mb-1"><%= demo.lead&.business_name.presence || "Unlinked demo" %></h2>
+              <div class="text-muted small"><%= l(demo.scheduled_at, format: :short) %> · <%= demo.duration_minutes %> min</div>
+            </div>
+            <span class="badge bg-success-subtle text-dark"><%= demo.status.humanize %></span>
+          </div>
+
+          <div class="small mb-2">
+            <strong>Assigned:</strong>
+            <%= demo.assigned_to_user&.full_name.presence || demo.assigned_to_user&.email_address || "-" %>
+          </div>
+          <div class="small mb-3">
+            <strong>Outcome:</strong> <%= demo.outcome&.humanize || "-" %>
+          </div>
+
+          <div class="d-grid gap-2">
+            <%= link_to "Open Lead", demo.lead.present? ? lead_path(demo.lead) : demo_path(demo), class: "btn btn-outline-secondary" %>
+          </div>
+
+          <% if demo.lead.present? && (demo.status_scheduled? || demo.status_rescheduled?) %>
+            <hr>
+            <%= form_with url: complete_app_demo_path(demo), method: :post, local: true, class: "d-grid gap-2" do |form| %>
+              <%= form.select :status,
+                              options_for_select([["Completed", "completed"], ["No show", "no_show"]]),
+                              {},
+                              class: "form-select",
+                              required: true %>
+              <%= form.select :outcome,
+                              options_for_select(Demo::OUTCOMES.keys.map { |value| [value.to_s.humanize, value] }),
+                              { include_blank: "No outcome" },
+                              class: "form-select" %>
+              <%= form.text_field :notes, class: "form-control", placeholder: "Optional demo notes" %>
+              <%= form.submit "Complete Demo", class: "btn btn-primary" %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="card">
+    <div class="card-body text-muted">No demos for this tab.</div>
+  </div>
+<% end %>

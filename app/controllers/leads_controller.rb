@@ -148,7 +148,7 @@ class LeadsController < ApplicationController
       demo.save!
 
       previous_status = @lead.status
-      @lead.update!(status: :demo_booked, next_action_at: scheduled_at)
+      @lead.update!(status: :demo_booked, next_action_at: scheduled_at, owner_user: (@lead.owner_user || Current.user))
 
       write_activity!(
         @lead,
@@ -203,7 +203,6 @@ class LeadsController < ApplicationController
           checked_out_at: now,
           expires_at: now + checkout_duration
         )
-        locked_lead.update!(owner_user: Current.user) if locked_lead.owner_user_id.blank?
       end
     end
 
@@ -300,7 +299,6 @@ class LeadsController < ApplicationController
         )
       end
 
-      locked_lead.update!(owner_user: assignee) if locked_lead.owner_user_id.blank?
     end
 
     write_expired_activities!(@lead, expired_assignments)
