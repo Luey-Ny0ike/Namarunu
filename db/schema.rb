@@ -315,6 +315,153 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_06_032000) do
     t.index ["provider", "provider_ref"], name: "index_invoice_payments_on_provider_and_provider_ref"
   end
 
+  create_table "invoices", force: :cascade do |t|
+    t.bigint "amount_due_cents", default: 0, null: false
+    t.bigint "amount_paid_cents", default: 0, null: false
+    t.string "billing_period", null: false
+    t.date "billing_period_end", null: false
+    t.date "billing_period_start", null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "KES", null: false
+    t.bigint "discount_cents", default: 0, null: false
+    t.datetime "due_at"
+    t.string "email_address"
+    t.string "invoice_number", null: false
+    t.datetime "issued_at"
+    t.string "name"
+    t.text "notes"
+    t.string "phone_number"
+    t.string "plan_code", null: false
+    t.string "plan_type", null: false
+    t.string "status", default: "draft", null: false
+    t.bigint "store_id"
+    t.bigint "store_subscription_id"
+    t.bigint "subtotal_cents", default: 0, null: false
+    t.bigint "tax_cents", default: 0, null: false
+    t.bigint "total_cents", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["due_at"], name: "index_invoices_on_due_at"
+    t.index ["invoice_number"], name: "index_invoices_on_invoice_number", unique: true
+    t.index ["status"], name: "index_invoices_on_status"
+    t.index ["store_id"], name: "index_invoices_on_store_id"
+    t.index ["store_subscription_id", "billing_period_start", "billing_period_end"], name: "idx_on_store_subscription_id_billing_period_start_b_a9db99846f", unique: true
+  end
+
+  create_table "lead_assignments", force: :cascade do |t|
+    t.datetime "checked_out_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.bigint "lead_id", null: false
+    t.string "release_reason"
+    t.datetime "released_at"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["expires_at"], name: "index_lead_assignments_on_expires_at"
+    t.index ["lead_id", "released_at"], name: "index_lead_assignments_on_lead_id_and_released_at"
+    t.index ["lead_id"], name: "index_lead_assignments_on_lead_id"
+    t.index ["lead_id"], name: "index_lead_assignments_on_lead_id_unreleased", unique: true, where: "(released_at IS NULL)"
+    t.index ["released_at"], name: "index_lead_assignments_on_released_at"
+    t.index ["user_id"], name: "index_lead_assignments_on_user_id"
+  end
+
+  create_table "lead_contacts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.bigint "lead_id", null: false
+    t.string "name", null: false
+    t.string "phone"
+    t.string "preferred_channel"
+    t.string "role"
+    t.datetime "updated_at", null: false
+    t.index ["lead_id"], name: "index_lead_contacts_on_lead_id"
+  end
+
+  create_table "lead_submissions", force: :cascade do |t|
+    t.string "business_name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "editable_until", default: -> { "(CURRENT_TIMESTAMP + 'PT30M'::interval)" }, null: false
+    t.string "instagram_handle"
+    t.string "instagram_url"
+    t.bigint "lead_id"
+    t.string "location"
+    t.datetime "locked_at"
+    t.string "match_outcome"
+    t.string "matched_field"
+    t.text "notes"
+    t.string "phone_normalized"
+    t.string "phone_raw"
+    t.bigint "submitted_by_user_id", null: false
+    t.string "tiktok_handle"
+    t.string "tiktok_url"
+    t.datetime "updated_at", null: false
+    t.index ["instagram_handle"], name: "index_lead_submissions_on_instagram_handle"
+    t.index ["lead_id"], name: "index_lead_submissions_on_lead_id"
+    t.index ["match_outcome"], name: "index_lead_submissions_on_match_outcome"
+    t.index ["phone_normalized"], name: "index_lead_submissions_on_phone_normalized"
+    t.index ["submitted_by_user_id"], name: "index_lead_submissions_on_submitted_by_user_id"
+    t.index ["tiktok_handle"], name: "index_lead_submissions_on_tiktok_handle"
+  end
+
+  create_table "leads", force: :cascade do |t|
+    t.string "business_name", null: false
+    t.datetime "converted_at"
+    t.datetime "created_at", null: false
+    t.string "industry"
+    t.datetime "invoice_sent_at"
+    t.datetime "last_contacted_at"
+    t.string "location"
+    t.string "lost_reason"
+    t.datetime "next_action_at"
+    t.bigint "owner_user_id"
+    t.string "source"
+    t.string "status", default: "new", null: false
+    t.string "temperature", default: "warm", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_sent_at"], name: "index_leads_on_invoice_sent_at"
+    t.index ["lost_reason"], name: "index_leads_on_lost_reason"
+    t.index ["next_action_at"], name: "index_leads_on_next_action_at"
+    t.index ["owner_user_id"], name: "index_leads_on_owner_user_id"
+    t.index ["status"], name: "index_leads_on_status"
+    t.index ["temperature"], name: "index_leads_on_temperature"
+  end
+
+  create_table "sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "store_subscriptions", force: :cascade do |t|
+    t.string "billing_period", null: false
+    t.boolean "cancel_at_period_end", default: false, null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "KES", null: false
+    t.date "current_period_end", null: false
+    t.date "current_period_start", null: false
+    t.string "plan_code", null: false
+    t.integer "quantity", default: 1, null: false
+    t.string "status", default: "active", null: false
+    t.bigint "store_id", null: false
+    t.bigint "unit_amount_cents", null: false
+    t.datetime "updated_at", null: false
+    t.index ["current_period_end"], name: "index_store_subscriptions_on_current_period_end"
+    t.index ["status"], name: "index_store_subscriptions_on_status"
+    t.index ["store_id"], name: "index_store_subscriptions_on_store_id"
+  end
+
+  create_table "stores", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "currency", default: "KES", null: false
+    t.string "email_address"
+    t.string "name", null: false
+    t.string "phone_number"
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_stores_on_email_address"
+  end
+
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_address", null: false
