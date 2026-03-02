@@ -1,4 +1,5 @@
-<%= form_with model: [invoice, line_item] do |f| %>
+<%= form_with model: line_item,
+              url: (line_item.persisted? ? polymorphic_path([invoice, line_item]) : polymorphic_path([invoice, :line_items])) do |f| %>
   <% if line_item.errors.any? %>
     <div class="alert alert-danger">
       <ul class="mb-0">

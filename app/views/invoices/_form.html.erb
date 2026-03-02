@@ -12,7 +12,6 @@
   <%= f.hidden_field :tax_cents,         data: { "line-items-target": "taxCents" } %>
   <%= f.hidden_field :total_cents,       data: { "line-items-target": "totalCents" } %>
   <%= f.hidden_field :amount_due_cents,  data: { "line-items-target": "amountDueCents" } %>
-  <%= f.hidden_field :amount_paid_cents, value: invoice.amount_paid_cents.to_i %>
   <%= f.hidden_field :discount_cents,    value: invoice.discount_cents.to_i %>
 
   <%# Page header — title + subtitle only %>
@@ -292,6 +291,14 @@
             <div class="col-6">
               <label class="form-label small text-muted">Billing Period End</label>
               <%= f.date_field :billing_period_end, class: "form-control form-control-sm" %>
+            </div>
+            <div class="col-12">
+              <label class="form-label small text-muted">Amount Paid (cents)</label>
+              <%= f.number_field :amount_paid_cents,
+                    class: "form-control form-control-sm",
+                    min: 0,
+                    step: 1,
+                    value: invoice.amount_paid_cents.to_i %>
             </div>
           </div>
         </div>
