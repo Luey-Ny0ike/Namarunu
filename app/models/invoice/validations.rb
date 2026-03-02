@@ -5,25 +5,23 @@ module Invoice::Validations
 
   included do
     validates :plan_code,
-              presence: true,
-              inclusion: { in: ->(_) { Plan.all.map(&:code) }, message: "is not a recognised plan" }
+              inclusion: { in: ->(_) { Plan.all.map(&:code) }, message: "is not a recognised plan" },
+              allow_blank: true
 
     validates :plan_type,
-              presence: true,
-              inclusion: { in: Invoice::PLAN_TYPES }
+              inclusion: { in: Invoice::PLAN_TYPES },
+              allow_blank: true
 
     validates :billing_period,
-              presence: true,
-              inclusion: { in: Invoice::BILLING_PERIODS }
+              inclusion: { in: Invoice::BILLING_PERIODS },
+              allow_blank: true
 
     validates :currency,
               presence: true,
               inclusion: { in: Store::CURRENCIES }
 
     validates :invoice_number, presence: true, uniqueness: true
-
-    validates :billing_period_start, presence: true
-    validates :billing_period_end, presence: true
+    validates :name, presence: true
 
     validates :status,
               presence: true,

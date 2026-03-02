@@ -1,0 +1,50 @@
+<tr data-line-item-row>
+  <%= f.hidden_field :id %>
+  <%= f.hidden_field :_destroy, value: "0", data: { destroy_input: true } %>
+
+  <td>
+    <%= f.select :kind,
+          Invoice::LineItem::KINDS.map { |k| [k.humanize, k] },
+          {},
+          class: "form-select form-select-sm mb-1",
+          data: { kind_select: true, action: "change->line-items#kindChanged" } %>
+    <%= f.text_field :description,
+          class: "form-control form-control-sm",
+          placeholder: "Item description...",
+          data: { description_input: true } %>
+  </td>
+
+  <td>
+    <%= f.number_field :quantity,
+          class: "form-control form-control-sm text-end",
+          min: 1,
+          data: { qty_input: true, action: "input->line-items#calculate" } %>
+  </td>
+
+  <td>
+    <input type="number"
+           class="form-control form-control-sm text-end"
+           value="<%= f.object.unit_amount_cents.to_f / 100 %>"
+           step="0.01" min="0"
+           data-price-input
+           data-action="input->line-items#calculate">
+    <%= f.hidden_field :unit_amount_cents, data: { unit_amount_cents_input: true } %>
+  </td>
+
+  <td class="text-end">
+    <span data-amount-display><%= f.object.amount_cents.to_i / 100.0 %></span>
+    <%= f.hidden_field :amount_cents, data: { amount_cents_input: true } %>
+  </td>
+
+  <td class="text-center">
+    <button type="button"
+            class="btn btn-sm btn-link text-muted p-0"
+            data-action="line-items#remove"
+            title="Remove">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+      </svg>
+    </button>
+  </td>
+</tr>

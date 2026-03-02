@@ -1,0 +1,21 @@
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="text-muted small text-uppercase fw-semibold mb-3">Summary</div>
+    <dl class="row mb-0 small">
+      <% if invoice.discount_cents > 0 %>
+        <dt class="col-7 text-muted fw-normal">Discount</dt>
+        <dd class="col-5 text-end mb-1">- <%= format_invoice_money(invoice.discount_cents, invoice.currency) %></dd>
+      <% end %>
+      <% if invoice.tax_cents > 0 %>
+        <dt class="col-7 text-muted fw-normal">Tax</dt>
+        <dd class="col-5 text-end mb-1"><%= format_invoice_money(invoice.tax_cents, invoice.currency) %></dd>
+      <% end %>
+      <dt class="col-7 text-muted fw-normal">Subtotal</dt>
+      <dd class="col-5 text-end mb-1"><%= format_invoice_money(invoice.subtotal_cents, invoice.currency) %></dd>
+      <dt class="col-7 text-muted fw-normal">Amount Paid</dt>
+      <dd class="col-5 text-end mb-1"><%= format_invoice_money(invoice.amount_paid_cents, invoice.currency) %></dd>
+      <dt class="col-7 fw-bold">Amount Due</dt>
+      <dd class="col-5 text-end mb-0 fw-bold"><%= format_invoice_money(invoice.amount_due_cents, invoice.currency) %></dd>
+    </dl>
+  </div>
+</div>

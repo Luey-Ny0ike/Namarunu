@@ -2,17 +2,20 @@
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
       <h1 class="h3 mb-1">Invoice #<%= @invoice.invoice_number %></h1>
-      <p class="text-muted mb-0"><%= @invoice.store.name %> &mdash; <%= @invoice.billing_period.humanize %></p>
+      <p class="text-muted mb-0"><%= @invoice.recipient_name %> &mdash; <%= @invoice.billing_period.humanize %></p>
     </div>
-    <%= link_to invoice_path(@invoice, format: :pdf),
-                class: "btn btn-success d-flex align-items-center gap-2",
-                target: "_blank" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
-        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
-      </svg>
-      Download PDF
-    <% end %>
+    <div class="d-flex gap-2">
+      <%= link_to "Edit", edit_invoice_path(@invoice), class: "btn btn-outline-secondary" %>
+      <%= link_to invoice_path(@invoice, format: :pdf),
+                  class: "btn btn-success d-flex align-items-center gap-2",
+                  target: "_blank" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+          <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+        </svg>
+        Download PDF
+      <% end %>
+    </div>
   </div>
 
   <div class="row g-3 mb-4">
@@ -31,7 +34,7 @@
 
   <div class="row g-3">
     <div class="col-lg-8">
-      <div class="card shadow-sm mb-3">
+      <div class="card shadow-sm mb-3" id="line-items">
         <div class="card-body">
           <div class="row g-3 mb-4">
             <div class="col-sm-6">
@@ -42,54 +45,21 @@
               <div class="text-muted small text-uppercase fw-semibold mb-1">Status</div>
               <span class="badge <%= status_badge_class(@invoice.status) %>"><%= @invoice.status.capitalize %></span>
             </div>
+            <% if @invoice.plan %>
             <div class="col-sm-6">
               <div class="text-muted small text-uppercase fw-semibold mb-1">Plan</div>
               <div><%= @invoice.plan.name %></div>
             </div>
+            <% end %>
             <div class="col-sm-6">
               <div class="text-muted small text-uppercase fw-semibold mb-1">Issued</div>
               <div><%= (@invoice.issued_at || @invoice.created_at).strftime("%-d %B %Y") %></div>
             </div>
           </div>
 
-          <table class="table table-sm">
-            <thead class="table-dark">
-              <tr>
-                <th>Service Description</th>
-                <th class="text-end">Qty</th>
-                <th class="text-end">Unit Price</th>
-                <th class="text-end">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @invoice.line_items.each do |item| %>
-                <tr>
-                  <td><%= item.description %></td>
-                  <td class="text-end"><%= item.quantity %></td>
-                  <td class="text-end"><%= format_invoice_money(item.unit_amount_cents, @invoice.currency) %></td>
-                  <td class="text-end"><%= format_invoice_money(item.amount_cents, @invoice.currency) %></td>
-                </tr>
-              <% end %>
-            </tbody>
-            <tfoot>
-              <% if @invoice.discount_cents > 0 %>
-                <tr>
-                  <td colspan="3" class="text-end text-muted">Discount</td>
-                  <td class="text-end text-muted">- <%= format_invoice_money(@invoice.discount_cents, @invoice.currency) %></td>
-                </tr>
-              <% end %>
-              <% if @invoice.tax_cents > 0 %>
-                <tr>
-                  <td colspan="3" class="text-end text-muted">Tax</td>
-                  <td class="text-end text-muted"><%= format_invoice_money(@invoice.tax_cents, @invoice.currency) %></td>
-                </tr>
-              <% end %>
-              <tr class="fw-bold">
-                <td colspan="3" class="text-end">Total Due</td>
-                <td class="text-end"><%= format_invoice_money(@invoice.total_cents, @invoice.currency) %></td>
-              </tr>
-            </tfoot>
-          </table>
+          <%= turbo_frame_tag "line_items" do %>
+            <%= render "line_items", invoice: @invoice %>
+          <% end %>
         </div>
       </div>
     </div>
@@ -98,27 +68,19 @@
       <div class="card shadow-sm mb-3">
         <div class="card-body">
           <div class="text-muted small text-uppercase fw-semibold mb-3">Issued To</div>
-          <div class="fw-semibold"><%= @invoice.store.name %></div>
-          <% if @invoice.store.email_address.present? %>
-            <div class="text-muted small"><%= @invoice.store.email_address %></div>
+          <div class="fw-semibold"><%= @invoice.recipient_name %></div>
+          <% if @invoice.recipient_email.present? %>
+            <div class="text-muted small"><%= @invoice.recipient_email %></div>
           <% end %>
-          <% if @invoice.store.phone_number.present? %>
-            <div class="text-muted small"><%= @invoice.store.phone_number %></div>
+          <% if @invoice.recipient_phone.present? %>
+            <div class="text-muted small"><%= @invoice.recipient_phone %></div>
           <% end %>
         </div>
       </div>
 
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <div class="text-muted small text-uppercase fw-semibold mb-3">Summary</div>
-          <dl class="row mb-0 small">
-            <dt class="col-7 text-muted fw-normal">Amount Paid</dt>
-            <dd class="col-5 text-end mb-1"><%= format_invoice_money(@invoice.amount_paid_cents, @invoice.currency) %></dd>
-            <dt class="col-7 text-muted fw-normal">Amount Due</dt>
-            <dd class="col-5 text-end mb-0 fw-bold"><%= format_invoice_money(@invoice.amount_due_cents, @invoice.currency) %></dd>
-          </dl>
-        </div>
-      </div>
+      <%= turbo_frame_tag "invoice_totals" do %>
+        <%= render "invoice_totals", invoice: @invoice %>
+      <% end %>
     </div>
   </div>
 </div>

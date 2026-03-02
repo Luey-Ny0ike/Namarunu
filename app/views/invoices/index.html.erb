@@ -1,0 +1,45 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Invoices</h1>
+    <%= link_to "New Invoice", new_invoice_path, class: "btn btn-primary" %>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-dark">
+          <tr>
+            <th>Invoice #</th>
+            <th>Name</th>
+            <th>Plan</th>
+            <th>Period</th>
+            <th>Status</th>
+            <th class="text-end">Amount Due</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @invoices.each do |invoice| %>
+            <tr>
+              <td><%= link_to invoice.invoice_number, invoice_path(invoice) %></td>
+              <td><%= invoice.recipient_name %></td>
+              <td><%= invoice.plan_code.presence || "—" %></td>
+              <td class="text-nowrap"><%= invoice.billing_period_start.strftime("%-d %b %Y") %> – <%= invoice.billing_period_end.strftime("%-d %b %Y") %></td>
+              <td><span class="badge <%= status_badge_class(invoice.status) %>"><%= invoice.status.capitalize %></span></td>
+              <td class="text-end"><%= format_invoice_money(invoice.amount_due_cents, invoice.currency) %></td>
+              <td class="text-end">
+                <%= link_to "Edit", edit_invoice_path(invoice), class: "btn btn-sm btn-outline-secondary me-1" %>
+                <%= button_to "Delete", invoice_path(invoice), method: :delete, class: "btn btn-sm btn-outline-danger", form: { data: { turbo_confirm: "Delete this invoice?" } } %>
+              </td>
+            </tr>
+          <% end %>
+          <% if @invoices.empty? %>
+            <tr>
+              <td colspan="7" class="text-center text-muted py-4">No invoices yet.</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

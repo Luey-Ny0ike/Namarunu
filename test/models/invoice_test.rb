@@ -6,6 +6,9 @@ class InvoiceTest < ActiveSupport::TestCase
   def valid_attrs
     {
       store:                 stores(:glow_organics),
+      name:                  "Glow Organics Kenya",
+      email_address:         "glow@example.com",
+      phone_number:          "+254700000000",
       store_subscription:    store_subscriptions(:glow_sungura),
       plan_code:             "sungura",
       plan_type:             "starter",
@@ -144,6 +147,11 @@ class InvoiceTest < ActiveSupport::TestCase
 
   test "store_subscription is optional" do
     invoice = Invoice.new(valid_attrs.merge(store_subscription: nil))
+    assert invoice.valid?
+  end
+
+  test "allows invoice without store when name is provided" do
+    invoice = Invoice.new(valid_attrs.merge(store: nil, name: "Walk-in Client"))
     assert invoice.valid?
   end
 
