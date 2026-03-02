@@ -1,0 +1,237 @@
+<div class="pb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Work Queue (<%= @queue_size %>)</h1>
+    <% if @queue_size.positive? %>
+      <span class="text-muted small"><%= @current_index + 1 %> of <%= @queue_size %></span>
+    <% end %>
+  </div>
+
+  <% if @current_lead.blank? %>
+    <div class="card">
+      <div class="card-body">
+        <p class="mb-3 text-muted">Your queue is empty.</p>
+        <%= button_to "Pull 10 Leads", pull_app_work_queue_path, method: :post, class: "btn btn-primary btn-lg w-100" %>
+      </div>
+    </div>
+  <% else %>
+    <div class="row g-4">
+      <div class="col-12 col-lg-7">
+        <div class="d-flex flex-column gap-3">
+          <div class="card">
+            <div class="card-header py-3">
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <div>
+                  <h2 class="h5 mb-1"><%= @current_lead.business_name %></h2>
+                  <div class="small text-muted">Review details, place the call, then log the result.</div>
+                </div>
+                <div class="text-end small text-muted"><%= @current_index + 1 %> of <%= @queue_size %></div>
+              </div>
+              <div class="d-flex flex-wrap gap-2 mt-2">
+                <span class="badge bg-success-subtle text-dark"><%= @current_lead.status.humanize %></span>
+                <% if @current_lead.source.present? %>
+                  <span class="badge bg-secondary-subtle text-dark"><%= @current_lead.source.humanize %></span>
+                <% end %>
+                <% if @latest_submission&.instagram_handle.present? %>
+                  <span class="badge bg-light text-dark border d-inline-flex align-items-center">
+                    <span class="d-inline d-md-none"><%= instagram_icon(class_name: "opacity-75") %></span>
+                    <span class="d-none d-md-inline d-inline-flex align-items-center gap-1">
+                      <%= instagram_icon(size: 12, class_name: "opacity-75") %>
+                      <span class="small">Instagram</span>
+                    </span>
+                  </span>
+                <% end %>
+                <% if @latest_submission&.tiktok_handle.present? %>
+                  <span class="badge bg-light text-dark border d-inline-flex align-items-center">
+                    <span class="d-inline d-md-none"><%= tiktok_icon(class_name: "opacity-75") %></span>
+                    <span class="d-none d-md-inline d-inline-flex align-items-center gap-1">
+                      <%= tiktok_icon(size:12, class_name: "opacity-75") %>
+                      <span class="small">TikTok</span>
+                    </span>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header py-3">
+              <div class="fw-semibold">Log Call Attempt</div>
+              <div class="small text-muted">Capture call outcome and any follow-up time.</div>
+            </div>
+            <div class="card-body">
+              <%= form_with url: log_attempt_app_lead_path(@current_lead), method: :post, local: true, class: "d-grid gap-2" do |form| %>
+                <%= form.hidden_field :return_to, value: app_work_queue_path(lead_id: @current_lead.id) %>
+                <%= form.hidden_field :queue_next_lead_id, value: @next_lead_id %>
+                <%= form.select :outcome,
+                                options_for_select(Lead::CALL_OUTCOMES.keys.map { |value| [value.to_s.humanize, value] }),
+                                { include_blank: "Select call outcome" },
+                                class: "form-select form-select-lg",
+                                data: { work_queue_outcome: true },
+                                required: true %>
+                <div class="d-none" data-work-queue-follow-up-wrapper>
+                  <%= form.datetime_local_field :next_action_at,
+                                                class: "form-control",
+                                                placeholder: "Follow-up time",
+                                                data: { work_queue_follow_up_input: true } %>
+                </div>
+                <%= form.text_field :notes, class: "form-control", placeholder: "Optional notes" %>
+                <%= form.submit "Log attempt", class: "btn btn-primary btn-lg" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-5">
+        <div class="d-flex flex-column gap-3 d-lg-none">
+          <%= render "sidebar_panels", current_lead: @current_lead, primary_contact: @primary_contact, last_call_attempt: @last_call_attempt, prev_lead_id: @prev_lead_id, next_lead_id: @next_lead_id %>
+        </div>
+
+        <div class="d-none d-lg-block position-sticky top-0">
+          <div class="d-flex flex-column gap-3">
+            <%= render "sidebar_panels", current_lead: @current_lead, primary_contact: @primary_contact, last_call_attempt: @last_call_attempt, prev_lead_id: @prev_lead_id, next_lead_id: @next_lead_id %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-lg-none position-sticky bottom-0 bg-light border-top py-2 mt-3">
+      <div class="d-flex gap-2">
+        <% if @prev_lead_id.present? %>
+          <%= link_to "Prev", app_work_queue_path(lead_id: @prev_lead_id), class: "btn btn-outline-secondary flex-fill" %>
+        <% else %>
+          <button class="btn btn-outline-secondary flex-fill" disabled>Prev</button>
+        <% end %>
+
+        <% if @next_lead_id.present? %>
+          <%= link_to "Next", app_work_queue_path(lead_id: @next_lead_id), class: "btn btn-outline-secondary flex-fill" %>
+        <% else %>
+          <button class="btn btn-outline-secondary flex-fill" disabled>Next</button>
+        <% end %>
+
+        <%= link_to "Open Details", lead_path(@current_lead), class: "btn btn-dark flex-fill" %>
+      </div>
+    </div>
+
+    <div class="modal fade" id="awaitingCommitmentModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5 mb-0">Mark Awaiting Commitment</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-3">Move <strong><%= @current_lead.business_name %></strong> to Awaiting commitment?</p>
+            <%= form_with url: mark_awaiting_commitment_app_lead_path(@current_lead), method: :post, local: true, class: "d-grid" do |form| %>
+              <%= form.hidden_field :return_to, value: app_work_queue_path(lead_id: @current_lead.id) %>
+              <%= form.hidden_field :queue_next_lead_id, value: @next_lead_id %>
+              <%= form.submit "Confirm", class: "btn btn-primary" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="invoiceSentModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5 mb-0">Mark Invoice Sent</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-3">Set invoice sent for <strong><%= @current_lead.business_name %></strong> now?</p>
+            <%= form_with url: mark_invoice_sent_app_lead_path(@current_lead), method: :post, local: true, class: "d-grid" do |form| %>
+              <%= form.hidden_field :return_to, value: app_work_queue_path(lead_id: @current_lead.id) %>
+              <%= form.hidden_field :queue_next_lead_id, value: @next_lead_id %>
+              <%= form.submit "Confirm", class: "btn btn-primary" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="markLostModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5 mb-0">Mark Lead Lost</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <%= form_with url: mark_lost_app_lead_path(@current_lead), method: :post, local: true, class: "d-grid gap-2" do |form| %>
+              <%= form.hidden_field :return_to, value: app_work_queue_path(lead_id: @current_lead.id) %>
+              <%= form.hidden_field :queue_next_lead_id, value: @next_lead_id %>
+              <%= form.select :lost_reason,
+                              options_for_select(Lead::LOST_REASONS.keys.map { |value| [value.to_s.humanize, value] }),
+                              { include_blank: "Select lost reason" },
+                              class: "form-select",
+                              required: true %>
+              <%= form.submit "Mark Lost", class: "btn btn-danger" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="confirmPaymentModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5 mb-0">Confirm Payment</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-3">Mark <strong><%= @current_lead.business_name %></strong> as won (payment received)?</p>
+            <%= form_with url: confirm_payment_app_lead_path(@current_lead), method: :post, local: true, class: "d-grid" do |form| %>
+              <%= form.hidden_field :return_to, value: app_work_queue_path(lead_id: @current_lead.id) %>
+              <%= form.hidden_field :queue_next_lead_id, value: @next_lead_id %>
+              <%= form.submit "Confirm Payment", class: "btn btn-success" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="releaseNextModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title h5 mb-0">Release + Next</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-3">Release this lead and move to the next one in your queue?</p>
+            <%= form_with url: release_and_next_app_lead_path(@current_lead), method: :post, local: true, class: "d-grid" do |form| %>
+              <%= form.hidden_field :return_to, value: app_work_queue_path(lead_id: @current_lead.id) %>
+              <%= form.hidden_field :queue_next_lead_id, value: @next_lead_id %>
+              <%= form.submit "Release + Next", class: "btn btn-outline-danger" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("turbo:load", function () {
+        var outcomeSelect = document.querySelector("[data-work-queue-outcome='true']");
+        var followUpWrapper = document.querySelector("[data-work-queue-follow-up-wrapper]");
+        var followUpInput = document.querySelector("[data-work-queue-follow-up-input='true']");
+        if (!outcomeSelect || !followUpWrapper || !followUpInput) return;
+
+        var toggleFollowUp = function () {
+          var isFollowUp = outcomeSelect.value === "follow_up";
+          followUpWrapper.classList.toggle("d-none", !isFollowUp);
+          followUpInput.required = isFollowUp;
+          if (!isFollowUp) followUpInput.value = "";
+        };
+
+        toggleFollowUp();
+        if (outcomeSelect.dataset.followUpBound !== "true") {
+          outcomeSelect.addEventListener("change", toggleFollowUp);
+          outcomeSelect.dataset.followUpBound = "true";
+        }
+      });
+    </script>
+  <% end %>
+</div>

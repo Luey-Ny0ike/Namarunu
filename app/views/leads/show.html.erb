@@ -117,6 +117,18 @@
         <% end %>
       </div>
 
+      <% if policy(@lead).update? %>
+        <div class="border rounded-3 p-3 mb-4">
+          <h2 class="h5 mb-3">Post-Demo Actions</h2>
+          <div class="d-grid gap-2 d-md-flex">
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadAwaitingCommitmentModal">Awaiting commitment</button>
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadInvoiceSentModal">Mark invoice sent</button>
+            <button class="btn btn-outline-success" type="button" data-bs-toggle="modal" data-bs-target="#leadConfirmPaymentModal">Confirm payment (won)</button>
+            <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#leadMarkLostModal">Mark lost</button>
+          </div>
+        </div>
+      <% end %>
+
       <h2 class="h5 mb-2">Checkout</h2>
       <% if @active_assignment.present? %>
         <p class="mb-3">
@@ -254,6 +266,79 @@
       <% else %>
         <p class="text-muted mb-0">No activity yet.</p>
       <% end %>
+    </div>
+  </div>
+
+  <div class="modal fade" id="leadAwaitingCommitmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5 mb-0">Mark Awaiting Commitment</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <%= form_with url: mark_awaiting_commitment_app_lead_path(@lead), method: :post, local: true, class: "d-grid" do |form| %>
+            <%= form.hidden_field :return_to, value: lead_path(@lead) %>
+            <%= form.submit "Confirm", class: "btn btn-primary" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="leadInvoiceSentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5 mb-0">Mark Invoice Sent</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <%= form_with url: mark_invoice_sent_app_lead_path(@lead), method: :post, local: true, class: "d-grid" do |form| %>
+            <%= form.hidden_field :return_to, value: lead_path(@lead) %>
+            <%= form.submit "Confirm", class: "btn btn-primary" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="leadMarkLostModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5 mb-0">Mark Lead Lost</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <%= form_with url: mark_lost_app_lead_path(@lead), method: :post, local: true, class: "d-grid gap-2" do |form| %>
+            <%= form.hidden_field :return_to, value: lead_path(@lead) %>
+            <%= form.select :lost_reason,
+                            options_for_select(Lead::LOST_REASONS.keys.map { |value| [value.to_s.humanize, value] }),
+                            { include_blank: "Select lost reason" },
+                            class: "form-select",
+                            required: true %>
+            <%= form.submit "Mark Lost", class: "btn btn-danger" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="leadConfirmPaymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5 mb-0">Confirm Payment</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <%= form_with url: confirm_payment_app_lead_path(@lead), method: :post, local: true, class: "d-grid" do |form| %>
+            <%= form.hidden_field :return_to, value: lead_path(@lead) %>
+            <%= form.submit "Confirm Payment (Mark Won)", class: "btn btn-success" %>
+          <% end %>
+        </div>
+      </div>
     </div>
   </div>
 </div>

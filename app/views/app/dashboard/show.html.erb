@@ -1,0 +1,133 @@
+<h1 class="h3 mb-3">My Day</h1>
+
+<div class="row g-4">
+  <div class="col-12 col-lg-7 order-2 order-lg-1">
+    <div class="d-flex flex-column gap-3">
+      <div class="card">
+        <div class="card-header py-3">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <div class="fw-semibold">Follow-ups Due Today</div>
+              <div class="small text-muted">Calls you need to make today.</div>
+            </div>
+            <span class="badge text-bg-light border"><%= @follow_ups_due_today.size %></span>
+          </div>
+        </div>
+        <div class="list-group list-group-flush">
+          <% if @follow_ups_due_today.any? %>
+            <% @follow_ups_due_today.each do |lead| %>
+              <div class="list-group-item py-3">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <div>
+                    <div class="fw-semibold"><%= lead.business_name %></div>
+                    <div class="small text-muted">
+                      Due <%= lead.next_action_at.present? ? l(lead.next_action_at, format: :short) : "now" %>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <%= link_to "Open", lead_path(lead), class: "btn btn-sm btn-outline-secondary" %>
+                    <%= link_to "Log attempt", lead_path(lead, anchor: "call-attempt"), class: "btn btn-sm btn-outline-primary", data: { bs_toggle: "modal", bs_target: "#logCallAttemptModal" } %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="list-group-item py-3 small text-muted">No follow-ups due today.</div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header py-3">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <div class="fw-semibold">My Active Leads</div>
+              <div class="small text-muted">Leads you’re currently working.</div>
+            </div>
+            <span class="badge text-bg-light border"><%= Array(@my_active_leads).length %></span>
+          </div>
+        </div>
+        <div class="list-group list-group-flush">
+          <% if @my_active_leads.any? %>
+            <% @my_active_leads.each do |lead| %>
+              <div class="list-group-item py-3">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <div>
+                    <div class="fw-semibold"><%= lead.business_name %></div>
+                    <div class="small text-muted">
+                      Last activity:
+                      <% if lead.respond_to?(:last_activity_at) && lead.last_activity_at.present? %>
+                        <%= l(lead.last_activity_at, format: :short) %>
+                      <% else %>
+                        <%= l(lead.updated_at, format: :short) %>
+                      <% end %>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <%= link_to "Open", lead_path(lead), class: "btn btn-sm btn-outline-secondary" %>
+                    <%= link_to "Log attempt", lead_path(lead, anchor: "call-attempt"), class: "btn btn-sm btn-outline-primary", data: { bs_toggle: "modal", bs_target: "#logCallAttemptModal" } %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="list-group-item py-3 small text-muted">No active leads yet.</div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5 order-1 order-lg-2">
+    <div class="d-flex flex-column gap-3">
+      <div class="card">
+        <div class="card-header py-3">
+          <div class="fw-semibold">Actions</div>
+          <div class="small text-muted">Quick shortcuts for your queue.</div>
+        </div>
+        <div class="card-body p-3 d-grid gap-2">
+          <% if @has_active_queue %>
+            <%= link_to "Continue Queue", app_work_queue_path, class: "btn btn-outline-secondary w-100" %>
+          <% end %>
+          <%= button_to "Pull 10 Leads", pull_app_work_queue_path, method: :post, class: "btn btn-primary w-100" %>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header py-3">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <div>
+              <div class="fw-semibold">Today's Demos</div>
+              <div class="small text-muted">Upcoming demos and owners.</div>
+            </div>
+            <span class="badge text-bg-light border"><%= @todays_demos.size %></span>
+          </div>
+        </div>
+        <div class="list-group list-group-flush">
+          <% if @todays_demos.any? %>
+            <% @todays_demos.each do |demo| %>
+              <div class="list-group-item py-3">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <div>
+                    <div class="fw-semibold"><%= demo.lead&.business_name.presence || "Unlinked demo" %></div>
+                    <div class="small text-muted">
+                      <%= l(demo.scheduled_at, format: :short) %>
+                      <% if demo.assigned_to_user.present? %>
+                        · <%= demo.assigned_to_user.full_name.presence || demo.assigned_to_user.email_address %>
+                      <% end %>
+                    </div>
+                  </div>
+                  <% if demo.lead.present? %>
+                    <%= link_to "Open", lead_path(demo.lead), class: "btn btn-sm btn-outline-primary" %>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="list-group-item py-3 small text-muted">No demos scheduled for today.</div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
