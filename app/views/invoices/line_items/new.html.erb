@@ -1,0 +1,8 @@
+<%= turbo_frame_tag "line_item_form" do %>
+  <div class="card shadow-sm mt-3">
+    <div class="card-header fw-semibold">New Line Item</div>
+    <div class="card-body">
+      <%= render "form", invoice: @invoice, line_item: @line_item %>
+    </div>
+  </div>
+<% end %>

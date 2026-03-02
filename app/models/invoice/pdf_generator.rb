@@ -10,7 +10,6 @@ class Invoice::PdfGenerator
 
   def initialize(invoice)
     @invoice = invoice
-    @store   = invoice.store
   end
 
   def render
@@ -96,7 +95,7 @@ class Invoice::PdfGenerator
                    size: BODY_SIZE, style: :bold, character_spacing: 1.2
 
       pdf.text_box issued_date, at: [left_x, row_y - 20], width: 260, height: 16, size: BODY_SIZE
-      pdf.text_box @store.name, at: [right_x, row_y - 20], width: 260, height: 16, size: BODY_SIZE
+      pdf.text_box @invoice.recipient_name.to_s, at: [right_x, row_y - 20], width: 260, height: 16, size: BODY_SIZE
     end
 
     table_top = row_y - 44
@@ -120,22 +119,30 @@ class Invoice::PdfGenerator
 
   def draw_line_items(pdf)
     left_x = 46
-    table_y = @line_item_y || (pdf.bounds.top - 280)
-    description = @invoice.line_items.first&.description.presence || "Sungura package"
-    qty = @invoice.line_items.first&.quantity.to_i
-    qty = 1 if qty <= 0
-    unit_amount = @invoice.line_items.first&.unit_amount_cents || @invoice.total_cents
-    row_total = @invoice.line_items.first&.amount_cents || @invoice.total_cents
+    row_y = @line_item_y || (pdf.bounds.top - 280)
+    row_height = 20
+
+    line_items = @invoice.line_items.presence || [fallback_line_item]
 
     pdf.fill_color DARK_TEXT
     pdf.font(@body_font) do
-      pdf.text_box description, at: [left_x, table_y], width: 250, height: 16, size: BODY_SIZE
-      pdf.text_box format("%02d", qty), at: [336, table_y], width: 34, height: 16, size: BODY_SIZE
-      pdf.text_box plain_amount(unit_amount), at: [388, table_y], width: 48, height: 16, size: BODY_SIZE
-      pdf.text_box plain_amount(row_total), at: [446, table_y], width: 52, height: 16, size: BODY_SIZE
+      line_items.each do |line_item|
+        description = line_item.description.to_s.presence || "Invoice item"
+        qty = line_item.quantity.to_i
+        qty = 1 if qty <= 0
+        unit_amount = line_item.unit_amount_cents.to_i
+        amount = line_item.amount_cents.to_i
+
+        pdf.text_box description, at: [left_x, row_y], width: 250, height: 16, size: BODY_SIZE
+        pdf.text_box qty.to_s, at: [336, row_y], width: 34, height: 16, size: BODY_SIZE
+        pdf.text_box plain_amount(unit_amount), at: [388, row_y], width: 48, height: 16, size: BODY_SIZE
+        pdf.text_box plain_amount(amount), at: [446, row_y], width: 52, height: 16, size: BODY_SIZE
+
+        row_y -= row_height
+      end
     end
 
-    summary_line = table_y - 28
+    summary_line = row_y - 8
     pdf.stroke_color BORDER_BLACK
     pdf.line_width 1.8
     pdf.stroke_horizontal_line left_x, pdf.bounds.width - 66, at: summary_line
@@ -146,6 +153,15 @@ class Invoice::PdfGenerator
       pdf.text_box currency_total(@invoice.total_cents), at: [432, summary_line - 18], width: 120, height: 16,
                    size: BODY_SIZE, style: :bold
     end
+  end
+
+  def fallback_line_item
+    Invoice::LineItem.new(
+      description: "Invoice item",
+      quantity: 1,
+      unit_amount_cents: @invoice.total_cents.to_i,
+      amount_cents: @invoice.total_cents.to_i
+    )
   end
 
   def draw_payment_info(pdf)
@@ -183,8 +199,23 @@ class Invoice::PdfGenerator
   end
 
   def draw_bottom_bar(pdf)
+    bar_height = 34
+    bar_top = pdf.bounds.bottom + bar_height
+
     pdf.fill_color BRAND_GREEN
-    pdf.fill_rectangle [0, pdf.bounds.bottom + 8], pdf.bounds.width, 8
+    pdf.fill_rectangle [0, bar_top], pdf.bounds.width, bar_height
+
+    pdf.fill_color "FFFFFF"
+    pdf.font(@body_font, style: :bold) do
+      pdf.text_box "Thank you!",
+                   at: [0, bar_top - 6],
+                   width: pdf.bounds.width,
+                   height: bar_height,
+                   align: :center,
+                   valign: :center,
+                   size: 19
+    end
+
     pdf.fill_color DARK_TEXT
   end
 

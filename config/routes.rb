@@ -6,6 +6,13 @@ Rails.application.routes.draw do
   resource :registration, only: [:new, :create]
   resources :passwords, param: :token, only: [:new, :create, :edit, :update]
   get "/leads", to: redirect("/app/leads"), as: :legacy_leads_index
+  resource :session, only: %i[new create destroy]
+  resource :registration, only: %i[new create]
+  resources :passwords, param: :token, only: %i[new create edit update]
+  resources :invoices do
+    resources :line_items, controller: "invoices/line_items"
+  end
+  resources :stores
   resources :inquiries do
     collection do
       get :won_deals

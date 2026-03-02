@@ -20,6 +20,9 @@ class Invoice::Creator
     def build_invoice
       Invoice.new(
         store: @store,
+        name: @store.name,
+        email_address: @store.email_address,
+        phone_number: @store.phone_number,
         store_subscription: @subscription,
         plan_code: @subscription.plan_code,
         plan_type: @subscription.plan.plan_type,
