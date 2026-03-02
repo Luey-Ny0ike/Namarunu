@@ -15,7 +15,7 @@
       <% if @account.converted_from_lead.present? %>
         <%= link_to "View Lead", lead_path(@account.converted_from_lead), class: "btn btn-outline-secondary" %>
       <% else %>
-        <%= link_to "Back to Leads", leads_path, class: "btn btn-outline-secondary" %>
+        <%= link_to "Back to Leads", app_leads_path, class: "btn btn-outline-secondary" %>
       <% end %>
     </div>
   </div>

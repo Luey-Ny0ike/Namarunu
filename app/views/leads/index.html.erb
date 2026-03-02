@@ -1,95 +1,84 @@
-<div class="container py-4">
-  <% if notice.present? %>
-    <div class="alert alert-info" role="alert" id="notice"><%= notice %></div>
-  <% end %>
-
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <div>
-      <h1 class="h3 mb-1">CRM Leads</h1>
-      <p class="text-muted mb-0">Prioritize follow-ups and keep your pipeline current.</p>
-    </div>
-    <div class="d-flex gap-2">
-      <% if Current.user&.sales_rep? %>
-        <%= link_to "My Tasks", my_tasks_leads_path, class: "btn btn-outline-secondary" %>
-      <% end %>
-      <% if policy(Lead).create? %>
-        <%= link_to "New Lead", new_lead_path, class: "btn btn-namarunu" %>
-      <% end %>
-    </div>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-1">Leads</h1>
+    <p class="text-muted small mb-0">Review and action pipeline leads.</p>
   </div>
-
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-      <%= form_with url: leads_path, method: :get, local: true, class: "row g-2 align-items-end" do |form| %>
-        <div class="col-md-3">
-          <%= form.label :status, class: "form-label" %>
-          <%= form.select :status,
-                          options_for_select(Lead.statuses.keys.map { |value| [value.humanize, value] }, params[:status]),
-                          { include_blank: "All statuses" },
-                          class: "form-select" %>
-        </div>
-        <div class="col-md-3">
-          <%= form.label :temperature, class: "form-label" %>
-          <%= form.select :temperature,
-                          options_for_select(Lead.temperatures.keys.map { |value| [value.humanize, value] }, params[:temperature]),
-                          { include_blank: "All temperatures" },
-                          class: "form-select" %>
-        </div>
-        <div class="col-md-3">
-          <%= form.label :owner_user_id, "Owner", class: "form-label" %>
-          <%= form.select :owner_user_id,
-                          options_for_select(@assignable_users.map { |user| [user.full_name.presence || user.email_address, user.id] }, params[:owner_user_id]),
-                          { include_blank: "All owners" },
-                          class: "form-select" %>
-        </div>
-        <div class="col-md-2">
-          <div class="form-check pt-4">
-            <%= form.check_box :follow_ups_due, { class: "form-check-input", checked: params[:follow_ups_due] == "1" }, "1", "0" %>
-            <%= form.label :follow_ups_due, "Follow-ups due", class: "form-check-label" %>
-          </div>
-        </div>
-        <div class="col-md-1 d-grid">
-          <%= form.submit "Filter", class: "btn btn-outline-secondary" %>
-        </div>
-      <% end %>
-    </div>
+  <div class="d-flex gap-2">
+    <% if policy(Lead).create? %>
+      <%= link_to "New Lead", new_lead_path, class: "btn btn-namarunu" %>
+    <% end %>
   </div>
+</div>
 
-  <%= render "demo_metrics" %>
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <%= form_with url: app_leads_path, method: :get, local: true, class: "row g-2 align-items-end" do |form| %>
+      <div class="col-md-3">
+        <%= form.label :status, class: "form-label" %>
+        <%= form.select :status,
+                        options_for_select(Lead.statuses.keys.map { |value| [value.humanize, value] }, params[:status]),
+                        { include_blank: "All statuses" },
+                        class: "form-select" %>
+      </div>
+      <div class="col-md-3">
+        <%= form.label :temperature, class: "form-label" %>
+        <%= form.select :temperature,
+                        options_for_select(Lead.temperatures.keys.map { |value| [value.humanize, value] }, params[:temperature]),
+                        { include_blank: "All temperatures" },
+                        class: "form-select" %>
+      </div>
+      <div class="col-md-3">
+        <%= form.label :owner_user_id, "Owner", class: "form-label" %>
+        <%= form.select :owner_user_id,
+                        options_for_select(@assignable_users.map { |user| [user.full_name.presence || user.email_address, user.id] }, params[:owner_user_id]),
+                        { include_blank: "All owners" },
+                        class: "form-select" %>
+      </div>
+      <div class="col-md-2">
+        <div class="form-check pt-4">
+          <%= form.check_box :follow_ups_due, { class: "form-check-input", checked: params[:follow_ups_due] == "1" }, "1", "0" %>
+          <%= form.label :follow_ups_due, "Follow-ups due", class: "form-check-label" %>
+        </div>
+      </div>
+      <div class="col-md-1 d-grid">
+        <%= form.submit "Filter", class: "btn btn-outline-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
 
-  <%= with_automatic_pagination("leads", @page) do %>
-    <div class="row g-3">
-      <% @leads.each do |lead| %>
-        <% primary_contact = lead.lead_contacts.first %>
-        <div class="col-12">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <div class="row g-3 align-items-center">
-                <div class="col-lg-3">
-                  <div class="fw-semibold"><%= lead.business_name %></div>
-                  <div class="small text-muted"><%= lead.industry.presence || "-" %> • <%= lead.location.presence || "-" %></div>
-                </div>
-                <div class="col-lg-3">
-                  <div><%= primary_contact&.name.presence || "-" %></div>
-                  <div class="small text-muted"><%= primary_contact&.phone.presence || primary_contact&.email.presence || "-" %></div>
-                </div>
-                <div class="col-lg-2">
-                  <span class="badge bg-success-subtle text-dark"><%= lead.status.humanize %></span>
-                  <div class="small text-muted">Temp: <%= lead.temperature.humanize %></div>
-                </div>
-                <div class="col-lg-3">
-                  <div class="small text-muted">Owner</div>
-                  <div><%= lead.owner_user&.full_name || lead.owner_user&.email_address || "Unassigned" %></div>
-                  <div class="small text-muted">Next: <%= lead.next_action_at ? l(lead.next_action_at, format: :short) : "-" %></div>
-                </div>
-                <div class="col-lg-1 text-lg-end">
-                  <%= link_to "View", lead_path(lead), class: "btn btn-namarunu btn-sm", data: { turbo_frame: "_top" } %>
-                </div>
+<%= with_automatic_pagination("leads", @page) do %>
+  <div class="row g-3">
+    <% @leads.each do |lead| %>
+      <% primary_contact = lead.lead_contacts.first %>
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="row g-3 align-items-center">
+              <div class="col-lg-3">
+                <div class="fw-semibold"><%= lead.business_name %></div>
+                <div class="small text-muted"><%= lead.industry.presence || "-" %> • <%= lead.location.presence || "-" %></div>
+              </div>
+              <div class="col-lg-3">
+                <div><%= primary_contact&.name.presence || "-" %></div>
+                <div class="small text-muted"><%= primary_contact&.phone.presence || primary_contact&.email.presence || "-" %></div>
+              </div>
+              <div class="col-lg-2">
+                <span class="badge bg-success-subtle text-dark"><%= lead.status.humanize %></span>
+                <div class="small text-muted">Temp: <%= lead.temperature.humanize %></div>
+              </div>
+              <div class="col-lg-3">
+                <div class="small text-muted">Owner</div>
+                <div><%= lead.owner_user&.full_name || lead.owner_user&.email_address || "Unassigned" %></div>
+                <div class="small text-muted">Next: <%= lead.next_action_at ? l(lead.next_action_at, format: :short) : "-" %></div>
+              </div>
+              <div class="col-lg-1 text-lg-end">
+                <%= link_to "View", lead_path(lead), class: "btn btn-namarunu btn-sm", data: { turbo_frame: "_top" } %>
               </div>
             </div>
           </div>
         </div>
-      <% end %>
-    </div>
-  <% end %>
-</div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

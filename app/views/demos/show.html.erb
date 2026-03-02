@@ -15,7 +15,7 @@
       <% if @demo.lead.present? %>
         <%= link_to "Back to Lead", lead_path(@demo.lead), class: "btn btn-outline-secondary" %>
       <% else %>
-        <%= link_to "Back", leads_path, class: "btn btn-outline-secondary" %>
+        <%= link_to "Back", app_leads_path, class: "btn btn-outline-secondary" %>
       <% end %>
     </div>
   </div>

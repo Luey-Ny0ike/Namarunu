@@ -14,7 +14,7 @@ Rails.application.routes.draw do
       patch :reassign_checkout
     end
   end
-  resources :leads, only: %i[index show new create edit update] do
+  resources :leads, only: %i[show new create edit update] do
     collection do
       get :my_tasks
     end
@@ -48,7 +48,7 @@ Rails.application.routes.draw do
         post :complete
       end
     end
-    resources :leads, only: [] do
+    resources :leads, only: :index do
       member do
         post :log_attempt, to: "lead_actions#log_attempt"
         post :book_demo, to: "lead_actions#book_demo"
