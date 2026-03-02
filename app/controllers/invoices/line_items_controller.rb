@@ -80,13 +80,6 @@ class Invoices::LineItemsController < ApplicationController
   end
 
   def recalculate_totals
-    @invoice.reload
-    subtotal = @invoice.line_items.sum(:amount_cents)
-    @invoice.update_columns(
-      subtotal_cents: subtotal,
-      total_cents: subtotal,
-      amount_due_cents: [subtotal - @invoice.amount_paid_cents, 0].max
-    )
-    @invoice.reload
+    @invoice.sync_totals_and_payment_status!
   end
 end
