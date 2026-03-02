@@ -28,6 +28,45 @@ RSpec.describe Lead, type: :model do
     expect(lead).to be_valid
   end
 
+  it "requires lost_reason when status is lost" do
+    lead = described_class.new(
+      business_name: "Lost Co",
+      status: :lost,
+      lead_contacts_attributes: [{ name: "Lost Contact", phone: "+15550001112" }]
+    )
+
+    expect(lead).not_to be_valid
+    expect(lead.errors[:lost_reason]).to include("can't be blank")
+  end
+
+  it "requires invoice_sent_at when status is invoice_sent" do
+    lead = described_class.new(
+      business_name: "Invoice Co",
+      status: :invoice_sent,
+      lead_contacts_attributes: [{ name: "Invoice Contact", phone: "+15550001113" }]
+    )
+
+    expect(lead).not_to be_valid
+    expect(lead.errors[:invoice_sent_at]).to include("can't be blank")
+  end
+
+  it "accepts awaiting_commitment and invoice_sent statuses" do
+    awaiting = described_class.new(
+      business_name: "Awaiting Co",
+      status: :awaiting_commitment,
+      lead_contacts_attributes: [{ name: "Awaiting Contact", phone: "+15550001114" }]
+    )
+    invoiced = described_class.new(
+      business_name: "Invoiced Co",
+      status: :invoice_sent,
+      invoice_sent_at: Time.current,
+      lead_contacts_attributes: [{ name: "Invoiced Contact", phone: "+15550001115" }]
+    )
+
+    expect(awaiting).to be_valid
+    expect(invoiced).to be_valid
+  end
+
   it "returns only due follow-ups" do
     due = described_class.create!(
       business_name: "Due Co",
@@ -99,6 +138,7 @@ RSpec.describe Lead, type: :model do
     lead = described_class.create!(
       business_name: "Lost Co",
       status: :lost,
+      lost_reason: :not_a_fit,
       lead_contacts_attributes: [{ name: "Lost Contact", phone: "+15550005555" }]
     )
 

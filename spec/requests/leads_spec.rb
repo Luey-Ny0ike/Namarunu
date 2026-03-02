@@ -56,6 +56,23 @@ RSpec.describe "Leads", type: :request do
     expect(actions).to contain_exactly("lead_updated", "lead_status_changed")
   end
 
+  it "auto-sets invoice_sent_at when status changes to invoice_sent without timestamp" do
+    user = build_user(:sales_rep)
+    sign_in_as(user)
+    lead = Lead.create!(
+      business_name: "Invoice Stage Co",
+      owner_user: user,
+      lead_contacts_attributes: [{ name: "Invoice Contact", phone: "+15551239999" }]
+    )
+
+    patch lead_path(lead), params: { lead: { status: "invoice_sent" } }
+
+    expect(response).to redirect_to(lead_path(lead))
+    lead.reload
+    expect(lead.status).to eq("invoice_sent")
+    expect(lead.invoice_sent_at).to be_within(5.seconds).of(Time.current)
+  end
+
   it "prevents duplicate checkout and shows current holder" do
     owner = build_user(:sales_rep)
     first_rep = build_user(:sales_rep)

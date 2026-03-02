@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_02_012000) do
+ActiveRecord::Schema[8.2].define(version: 2026_03_02_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -163,14 +163,18 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_02_012000) do
     t.datetime "converted_at"
     t.datetime "created_at", null: false
     t.string "industry"
+    t.datetime "invoice_sent_at"
     t.datetime "last_contacted_at"
     t.string "location"
+    t.string "lost_reason"
     t.datetime "next_action_at"
     t.bigint "owner_user_id"
     t.string "source"
     t.string "status", default: "new", null: false
     t.string "temperature", default: "warm", null: false
     t.datetime "updated_at", null: false
+    t.index ["invoice_sent_at"], name: "index_leads_on_invoice_sent_at"
+    t.index ["lost_reason"], name: "index_leads_on_lost_reason"
     t.index ["next_action_at"], name: "index_leads_on_next_action_at"
     t.index ["owner_user_id"], name: "index_leads_on_owner_user_id"
     t.index ["status"], name: "index_leads_on_status"

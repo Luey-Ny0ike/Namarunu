@@ -40,7 +40,7 @@ class LeadsController < ApplicationController
   end
 
   def create
-    @lead = Lead.new(lead_params)
+    @lead = Lead.new(normalized_lead_params)
     @lead.owner_user ||= Current.user
     authorize @lead
 
@@ -61,7 +61,7 @@ class LeadsController < ApplicationController
   def update
     authorize @lead
 
-    if @lead.update(lead_params)
+    if @lead.update(normalized_lead_params)
       write_activity!(@lead, "lead_updated", metadata: { changed_fields: @lead.saved_changes.except("updated_at").keys })
 
       if @lead.saved_change_to_status?
@@ -393,13 +393,23 @@ class LeadsController < ApplicationController
       :industry,
       :source,
       :status,
+      :lost_reason,
       :temperature,
       :next_action_at,
       :last_contacted_at,
+      :invoice_sent_at,
       :owner_user_id,
       :converted_at,
       lead_contacts_attributes: %i[id name phone email role preferred_channel _destroy]
     )
+  end
+
+  def normalized_lead_params
+    attributes = lead_params
+    return attributes unless attributes[:status].to_s == Lead::STATUSES[:invoice_sent]
+    return attributes if attributes[:invoice_sent_at].present?
+
+    attributes.merge(invoice_sent_at: Time.current)
   end
 
   def call_attempt_params

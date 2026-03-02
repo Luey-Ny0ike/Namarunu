@@ -8,9 +8,21 @@ class Lead < ApplicationRecord
     qualified: "qualified",
     demo_booked: "demo_booked",
     demo_completed: "demo_completed",
+    awaiting_commitment: "awaiting_commitment",
+    invoice_sent: "invoice_sent",
     won: "won",
     lost: "lost",
     unresponsive: "unresponsive"
+  }.freeze
+
+  LOST_REASONS = {
+    too_expensive: "too_expensive",
+    not_ready: "not_ready",
+    competitor: "competitor",
+    no_response: "no_response",
+    not_a_fit: "not_a_fit",
+    invalid_contact: "invalid_contact",
+    other: "other"
   }.freeze
 
   TEMPERATURES = {
@@ -50,8 +62,11 @@ class Lead < ApplicationRecord
 
   enum :status, STATUSES, default: :new, validate: true, prefix: true
   enum :temperature, TEMPERATURES, default: :warm, validate: true, prefix: true
+  enum :lost_reason, LOST_REASONS, validate: { allow_nil: true }, prefix: true
 
   validates :business_name, presence: true
+  validates :lost_reason, presence: true, if: :status_lost?
+  validates :invoice_sent_at, presence: true, if: :status_invoice_sent?
   validate :must_have_at_least_one_contact
 
   scope :follow_ups_due, -> { where.not(next_action_at: nil).where(next_action_at: ..Time.zone.now.end_of_day) }
