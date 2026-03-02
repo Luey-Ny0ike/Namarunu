@@ -2,15 +2,15 @@
 service: namarunu
 
 # Name of the container image (use your-user/app-name on external registries).
-image: vincentgithinji/namarunu
+image: username/namarunu
 
 # Deploy to these servers.
 servers:
   web:
-    - 135.181.155.129
+    - 192.168.100.1
   # job:
   #   hosts:
-  #     - 135.181.155.129
+  #     - 192.168.100.2
   #   cmd: bin/jobs
 
 # Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
@@ -22,7 +22,7 @@ servers:
 #
 proxy:
   ssl: true
-  host: namarunu.vincent-githinji.com
+  host: namarunu.com
 
 # Where you keep your container images.
 registry:
@@ -30,7 +30,7 @@ registry:
   # server: localhost:5555
 
   # Needed for authenticated registries.
-  username: vincentgithinji
+  username: your_registry_username
 
   # Always use an access token rather than real password when possible.
   password:
