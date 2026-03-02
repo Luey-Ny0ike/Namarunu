@@ -5,6 +5,8 @@ class Invoice::LineItem < ApplicationRecord
 
   belongs_to :invoice
 
+  before_validation :compute_amount_cents
+
   validates :kind,
     presence: true,
     inclusion: { in: KINDS }
@@ -20,17 +22,10 @@ class Invoice::LineItem < ApplicationRecord
   validates :amount_cents,
     numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
-  validate :amount_matches_quantity_and_unit
-
   private
 
-  def amount_matches_quantity_and_unit
+  def compute_amount_cents
     return unless quantity && unit_amount_cents
-
-    expected = quantity * unit_amount_cents
-    return unless amount_cents != expected
-
-    errors.add(:amount_cents, "must equal quantity × unit amount (#{expected})")
+    self.amount_cents = quantity.to_i * unit_amount_cents.to_i
   end
 end
-
