@@ -1,0 +1,48 @@
+<%= form_with url: app_leads_path, method: :get, local: true, class: "row g-3" do |form| %>
+  <div class="col-12">
+    <%= form.label :q, "Search", class: "form-label" %>
+    <%= form.text_field :q,
+                        value: params[:q],
+                        class: "form-control",
+                        placeholder: "Business, phone, or IG handle" %>
+  </div>
+
+  <div class="col-12">
+    <%= form.label :status, class: "form-label" %>
+    <%= form.select :status,
+                    options_for_select(Lead.statuses.keys.map { |value| [value.humanize, value] }, params[:status]),
+                    { include_blank: "All statuses" },
+                    class: "form-select" %>
+  </div>
+
+  <div class="col-12">
+    <%= form.label :temperature, class: "form-label" %>
+    <%= form.select :temperature,
+                    options_for_select(Lead.temperatures.keys.map { |value| [value.humanize, value] }, params[:temperature]),
+                    { include_blank: "All temperatures" },
+                    class: "form-select" %>
+  </div>
+
+  <% if @show_owner_filter %>
+    <div class="col-12">
+      <%= form.label :owner_user_id, "Owner", class: "form-label" %>
+      <%= form.select :owner_user_id,
+                      options_for_select(@assignable_users.map { |user| [user.full_name.presence || user.email_address, user.id] }, params[:owner_user_id]),
+                      { include_blank: "All owners" },
+                      class: "form-select" %>
+    </div>
+  <% end %>
+
+  <div class="col-12">
+    <div class="form-check">
+      <%= form.check_box :follow_ups_due, { class: "form-check-input", checked: params[:follow_ups_due] == "1" }, "1", "0" %>
+      <%= form.label :follow_ups_due, "Follow-ups due", class: "form-check-label" %>
+    </div>
+  </div>
+
+  <%= hidden_field_tag :tab, @tab %>
+
+  <div class="col-12 d-grid">
+    <%= form.submit "Apply Filters", class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>
