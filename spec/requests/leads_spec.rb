@@ -355,11 +355,7 @@ RSpec.describe "Leads", type: :request do
     rep = build_user(:sales_rep)
     sign_in_as(rep)
 
-    Demo.create!(scheduled_at: 1.day.ago, duration_minutes: 30, status: :completed, created_by_user: rep, assigned_to_user: rep)
-    Demo.create!(scheduled_at: 2.days.ago, duration_minutes: 30, status: :no_show, created_by_user: rep, assigned_to_user: rep)
-    Demo.create!(scheduled_at: 1.day.from_now, duration_minutes: 30, status: :scheduled, created_by_user: rep, assigned_to_user: rep)
-
-    get my_tasks_leads_path
+    get leads_path
 
     expect(response).to redirect_to(app_leads_path)
   end
