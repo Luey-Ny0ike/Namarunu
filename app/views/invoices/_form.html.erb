@@ -6,6 +6,7 @@
       data: { controller: "line-items",
               "line-items-currency-value": invoice.currency.presence || "KES",
               "line-items-plans-value": plans_json } do |f| %>
+  <%= hidden_field_tag :lead_id, @lead.id if defined?(@lead) && @lead.present? %>
 
   <%# Hidden totals fields — updated by Stimulus before submit %>
   <%= f.hidden_field :subtotal_cents,    data: { "line-items-target": "subtotalCents" } %>
@@ -93,49 +94,34 @@
     </div>
   </div>
 
-  <%# Plan accordion — above line items %>
-  <div class="accordion shadow-sm mb-3" id="planAccordion">
-    <div class="accordion-item">
-      <h2 class="accordion-header">
-        <button class="accordion-button <%= invoice.plan_code.present? ? '' : 'collapsed' %> py-2"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#planSection"
-                aria-expanded="<%= invoice.plan_code.present? %>"
-                aria-controls="planSection">
-          <small class="fw-semibold text-muted">Plan <span class="fw-normal">(optional — selecting a plan fills the first line item)</span></small>
-        </button>
-      </h2>
-      <div id="planSection"
-           class="accordion-collapse collapse <%= invoice.plan_code.present? ? 'show' : '' %>"
-           data-bs-parent="#planAccordion">
-        <div class="accordion-body">
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label">Plan</label>
-              <%= f.select :plan_code,
-                    plans.map { |p| [p.name, p.code] },
-                    { include_blank: "— None —" },
-                    class: "form-select form-select-sm",
-                    data: { action: "change->line-items#planChanged" } %>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Plan Type</label>
-              <%= f.select :plan_type,
-                    Invoice::PLAN_TYPES.map { |t| [t.capitalize, t] },
-                    { include_blank: "— None —" },
-                    class: "form-select form-select-sm",
-                    data: { plan_type_select: true } %>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Billing Period</label>
-              <%= f.select :billing_period,
-                    [["—", ""]] + Invoice::BILLING_PERIODS.map { |b| [b.humanize, b] },
-                    {},
-                    class: "form-select form-select-sm",
-                    data: { billing_period_select: true } %>
-            </div>
-          </div>
+  <%# Plan %>
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <p class="text-muted small mb-3">Plan <span class="fw-normal">(optional — selecting a plan fills the first line item)</span></p>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Plan</label>
+          <%= f.select :plan_code,
+                plans.map { |p| [p.name, p.code] },
+                { include_blank: "— None —" },
+                class: "form-select form-select-sm",
+                data: { action: "change->line-items#planChanged" } %>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Plan Type</label>
+          <%= f.select :plan_type,
+                Invoice::PLAN_TYPES.map { |t| [t.capitalize, t] },
+                { include_blank: "— None —" },
+                class: "form-select form-select-sm",
+                data: { plan_type_select: true } %>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Billing Period</label>
+          <%= f.select :billing_period,
+                [["—", ""]] + Invoice::BILLING_PERIODS.map { |b| [b.humanize, b] },
+                {},
+                class: "form-select form-select-sm",
+                data: { billing_period_select: true } %>
         </div>
       </div>
     </div>
@@ -167,21 +153,23 @@
       <template data-line-items-target="template">
         <tr data-line-item-row>
           <td>
-            <select name="invoice[line_items_attributes][LINE_ITEM_INDEX][kind]"
-                    class="form-select form-select-sm mb-1"
-                    data-kind-select
-                    data-action="change->line-items#kindChanged">
-              <option value="subscription">Subscription</option>
-              <option value="setup_fee">Setup fee</option>
-              <option value="addon" selected>Addon</option>
-              <option value="discount">Discount</option>
-              <option value="tax">Tax</option>
-            </select>
-            <input type="text"
-                   name="invoice[line_items_attributes][LINE_ITEM_INDEX][description]"
-                   class="form-control form-control-sm"
-                   placeholder="Item description..."
-                   data-description-input>
+            <div class="invoice-line-item-description-row">
+              <select name="invoice[line_items_attributes][LINE_ITEM_INDEX][kind]"
+                      class="form-select form-select-sm invoice-line-item-kind"
+                      data-kind-select
+                      data-action="change->line-items#kindChanged">
+                <option value="subscription">Subscription</option>
+                <option value="setup_fee">Setup fee</option>
+                <option value="addon" selected>Addon</option>
+                <option value="discount">Discount</option>
+                <option value="tax">Tax</option>
+              </select>
+              <input type="text"
+                     name="invoice[line_items_attributes][LINE_ITEM_INDEX][description]"
+                     class="form-control form-control-sm invoice-line-item-text"
+                     placeholder="Item description..."
+                     data-description-input>
+            </div>
           </td>
           <td>
             <input type="number"

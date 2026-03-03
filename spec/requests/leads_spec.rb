@@ -356,7 +356,7 @@ RSpec.describe "Leads", type: :request do
     Demo.create!(scheduled_at: 2.days.ago, duration_minutes: 30, status: :no_show, created_by_user: rep, assigned_to_user: rep)
     Demo.create!(scheduled_at: 1.day.from_now, duration_minutes: 30, status: :scheduled, created_by_user: rep, assigned_to_user: rep)
 
-    get leads_path
+    get my_tasks_leads_path
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("Demos Booked")

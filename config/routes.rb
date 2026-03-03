@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   resources :invoices do
     resources :line_items, controller: "invoices/line_items"
   end
+  resource :invoice_archive, only: :show
   resources :stores
   resources :inquiries do
     collection do

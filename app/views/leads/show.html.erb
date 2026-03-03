@@ -122,6 +122,7 @@
           <h2 class="h5 mb-3">Post-Demo Actions</h2>
           <div class="d-grid gap-2 d-md-flex">
             <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadAwaitingCommitmentModal">Awaiting commitment</button>
+            <%= link_to "Create Invoice", new_invoice_path(lead_id: @lead.id), class: "btn btn-outline-primary" %>
             <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadInvoiceSentModal">Mark invoice sent</button>
             <button class="btn btn-outline-success" type="button" data-bs-toggle="modal" data-bs-target="#leadConfirmPaymentModal">Confirm payment (won)</button>
             <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#leadMarkLostModal">Mark lost</button>
