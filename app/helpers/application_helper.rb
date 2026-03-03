@@ -1,6 +1,40 @@
 # frozen_string_literal: true
 
 module ApplicationHelper
+  def lead_status_badge_class(status)
+    case status.to_s
+    when "new", "in_progress"
+      "text-bg-secondary"
+    when "contacted", "qualified"
+      "text-bg-info"
+    when "demo_booked", "demo_completed"
+      "text-bg-primary"
+    when "awaiting_commitment", "invoice_sent"
+      "text-bg-warning text-dark"
+    when "won"
+      "text-bg-success"
+    when "lost"
+      "text-bg-danger"
+    when "unresponsive"
+      "text-bg-dark"
+    else
+      "text-bg-secondary"
+    end
+  end
+
+  def lead_temperature_badge_class(temperature)
+    case temperature.to_s
+    when "hot"
+      "text-bg-danger"
+    when "warm"
+      "text-bg-warning text-dark"
+    when "cold"
+      "text-bg-secondary"
+    else
+      "text-bg-secondary"
+    end
+  end
+
   def nav_link_to(name, path, match: :exact, **options)
     active = nav_link_active?(path, match)
 

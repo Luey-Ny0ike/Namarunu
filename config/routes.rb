@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   resource :session, only: [:new, :create, :destroy]
   resource :registration, only: [:new, :create]
   resources :passwords, param: :token, only: [:new, :create, :edit, :update]
+  get "/leads", to: redirect("/app/leads"), as: :legacy_leads_index
   resources :inquiries do
     collection do
       get :won_deals
