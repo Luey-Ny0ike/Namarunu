@@ -17,19 +17,19 @@
   </button>
 </div>
 
-<ul class="nav nav-tabs mb-3 flex-nowrap overflow-auto">
+<ul class="nav nav-pills leads-tabs gap-2 mb-3 flex-nowrap overflow-auto hide-scrollbar flex-lg-wrap overflow-lg-visible">
   <li class="nav-item">
-    <%= link_to "My Leads", app_leads_path(tab_base_params.merge(tab: "my")), class: "nav-link #{'active' if @tab == 'my'}" %>
+    <%= link_to "My Leads", app_leads_path(tab_base_params.merge(tab: "my")), class: "nav-link rounded-pill text-nowrap #{'active' if @tab == 'my'}" %>
   </li>
   <li class="nav-item">
-    <%= link_to "Unassigned", app_leads_path(tab_base_params.merge(tab: "unassigned")), class: "nav-link #{'active' if @tab == 'unassigned'}" %>
+    <%= link_to "Unassigned", app_leads_path(tab_base_params.merge(tab: "unassigned")), class: "nav-link rounded-pill text-nowrap #{'active' if @tab == 'unassigned'}" %>
   </li>
   <li class="nav-item">
-    <%= link_to "Follow-ups", app_leads_path(tab_base_params.merge(tab: "followups")), class: "nav-link #{'active' if @tab == 'followups'}" %>
+    <%= link_to "Follow-ups", app_leads_path(tab_base_params.merge(tab: "followups")), class: "nav-link rounded-pill text-nowrap #{'active' if @tab == 'followups'}" %>
   </li>
   <% if @show_all_tab %>
     <li class="nav-item">
-      <%= link_to "All", app_leads_path(tab_base_params.merge(tab: "all")), class: "nav-link #{'active' if @tab == 'all'}" %>
+      <%= link_to "All", app_leads_path(tab_base_params.merge(tab: "all")), class: "nav-link rounded-pill text-nowrap #{'active' if @tab == 'all'}" %>
     </li>
   <% end %>
 </ul>

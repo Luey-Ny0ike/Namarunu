@@ -17,6 +17,36 @@ a {
   color: transparent;
   text-decoration: none;
 }
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.leads-tabs .nav-link {
+  color: #1f7a4f;
+  background-color: #e9f7ef;
+  border: 1px solid #b9e6cc;
+  cursor: pointer;
+}
+
+.leads-tabs .nav-link:hover,
+.leads-tabs .nav-link:focus {
+  color: #16633f;
+  background-color: #dcf2e5;
+  border-color: #9fdab8;
+}
+
+.leads-tabs .nav-link.active {
+  color: #0a2e1d;
+  background-color: #31de79;
+  border-color: #31de79;
+  cursor: pointer;
+}
+
 .body {
   overflow-x: hidden;
   position: relative;
