@@ -28,6 +28,11 @@ class LeadsController < ApplicationController
 
   def show
     authorize @lead
+    if redirect_staff_to_app_show?
+      redirect_to app_lead_path(@lead)
+      return
+    end
+
     @active_assignment = @lead.active_assignment
     @activities = @lead.activities.includes(:actor_user).recent_first
     @demos = policy_scope(Demo).where(lead_id: @lead.id).order(scheduled_at: :asc)
@@ -516,5 +521,9 @@ class LeadsController < ApplicationController
     return Current.user if requested_assignee_id.blank? || Current.user.sales_rep?
 
     User.find(requested_assignee_id)
+  end
+
+  def redirect_staff_to_app_show?
+    Current.user.present? && !Current.user.lead_contributor?
   end
 end

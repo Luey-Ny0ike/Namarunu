@@ -1,343 +1,380 @@
-<div class="container py-4">
-  <% if notice.present? %>
-    <div class="alert alert-info" role="alert" id="notice"><%= notice %></div>
-  <% end %>
-  <% if alert.present? %>
-    <div class="alert alert-warning" role="alert"><%= alert %></div>
-  <% end %>
+<% status_badge_class = lead_status_badge_class(@lead.status) %>
+<% temperature_badge_class = lead_temperature_badge_class(@lead.temperature) %>
+<% manager_like = Current.user&.sales_manager? || Current.user&.super_admin? %>
+<% requested_return_to = params[:return_to].to_s %>
+<% leads_return_to = requested_return_to.start_with?("/app/leads") ? requested_return_to : nil %>
+<% back_to_leads_path = leads_return_to.presence || app_leads_path %>
+<% show_return_to_path = leads_return_to.present? ? app_lead_path(@lead, return_to: leads_return_to) : app_lead_path(@lead) %>
 
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <div>
-      <h1 class="h3 mb-1"><%= @lead.business_name %></h1>
-      <p class="text-muted mb-0">Lead profile and activity timeline.</p>
-    </div>
-    <div class="d-flex gap-2">
-      <% if @lead.converted_account.present? %>
-        <%= link_to "View Account", account_path(@lead.converted_account), class: "btn btn-outline-secondary" %>
-      <% end %>
-      <% if policy(@lead).convert? %>
-        <%= button_to "Convert Lead", convert_lead_path(@lead), method: :post, class: "btn btn-success" %>
-      <% end %>
-      <% if policy(@lead).edit? %>
-        <%= link_to "Edit", edit_lead_path(@lead), class: "btn btn-namarunu" %>
-      <% end %>
-      <%= link_to "Back", app_leads_path, class: "btn btn-outline-secondary" %>
+<style>
+  @media (min-width: 992px) {
+    .lead-show-sticky {
+      position: sticky;
+      top: 5rem;
+    }
+  }
+</style>
+
+<% if notice.present? %>
+  <div class="alert alert-info" role="alert" id="notice"><%= notice %></div>
+<% end %>
+<% if alert.present? %>
+  <div class="alert alert-warning" role="alert"><%= alert %></div>
+<% end %>
+
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3">
+      <div>
+        <h1 class="h3 mb-2"><%= @lead.business_name %></h1>
+        <div class="d-flex flex-wrap gap-2 mb-2">
+          <span class="badge <%= status_badge_class %>"><%= @lead.status.humanize %></span>
+          <span class="badge <%= temperature_badge_class %>"><%= @lead.temperature.humanize %></span>
+        </div>
+        <p class="small text-muted mb-0">
+          <span><strong>Location:</strong> <%= @lead.location.presence || "-" %></span>
+          <span class="mx-2">|</span>
+          <span><strong>Source:</strong> <%= @lead.source.presence || "-" %></span>
+        </p>
+      </div>
+
+      <div class="d-grid d-sm-flex gap-2 align-self-stretch align-self-lg-start">
+        <%= link_to "Back to Leads", back_to_leads_path, class: "btn btn-outline-secondary" %>
+        <% if @lead.converted_account.present? %>
+          <%= link_to "View Account", account_path(@lead.converted_account), class: "btn btn-outline-secondary" %>
+        <% end %>
+        <% if policy(@lead).edit? %>
+          <%= link_to "Edit", edit_lead_path(@lead), class: "btn btn-namarunu" %>
+        <% end %>
+      </div>
     </div>
   </div>
+</div>
 
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-      <% if policy(@lead).update? %>
-        <div class="border rounded-3 p-3 mb-4">
-          <h2 class="h5 mb-3">Log Call Attempt</h2>
-          <%= form_with url: log_call_attempt_lead_path(@lead), method: :post, local: true, scope: :call_attempt, class: "row g-2 align-items-end" do |form| %>
-            <div class="col-md-4">
-              <%= form.label :outcome, class: "form-label" %>
-              <%= form.select :outcome,
-                              options_for_select(Lead::CALL_OUTCOMES.keys.map { |value| [value.to_s.humanize, value] }),
-                              { include_blank: "Select outcome" },
-                              class: "form-select",
-                              required: true %>
-            </div>
-            <div class="col-md-4">
-              <%= form.label :follow_up_at, "Follow-up at (for Follow up outcome)", class: "form-label" %>
-              <%= form.datetime_local_field :follow_up_at, class: "form-control" %>
-            </div>
-            <div class="col-md-4">
-              <%= form.label :notes, class: "form-label" %>
-              <%= form.text_field :notes, class: "form-control", placeholder: "Optional notes" %>
-            </div>
-            <div class="col-12 d-grid d-md-flex justify-content-md-end">
-              <%= form.submit "Log Call Attempt", class: "btn btn-namarunu" %>
-            </div>
-          <% end %>
-        </div>
-      <% end %>
-
-      <% if policy(@lead).update? %>
-        <div class="border rounded-3 p-3 mb-4">
-          <h2 class="h5 mb-3">Book Demo</h2>
-          <%= form_with url: book_demo_lead_path(@lead), method: :post, local: true, scope: :demo, class: "row g-2 align-items-end" do |form| %>
-            <div class="col-md-3">
-              <%= form.label :scheduled_at, "Scheduled at", class: "form-label" %>
-              <%= form.datetime_local_field :scheduled_at, class: "form-control", required: true %>
-            </div>
-            <div class="col-md-2">
-              <%= form.label :duration_minutes, class: "form-label" %>
-              <%= form.number_field :duration_minutes, class: "form-control", min: 1, step: 1, value: 30, required: true %>
-            </div>
-            <div class="col-md-3">
-              <%= form.label :demo_link, class: "form-label" %>
-              <%= form.url_field :demo_link, class: "form-control", placeholder: "https://meet.example.com/..." %>
-            </div>
-            <div class="col-md-2">
-              <%= form.label :assigned_to_user_id, "Assign to", class: "form-label" %>
-              <%= form.select :assigned_to_user_id,
-                              options_for_select(@assignable_users.map { |user| [user.full_name.presence || user.email_address, user.id] }, Current.user.id),
-                              {},
-                              class: "form-select",
-                              disabled: Current.user.sales_rep? %>
-            </div>
-            <div class="col-md-2">
-              <%= form.label :account_id, "Account ID", class: "form-label" %>
-              <%= form.number_field :account_id, class: "form-control", min: 1, step: 1 %>
-            </div>
-            <div class="col-12">
-              <%= form.label :notes, class: "form-label" %>
-              <%= form.text_area :notes, class: "form-control", rows: 2, placeholder: "Agenda, key stakeholders, and prep notes" %>
-            </div>
-            <div class="col-12 d-grid d-md-flex justify-content-md-end">
-              <%= form.submit "Book Demo", class: "btn btn-namarunu" %>
-            </div>
-          <% end %>
-        </div>
-      <% end %>
-
-      <div class="border rounded-3 p-3 mb-4">
-        <h2 class="h5 mb-3">Demos</h2>
-        <% if @demos.any? %>
-          <div class="list-group list-group-flush">
-            <% @demos.each do |demo| %>
-              <div class="list-group-item px-0">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                  <div>
-                    <div class="fw-semibold"><%= l(demo.scheduled_at, format: :short) %> • <%= demo.status.humanize %></div>
-                    <div class="small text-muted">
-                      Duration: <%= demo.duration_minutes %> min
-                      • Assignee: <%= demo.assigned_to_user&.full_name.presence || demo.assigned_to_user&.email_address || "-" %>
-                    </div>
-                  </div>
-                  <%= link_to "Open", demo_path(demo), class: "btn btn-outline-secondary btn-sm" %>
-                </div>
-              </div>
+<div class="row g-3 g-lg-4">
+  <div class="col-12 col-lg-7 order-2 order-lg-1">
+    <div class="d-flex flex-column gap-3 gap-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+            <h2 class="h5 mb-0">Demos</h2>
+            <% if policy(@lead).update? %>
+              <button id="book-demo" class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadBookDemoModal">Book demo</button>
             <% end %>
           </div>
-        <% else %>
-          <p class="text-muted mb-0">No demos booked for this lead yet.</p>
-        <% end %>
-      </div>
-
-      <% if policy(@lead).update? %>
-        <div class="border rounded-3 p-3 mb-4">
-          <h2 class="h5 mb-3">Post-Demo Actions</h2>
-          <div class="d-grid gap-2 d-md-flex">
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadAwaitingCommitmentModal">Awaiting commitment</button>
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadInvoiceSentModal">Mark invoice sent</button>
-            <button class="btn btn-outline-success" type="button" data-bs-toggle="modal" data-bs-target="#leadConfirmPaymentModal">Confirm payment (won)</button>
-            <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#leadMarkLostModal">Mark lost</button>
-          </div>
-        </div>
-      <% end %>
-
-      <h2 class="h5 mb-2">Checkout</h2>
-      <% if @active_assignment.present? %>
-        <p class="mb-3">
-          Checked out by
-          <strong><%= @active_assignment.user.full_name.presence || @active_assignment.user.email_address %></strong>
-          until <strong><%= l(@active_assignment.expires_at, format: :short) %></strong>.
-        </p>
-      <% else %>
-        <p class="text-muted mb-3">This lead is currently available for checkout.</p>
-      <% end %>
-
-      <div class="d-flex flex-wrap gap-2">
-        <% if policy(@lead).checkout? %>
-          <%= button_to "Check out", checkout_lead_path(@lead), method: :patch, class: "btn btn-namarunu" %>
-        <% end %>
-
-        <% if policy(@lead).release? && @active_assignment.present? && @active_assignment.user_id == Current.user.id %>
-          <%= button_to "Release", release_lead_path(@lead), method: :patch, class: "btn btn-outline-secondary" %>
-        <% end %>
-
-        <% if policy(@lead).force_release? && @active_assignment.present? %>
-          <%= button_to "Force release", force_release_lead_path(@lead), method: :patch, class: "btn btn-outline-danger" %>
-        <% end %>
-      </div>
-
-      <% if policy(@lead).reassign_checkout? %>
-        <hr>
-        <h3 class="h6 mb-3">Reassign Checkout</h3>
-        <%= form_with url: reassign_checkout_lead_path(@lead), method: :patch, local: true, class: "row g-2 align-items-end" do |form| %>
-          <div class="col-md-8">
-            <%= form.label :user_id, "Assign to", class: "form-label" %>
-            <%= form.select :user_id,
-                            options_for_select(@assignable_users.map { |user| [user.full_name.presence || user.email_address, user.id] }, @active_assignment&.user_id),
-                            {},
-                            class: "form-select" %>
-          </div>
-          <div class="col-md-4">
-            <%= form.submit "Reassign", class: "btn btn-namarunu w-100" %>
-          </div>
-        <% end %>
-      <% end %>
-    </div>
-  </div>
-
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-      <div class="row g-4">
-        <div class="col-lg-6">
-          <dl class="row mb-0">
-            <dt class="col-sm-5 text-muted">Location</dt>
-            <dd class="col-sm-7"><%= @lead.location.presence || "-" %></dd>
-
-            <dt class="col-sm-5 text-muted">Industry</dt>
-            <dd class="col-sm-7"><%= @lead.industry.presence || "-" %></dd>
-
-            <dt class="col-sm-5 text-muted">Source</dt>
-            <dd class="col-sm-7"><%= @lead.source.presence || "-" %></dd>
-
-            <dt class="col-sm-5 text-muted">Owner</dt>
-            <dd class="col-sm-7"><%= @lead.owner_user&.full_name || @lead.owner_user&.email_address || "Unassigned" %></dd>
-          </dl>
-        </div>
-        <div class="col-lg-6">
-          <dl class="row mb-0">
-            <dt class="col-sm-5 text-muted">Status</dt>
-            <dd class="col-sm-7"><%= @lead.status.humanize %></dd>
-
-            <dt class="col-sm-5 text-muted">Temperature</dt>
-            <dd class="col-sm-7"><%= @lead.temperature.humanize %></dd>
-
-            <dt class="col-sm-5 text-muted">Next action</dt>
-            <dd class="col-sm-7"><%= @lead.next_action_at ? l(@lead.next_action_at, format: :short) : "-" %></dd>
-
-            <dt class="col-sm-5 text-muted">Last contacted</dt>
-            <dd class="col-sm-7"><%= @lead.last_contacted_at ? l(@lead.last_contacted_at, format: :short) : "-" %></dd>
-
-            <dt class="col-sm-5 text-muted">Converted</dt>
-            <dd class="col-sm-7"><%= @lead.converted_at ? l(@lead.converted_at, format: :short) : "-" %></dd>
-          </dl>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-      <h2 class="h5 mb-3">Contacts</h2>
-      <div class="row g-3">
-        <% @lead.lead_contacts.each do |contact| %>
-          <div class="col-md-6">
-            <div class="border rounded-3 p-3 h-100">
-              <div class="fw-semibold"><%= contact.name %></div>
-              <div class="small text-muted mb-2"><%= contact.role.presence || "-" %></div>
-              <div><strong>Phone:</strong> <%= contact.phone.presence || "-" %></div>
-              <div><strong>Email:</strong> <%= contact.email.presence || "-" %></div>
-              <div><strong>Preferred:</strong> <%= contact.preferred_channel.presence&.humanize || "-" %></div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  </div>
-
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <h2 class="h5 mb-3">Activity Timeline</h2>
-      <% if @activities.any? %>
-        <div class="list-group list-group-flush">
-          <% @activities.each do |activity| %>
-            <div class="list-group-item px-0">
-              <div class="d-flex justify-content-between align-items-start gap-2">
-                <div>
-                  <div class="fw-semibold"><%= activity.timeline_label %></div>
-                  <div class="small text-muted">
-                    by <%= activity.actor_user.full_name.presence || activity.actor_user.email_address %>
-                    <% if activity.metadata["changed_fields"].present? %>
-                      • fields: <%= activity.metadata["changed_fields"].join(", ") %>
-                    <% end %>
-                    <% if activity.action_type == "call_attempt_logged" %>
-                      • outcome: <%= activity.metadata["outcome"].to_s.humanize %>
-                      <% if activity.metadata["next_action_at"].present? %>
-                        • follow-up: <%= l(Time.zone.parse(activity.metadata["next_action_at"]), format: :short) %>
-                      <% end %>
-                      <% if activity.metadata["notes"].present? %>
-                        • notes: <%= activity.metadata["notes"] %>
-                      <% end %>
-                    <% end %>
+          <% if @demos.any? %>
+            <div class="list-group list-group-flush">
+              <% @demos.each do |demo| %>
+                <div class="list-group-item px-0">
+                  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                      <div class="fw-semibold"><%= l(demo.scheduled_at, format: :short) %> - <%= demo.status.humanize %></div>
+                      <div class="small text-muted">
+                        Duration: <%= demo.duration_minutes %> min
+                        - Assignee: <%= demo.assigned_to_user&.full_name.presence || demo.assigned_to_user&.email_address || "-" %>
+                      </div>
+                    </div>
+                    <%= link_to "Open", app_demo_path(demo), class: "btn btn-outline-secondary btn-sm" %>
                   </div>
                 </div>
-                <div class="small text-muted"><%= l(activity.occurred_at, format: :short) %></div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-muted mb-0">No demos booked for this lead yet.</p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Activity Timeline</h2>
+          <% if @activities.any? %>
+            <div class="list-group list-group-flush">
+              <% @activities.each do |activity| %>
+                <% normalized_action_type = case activity.action_type
+                  when "call_attempt_logged" then "call_logged"
+                  when "lead_status_changed" then "status_changed"
+                  else activity.action_type
+                end %>
+                <% title = case normalized_action_type
+                  when "call_logged" then "Call logged"
+                  when "demo_booked" then "Demo booked"
+                  when "demo_completed" then "Demo completed"
+                  when "invoice_sent" then "Invoice sent"
+                  when "won" then "Marked won"
+                  when "lost" then "Marked lost"
+                  when "status_changed" then "Status changed"
+                  when "checked_out" then "Checked out"
+                  when "released" then "Checkout released"
+                  when "converted" then "Converted to account"
+                  else activity.timeline_label
+                end %>
+                <div class="list-group-item px-0">
+                  <div class="d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                      <div class="fw-semibold"><%= title %></div>
+                      <div class="small text-muted">by <%= activity.actor_user.full_name.presence || activity.actor_user.email_address %></div>
+
+                      <% if normalized_action_type == "call_logged" %>
+                        <div class="small mt-1">
+                          <span class="badge bg-light text-dark border">
+                            Outcome: <%= activity.metadata["outcome"].presence&.humanize || "Unknown" %>
+                          </span>
+                        </div>
+                        <% if manager_like && activity.metadata["notes"].present? %>
+                          <details class="small mt-1">
+                            <summary class="text-muted" role="button">View notes</summary>
+                            <div class="mt-1"><%= activity.metadata["notes"] %></div>
+                          </details>
+                        <% end %>
+                      <% end %>
+
+                      <% if normalized_action_type == "status_changed" %>
+                        <% from_status = activity.metadata["from"].presence || activity.metadata["old"].presence || "-" %>
+                        <% to_status = activity.metadata["to"].presence || activity.metadata["new"].presence || activity.metadata["status"].presence || "-" %>
+                        <div class="small mt-1 text-muted"><%= from_status.to_s.humanize %> -> <%= to_status.to_s.humanize %></div>
+                      <% end %>
+
+                      <% if normalized_action_type == "demo_booked" && activity.metadata["scheduled_at"].present? %>
+                        <% scheduled_at = Time.zone.parse(activity.metadata["scheduled_at"].to_s) rescue nil %>
+                        <% if scheduled_at.present? %>
+                          <div class="small mt-1 text-muted">Scheduled: <%= l(scheduled_at, format: :short) %></div>
+                        <% end %>
+                      <% end %>
+
+                      <% if manager_like && activity.metadata["changed_fields"].present? %>
+                        <details class="small mt-1">
+                          <summary class="text-muted" role="button">View details</summary>
+                          <div class="mt-1">Changed fields: <%= activity.metadata["changed_fields"].join(", ") %></div>
+                        </details>
+                      <% end %>
+                    </div>
+                    <div class="small text-muted text-nowrap"><%= l(activity.occurred_at, format: :short) %></div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-muted mb-0">No activity yet.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5 order-1 order-lg-2">
+    <div class="d-flex flex-column gap-3 gap-lg-4 lead-show-sticky">
+      <%= render "app/leads/overview", lead: @lead, active_assignment: @active_assignment, latest_submission: @latest_submission, assignable_users: @assignable_users %>
+
+      <div class="card shadow-sm" id="call-attempt">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Actions</h2>
+
+          <% if policy(@lead).convert? && !Current.user.sales_rep? %>
+            <div class="d-grid mb-3">
+              <%= button_to "Convert Lead", convert_lead_path(@lead), method: :post, class: "btn btn-success" %>
+            </div>
+          <% end %>
+
+          <% if policy(@lead).update? %>
+            <div class="border rounded-3 p-3 mb-3">
+              <h3 class="h6 mb-3">Engagement</h3>
+              <div class="d-grid gap-2">
+                <button id="call-attempt-trigger" class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadLogAttemptModal">Log attempt</button>
+              </div>
+            </div>
+
+            <div class="border rounded-3 p-3 mb-3">
+              <h3 class="h6 mb-3">Post-Demo Actions</h3>
+              <div class="d-grid gap-2">
+                <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadAwaitingCommitmentModal">Awaiting commitment</button>
+                <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadInvoiceSentModal">Mark invoice sent</button>
+                <button class="btn btn-outline-success" type="button" data-bs-toggle="modal" data-bs-target="#leadConfirmPaymentModal">Confirm payment (won)</button>
+                <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#leadMarkLostModal">Mark lost</button>
               </div>
             </div>
           <% end %>
-        </div>
-      <% else %>
-        <p class="text-muted mb-0">No activity yet.</p>
-      <% end %>
-    </div>
-  </div>
 
-  <div class="modal fade" id="leadAwaitingCommitmentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title h5 mb-0">Mark Awaiting Commitment</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <%= form_with url: mark_awaiting_commitment_app_lead_path(@lead), method: :post, local: true, class: "d-grid" do |form| %>
-            <%= form.hidden_field :return_to, value: lead_path(@lead) %>
-            <%= form.submit "Confirm", class: "btn btn-primary" %>
-          <% end %>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="modal fade" id="leadInvoiceSentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title h5 mb-0">Mark Invoice Sent</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <%= form_with url: mark_invoice_sent_app_lead_path(@lead), method: :post, local: true, class: "d-grid" do |form| %>
-            <%= form.hidden_field :return_to, value: lead_path(@lead) %>
-            <%= form.submit "Confirm", class: "btn btn-primary" %>
-          <% end %>
-        </div>
+<% if policy(@lead).update? %>
+  <div class="d-lg-none" style="height: 4.5rem;"></div>
+  <div class="d-lg-none position-sticky bottom-0 bg-light border-top py-2 mt-3" style="z-index: 1020;">
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-primary flex-fill" type="button" data-bs-toggle="modal" data-bs-target="#leadLogAttemptModal">Log attempt</button>
+      <button class="btn btn-outline-primary flex-fill" type="button" data-bs-toggle="modal" data-bs-target="#leadBookDemoModal">Book demo</button>
+      <button class="btn btn-dark flex-fill" type="button" data-bs-toggle="offcanvas" data-bs-target="#leadMobileMoreActions" aria-controls="leadMobileMoreActions">More</button>
+    </div>
+  </div>
+<% end %>
+
+<div class="modal fade" id="leadLogAttemptModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5 mb-0">Log Attempt</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with url: log_attempt_app_lead_path(@lead), method: :post, local: true, class: "d-grid gap-2" do |form| %>
+          <%= form.hidden_field :return_to, value: show_return_to_path %>
+          <%= form.select :outcome,
+                          options_for_select(Lead::CALL_OUTCOMES.keys.map { |value| [value.to_s.humanize, value] }),
+                          { include_blank: "Select outcome" },
+                          class: "form-select",
+                          required: true,
+                          data: { log_attempt_outcome: true } %>
+          <div class="d-none" data-follow-up-wrapper>
+            <%= form.label :next_action_at, "Follow-up at", class: "form-label small text-muted mb-1" %>
+            <%= form.datetime_local_field :next_action_at, class: "form-control", data: { follow_up_input: true } %>
+          </div>
+          <%= form.text_area :notes, class: "form-control", rows: 3, placeholder: "Optional notes" %>
+          <%= form.submit "Save Attempt", class: "btn btn-primary" %>
+        <% end %>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="modal fade" id="leadMarkLostModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title h5 mb-0">Mark Lead Lost</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <%= form_with url: mark_lost_app_lead_path(@lead), method: :post, local: true, class: "d-grid gap-2" do |form| %>
-            <%= form.hidden_field :return_to, value: lead_path(@lead) %>
-            <%= form.select :lost_reason,
-                            options_for_select(Lead::LOST_REASONS.keys.map { |value| [value.to_s.humanize, value] }),
-                            { include_blank: "Select lost reason" },
-                            class: "form-select",
-                            required: true %>
-            <%= form.submit "Mark Lost", class: "btn btn-danger" %>
+<div class="modal fade" id="leadBookDemoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5 mb-0">Book Demo</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with url: book_demo_app_lead_path(@lead), method: :post, local: true, class: "d-grid gap-2" do |form| %>
+          <%= form.hidden_field :return_to, value: show_return_to_path %>
+          <%= form.label :scheduled_at, "Scheduled at", class: "form-label small text-muted mb-1" %>
+          <%= form.datetime_local_field :scheduled_at, class: "form-control", required: true %>
+          <%= form.label :duration_minutes, "Duration (minutes)", class: "form-label small text-muted mb-1 mt-1" %>
+          <%= form.number_field :duration_minutes, class: "form-control", min: 1, step: 1, value: 30, required: true %>
+          <% if manager_like %>
+            <%= form.label :assigned_to_user_id, "Assign to", class: "form-label small text-muted mb-1 mt-1" %>
+            <%= form.select :assigned_to_user_id,
+                            options_for_select(@assignable_users.map { |user| [user.full_name.presence || user.email_address, user.id] }, Current.user.id),
+                            {},
+                            class: "form-select" %>
           <% end %>
-        </div>
+          <%= form.label :notes, class: "form-label small text-muted mb-1 mt-1" %>
+          <%= form.text_area :notes, class: "form-control", rows: 3, placeholder: "Optional prep notes" %>
+          <%= form.submit "Book Demo", class: "btn btn-primary mt-1" %>
+        <% end %>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="modal fade" id="leadConfirmPaymentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title h5 mb-0">Confirm Payment</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <%= form_with url: confirm_payment_app_lead_path(@lead), method: :post, local: true, class: "d-grid" do |form| %>
-            <%= form.hidden_field :return_to, value: lead_path(@lead) %>
-            <%= form.submit "Confirm Payment (Mark Won)", class: "btn btn-success" %>
-          <% end %>
-        </div>
+<div class="modal fade" id="leadAwaitingCommitmentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5 mb-0">Mark Awaiting Commitment</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with url: mark_awaiting_commitment_app_lead_path(@lead), method: :post, local: true, class: "d-grid" do |form| %>
+          <%= form.hidden_field :return_to, value: show_return_to_path %>
+          <%= form.submit "Confirm", class: "btn btn-primary" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="offcanvas offcanvas-bottom h-auto d-lg-none" tabindex="-1" id="leadMobileMoreActions" aria-labelledby="leadMobileMoreActionsLabel">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title h5 mb-0" id="leadMobileMoreActionsLabel">More Actions</h2>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body pt-0">
+    <div class="d-grid gap-2">
+      <button class="btn btn-outline-primary" type="button" data-bs-dismiss="offcanvas" data-bs-toggle="modal" data-bs-target="#leadAwaitingCommitmentModal">Awaiting commitment</button>
+      <button class="btn btn-outline-primary" type="button" data-bs-dismiss="offcanvas" data-bs-toggle="modal" data-bs-target="#leadInvoiceSentModal">Mark invoice sent</button>
+      <button class="btn btn-outline-success" type="button" data-bs-dismiss="offcanvas" data-bs-toggle="modal" data-bs-target="#leadConfirmPaymentModal">Confirm payment (won)</button>
+      <button class="btn btn-outline-danger" type="button" data-bs-dismiss="offcanvas" data-bs-toggle="modal" data-bs-target="#leadMarkLostModal">Mark lost</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("turbo:load", function () {
+    var outcomeSelect = document.querySelector("[data-log-attempt-outcome='true']");
+    var followUpWrapper = document.querySelector("[data-follow-up-wrapper]");
+    var followUpInput = document.querySelector("[data-follow-up-input='true']");
+    if (!outcomeSelect || !followUpWrapper || !followUpInput) return;
+
+    var toggleFollowUp = function () {
+      var isFollowUp = outcomeSelect.value === "follow_up";
+      followUpWrapper.classList.toggle("d-none", !isFollowUp);
+      followUpInput.required = isFollowUp;
+      if (!isFollowUp) followUpInput.value = "";
+    };
+
+    toggleFollowUp();
+    if (outcomeSelect.dataset.followUpBound !== "true") {
+      outcomeSelect.addEventListener("change", toggleFollowUp);
+      outcomeSelect.dataset.followUpBound = "true";
+    }
+  });
+</script>
+
+<div class="modal fade" id="leadInvoiceSentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5 mb-0">Mark Invoice Sent</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with url: mark_invoice_sent_app_lead_path(@lead), method: :post, local: true, class: "d-grid" do |form| %>
+          <%= form.hidden_field :return_to, value: show_return_to_path %>
+          <%= form.submit "Confirm", class: "btn btn-primary" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="leadMarkLostModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5 mb-0">Mark Lead Lost</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with url: mark_lost_app_lead_path(@lead), method: :post, local: true, class: "d-grid gap-2" do |form| %>
+          <%= form.hidden_field :return_to, value: show_return_to_path %>
+          <%= form.select :lost_reason,
+                          options_for_select(Lead::LOST_REASONS.keys.map { |value| [value.to_s.humanize, value] }),
+                          { include_blank: "Select lost reason" },
+                          class: "form-select",
+                          required: true %>
+          <%= form.submit "Mark Lost", class: "btn btn-danger" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="leadConfirmPaymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5 mb-0">Confirm Payment</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <%= form_with url: confirm_payment_app_lead_path(@lead), method: :post, local: true, class: "d-grid" do |form| %>
+          <%= form.hidden_field :return_to, value: show_return_to_path %>
+          <%= form.submit "Confirm Payment (Mark Won)", class: "btn btn-success" %>
+        <% end %>
       </div>
     </div>
   </div>

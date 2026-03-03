@@ -1,0 +1,133 @@
+<% primary_contact = lead.lead_contacts.order(:created_at, :id).first %>
+<% latest_submission ||= lead.lead_submissions.order(created_at: :desc, id: :desc).first %>
+<% instagram_handle = latest_submission&.instagram_handle.presence || (lead.respond_to?(:instagram_handle) ? lead.instagram_handle.presence : nil) %>
+<% tiktok_handle = latest_submission&.tiktok_handle.presence || (lead.respond_to?(:tiktok_handle) ? lead.tiktok_handle.presence : nil) %>
+<% instagram_url = latest_submission&.instagram_url.presence || (instagram_handle.present? ? "https://instagram.com/#{instagram_handle.delete_prefix("@")}" : nil) %>
+<% tiktok_url = latest_submission&.tiktok_url.presence || (tiktok_handle.present? ? "https://tiktok.com/@#{tiktok_handle.delete_prefix("@")}" : nil) %>
+<% overdue = lead.next_action_at.present? && lead.next_action_at < Time.current %>
+<% manager_like = Current.user&.sales_manager? || Current.user&.super_admin? %>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="h5 mb-3">Overview</h2>
+
+    <div class="small mb-3">
+      <div class="text-muted mb-1">Primary contact</div>
+      <% if primary_contact.present? %>
+        <div class="fw-semibold"><%= primary_contact.name %></div>
+        <div class="d-flex flex-wrap gap-2 mt-1">
+          <% if primary_contact.phone.present? %>
+            <%= link_to primary_contact.phone, "tel:#{primary_contact.phone}", class: "btn btn-sm btn-outline-secondary" %>
+          <% end %>
+          <% if primary_contact.email.present? %>
+            <%= link_to primary_contact.email, "mailto:#{primary_contact.email}", class: "btn btn-sm btn-outline-secondary" %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-muted">No contact details.</div>
+      <% end %>
+    </div>
+
+    <% if instagram_url.present? || tiktok_url.present? %>
+      <div class="small mb-3">
+        <div class="text-muted mb-1">Social</div>
+        <div class="d-flex flex-wrap gap-2">
+          <% if instagram_url.present? %>
+            <%= link_to instagram_url, target: "_blank", rel: "noopener", class: "badge bg-light text-dark border text-decoration-none d-inline-flex align-items-center gap-1" do %>
+              <%= instagram_icon(size: 12, class_name: "opacity-75") %>
+              <span>Instagram</span>
+            <% end %>
+          <% end %>
+          <% if tiktok_url.present? %>
+            <%= link_to tiktok_url, target: "_blank", rel: "noopener", class: "badge bg-light text-dark border text-decoration-none d-inline-flex align-items-center gap-1" do %>
+              <%= tiktok_icon(size: 12, class_name: "opacity-75") %>
+              <span>TikTok</span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <dl class="row mb-0 small g-2">
+      <dt class="col-5 text-muted">Owner</dt>
+      <dd class="col-7 mb-0"><%= lead.owner_user&.full_name || lead.owner_user&.email_address || "Unassigned" %></dd>
+
+      <dt class="col-5 text-muted">Checkout</dt>
+      <dd class="col-7 mb-0">
+        <% if active_assignment.present? %>
+          <div><%= active_assignment.user.full_name.presence || active_assignment.user.email_address %></div>
+          <div class="text-muted"><%= l(active_assignment.expires_at, format: :short) %></div>
+        <% else %>
+          Available
+        <% end %>
+      </dd>
+
+      <dt class="col-5 text-muted">Next action</dt>
+      <dd class="col-7 mb-0">
+        <% if lead.next_action_at.present? %>
+          <div class="d-inline-flex align-items-center gap-1 flex-wrap">
+            <span><%= l(lead.next_action_at, format: :short) %></span>
+            <% if overdue %>
+              <span class="badge bg-danger-subtle text-danger-emphasis border border-danger-subtle">Overdue</span>
+            <% end %>
+          </div>
+        <% else %>
+          -
+        <% end %>
+      </dd>
+
+      <dt class="col-5 text-muted">Last contacted</dt>
+      <dd class="col-7 mb-0"><%= lead.last_contacted_at ? l(lead.last_contacted_at, format: :short) : "-" %></dd>
+    </dl>
+
+    <hr>
+
+    <div class="small">
+      <div class="text-muted mb-1">Checkout</div>
+      <% if active_assignment.present? %>
+        <div><%= active_assignment.user.full_name.presence || active_assignment.user.email_address %></div>
+        <div class="text-muted mb-2"><%= l(active_assignment.expires_at, format: :short) %></div>
+      <% else %>
+        <div class="text-muted mb-2">Available</div>
+      <% end %>
+
+      <div class="d-grid gap-2">
+        <% if policy(lead).checkout? && active_assignment.blank? %>
+          <%= button_to "Check out", checkout_lead_path(lead), method: :patch, class: "btn btn-sm btn-namarunu" %>
+        <% end %>
+
+        <% if policy(lead).release? && active_assignment.present? && active_assignment.user_id == Current.user.id %>
+          <%= button_to "Release", release_lead_path(lead), method: :patch, class: "btn btn-sm btn-outline-secondary" %>
+        <% end %>
+
+        <% if manager_like && policy(lead).force_release? && active_assignment.present? %>
+          <%= button_to "Force release", force_release_lead_path(lead), method: :patch, class: "btn btn-sm btn-outline-danger" %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if manager_like && policy(lead).reassign_checkout? %>
+      <div class="accordion mt-3" id="overviewManagerTools">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="overviewReassignHeading">
+            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#overviewReassignCollapse" aria-expanded="false" aria-controls="overviewReassignCollapse">
+              Manager tools
+            </button>
+          </h2>
+          <div id="overviewReassignCollapse" class="accordion-collapse collapse" aria-labelledby="overviewReassignHeading" data-bs-parent="#overviewManagerTools">
+            <div class="accordion-body pt-2">
+              <div class="small text-muted mb-2">Reassign checkout</div>
+              <%= form_with url: reassign_checkout_lead_path(lead), method: :patch, local: true, class: "d-grid gap-2" do |form| %>
+                <%= form.select :user_id,
+                                options_for_select(assignable_users.map { |user| [user.full_name.presence || user.email_address, user.id] }, active_assignment&.user_id),
+                                {},
+                                class: "form-select form-select-sm" %>
+                <%= form.submit "Reassign", class: "btn btn-sm btn-namarunu" %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
