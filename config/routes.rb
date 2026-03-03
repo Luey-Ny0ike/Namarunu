@@ -52,12 +52,12 @@ Rails.application.routes.draw do
 
   namespace :app do
     root "dashboard#show"
-    resources :demos, only: :index do
+    resources :demos, only: %i[index show] do
       member do
         post :complete
       end
     end
-    resources :leads, only: :index do
+    resources :leads, only: %i[index show] do
       member do
         post :log_attempt, to: "lead_actions#log_attempt"
         post :book_demo, to: "lead_actions#book_demo"

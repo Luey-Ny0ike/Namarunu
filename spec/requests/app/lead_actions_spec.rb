@@ -44,10 +44,10 @@ RSpec.describe "App::LeadActions", type: :request do
 
     post log_attempt_app_lead_path(lead), params: {
       outcome: "follow_up",
-      return_to: lead_path(lead)
+      return_to: app_lead_path(lead)
     }
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     follow_redirect!
     expect(response.body).to include("Follow-up date is required")
     expect(lead.reload.status).to eq("new")
@@ -90,7 +90,7 @@ RSpec.describe "App::LeadActions", type: :request do
     post log_attempt_app_lead_path(lost_target), params: {
       outcome: "wrong_number",
       queue_next_lead_id: next_lead.id,
-      return_to: lead_path(lost_target)
+      return_to: app_lead_path(lost_target)
     }
 
     expect(response).to redirect_to(app_work_queue_path(lead_id: next_lead.id))
@@ -129,12 +129,46 @@ RSpec.describe "App::LeadActions", type: :request do
     end.to change(Demo, :count).by(1)
       .and change { Activity.where(action_type: "demo_booked").count }.by(1)
 
-    expect(response).to redirect_to(app_demos_path(tab: "upcoming"))
+    expect(response).to redirect_to(app_work_queue_path)
     demo = Demo.last
     expect(demo.lead).to eq(lead)
     expect(demo.assigned_to_user).to eq(rep)
     expect(demo.created_by_user).to eq(rep)
     expect(lead.reload.status).to eq("demo_booked")
+  end
+
+  it "allows manager to choose demo assignee" do
+    manager = build_user(:sales_manager)
+    rep = build_user(:sales_rep)
+    lead = create_owned_lead(manager, name: "Manager Assigned Demo Lead")
+    sign_in_as(manager)
+
+    post book_demo_app_lead_path(lead), params: {
+      scheduled_at: 1.day.from_now.strftime("%Y-%m-%dT%H:%M"),
+      duration_minutes: 30,
+      assigned_to_user_id: rep.id,
+      return_to: app_lead_path(lead)
+    }
+
+    expect(response).to redirect_to(app_lead_path(lead))
+    expect(Demo.last.assigned_to_user).to eq(rep)
+  end
+
+  it "ignores custom assignee for reps and assigns demo to current user" do
+    rep = build_user(:sales_rep)
+    other_rep = build_user(:sales_rep)
+    lead = create_owned_lead(rep, name: "Rep Assigned Demo Lead")
+    sign_in_as(rep)
+
+    post book_demo_app_lead_path(lead), params: {
+      scheduled_at: 1.day.from_now.strftime("%Y-%m-%dT%H:%M"),
+      duration_minutes: 30,
+      assigned_to_user_id: other_rep.id,
+      return_to: app_lead_path(lead)
+    }
+
+    expect(response).to redirect_to(app_lead_path(lead))
+    expect(Demo.last.assigned_to_user).to eq(rep)
   end
 
   it "marks lead as awaiting_commitment and records status_changed activity" do
@@ -143,10 +177,10 @@ RSpec.describe "App::LeadActions", type: :request do
     sign_in_as(rep)
 
     expect do
-      post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: lead_path(lead) }
+      post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
     end.to change { Activity.where(action_type: "status_changed").count }.by(1)
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     expect(lead.reload.status).to eq("awaiting_commitment")
     activity = Activity.where(subject: lead, action_type: "status_changed").order(:created_at).last
     expect(activity.metadata).to include("old" => "new", "new" => "awaiting_commitment")
@@ -158,12 +192,12 @@ RSpec.describe "App::LeadActions", type: :request do
     sign_in_as(rep)
 
     expect do
-      post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: lead_path(lead) }
+      post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
     end.to change(Account, :count).by(1)
       .and change(Contact, :count).by(1)
       .and change { Activity.where(action_type: "converted").count }.by(1)
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     lead.reload
     expect(lead.status).to eq("awaiting_commitment")
     expect(lead.converted_account).to be_present
@@ -176,12 +210,12 @@ RSpec.describe "App::LeadActions", type: :request do
 
     expect do
       post mark_invoice_sent_app_lead_path(lead), params: {
-        return_to: lead_path(lead),
+        return_to: app_lead_path(lead),
         invoice_sent_at: 1.year.ago.iso8601
       }
     end.to change { Activity.where(action_type: "invoice_sent").count }.by(1)
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     lead.reload
     expect(lead.status).to eq("invoice_sent")
     expect(lead.invoice_sent_at).to be_within(5.seconds).of(Time.current)
@@ -195,12 +229,12 @@ RSpec.describe "App::LeadActions", type: :request do
     sign_in_as(rep)
 
     expect do
-      post mark_invoice_sent_app_lead_path(lead), params: { return_to: lead_path(lead) }
+      post mark_invoice_sent_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
     end.to change(Account, :count).by(1)
       .and change(Contact, :count).by(1)
       .and change { Activity.where(action_type: "converted").count }.by(1)
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     lead.reload
     expect(lead.status).to eq("invoice_sent")
     expect(lead.converted_account).to be_present
@@ -213,9 +247,9 @@ RSpec.describe "App::LeadActions", type: :request do
     LeadAssignment.create!(lead: lead, user: rep, checked_out_at: Time.current, expires_at: 1.hour.from_now)
     sign_in_as(rep)
 
-    post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: lead_path(lead) }
+    post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     expect(lead.reload.status).to eq("awaiting_commitment")
   end
 
@@ -225,7 +259,7 @@ RSpec.describe "App::LeadActions", type: :request do
     lead = create_lead(name: "Other Rep Invoice", owner_user: other_rep)
     sign_in_as(rep)
 
-    post mark_invoice_sent_app_lead_path(lead), params: { return_to: lead_path(lead) }
+    post mark_invoice_sent_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
 
     expect(response).to redirect_to(root_path)
     expect(lead.reload.status).to eq("new")
@@ -237,9 +271,9 @@ RSpec.describe "App::LeadActions", type: :request do
     lead = create_lead(name: "Manager Awaiting", owner_user: rep)
     sign_in_as(manager)
 
-    post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: lead_path(lead) }
+    post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     expect(lead.reload.status).to eq("awaiting_commitment")
   end
 
@@ -249,9 +283,9 @@ RSpec.describe "App::LeadActions", type: :request do
     lead = create_lead(name: "Admin Invoice", owner_user: rep)
     sign_in_as(admin)
 
-    post mark_invoice_sent_app_lead_path(lead), params: { return_to: lead_path(lead) }
+    post mark_invoice_sent_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     expect(lead.reload.status).to eq("invoice_sent")
   end
 
@@ -260,9 +294,9 @@ RSpec.describe "App::LeadActions", type: :request do
     lead = create_owned_lead(rep, name: "Missing Lost Reason")
     sign_in_as(rep)
 
-    post mark_lost_app_lead_path(lead), params: { return_to: lead_path(lead) }
+    post mark_lost_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     follow_redirect!
     expect(response.body).to include("Lost reason is required")
     expect(lead.reload.status).to eq("new")
@@ -288,7 +322,7 @@ RSpec.describe "App::LeadActions", type: :request do
       post mark_lost_app_lead_path(lead), params: {
         lost_reason: "competitor",
         queue_next_lead_id: next_lead.id,
-        return_to: lead_path(lead)
+        return_to: app_lead_path(lead)
       }
     end.to change { Activity.where(action_type: "lost").count }.by(1)
 
@@ -304,9 +338,9 @@ RSpec.describe "App::LeadActions", type: :request do
     lead = create_owned_lead(rep, name: "Too Early Lead")
     sign_in_as(rep)
 
-    post confirm_payment_app_lead_path(lead), params: { return_to: lead_path(lead) }
+    post confirm_payment_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     follow_redirect!
     expect(response.body).to include("Demo completed or later")
     expect(lead.reload.status).to eq("new")
@@ -318,12 +352,12 @@ RSpec.describe "App::LeadActions", type: :request do
     sign_in_as(rep)
 
     expect do
-      post confirm_payment_app_lead_path(lead), params: { return_to: lead_path(lead) }
+      post confirm_payment_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
     end.to change(Account, :count).by(1)
       .and change { Activity.where(action_type: "converted").count }.by(1)
       .and change { Activity.where(action_type: "won").count }.by(1)
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     lead.reload
     expect(lead.status).to eq("won")
     expect(lead.converted_account).to be_present
@@ -337,7 +371,7 @@ RSpec.describe "App::LeadActions", type: :request do
     sign_in_as(rep)
 
     expect do
-      post confirm_payment_app_lead_path(lead), params: { return_to: lead_path(lead) }
+      post confirm_payment_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
     end.to change(Account, :count).by(0)
       .and change { Activity.where(action_type: "converted").count }.by(0)
       .and change { Activity.where(action_type: "won").count }.by(1)
@@ -353,7 +387,7 @@ RSpec.describe "App::LeadActions", type: :request do
 
     post confirm_payment_app_lead_path(first), params: {
       queue_next_lead_id: second.id,
-      return_to: lead_path(first)
+      return_to: app_lead_path(first)
     }
 
     expect(response).to redirect_to(app_work_queue_path(lead_id: second.id))
@@ -365,7 +399,7 @@ RSpec.describe "App::LeadActions", type: :request do
     lead = create_lead(name: "Other Rep Lead", status: :demo_completed, owner_user: other_rep)
     sign_in_as(rep)
 
-    post confirm_payment_app_lead_path(lead), params: { return_to: lead_path(lead) }
+    post confirm_payment_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
 
     expect(response).to redirect_to(root_path)
     expect(lead.reload.status).to eq("demo_completed")

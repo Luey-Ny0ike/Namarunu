@@ -2,6 +2,14 @@
 
 module App
   class DemosController < App::BaseController
+    def show
+      @demo = Demo.includes(:lead, :created_by_user, :assigned_to_user).find(params[:id])
+      authorize @demo
+      @activities = @demo.activities.includes(:actor_user).recent_first
+
+      render "demos/show"
+    end
+
     def index
       authorize Demo
 

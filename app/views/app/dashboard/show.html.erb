@@ -25,8 +25,8 @@
                     </div>
                   </div>
                   <div class="d-flex gap-2">
-                    <%= link_to "Open", lead_path(lead), class: "btn btn-sm btn-outline-secondary" %>
-                    <%= link_to "Log attempt", lead_path(lead, anchor: "call-attempt"), class: "btn btn-sm btn-outline-primary", data: { bs_toggle: "modal", bs_target: "#logCallAttemptModal" } %>
+                    <%= link_to "Open", app_lead_path(lead), class: "btn btn-sm btn-outline-secondary" %>
+                    <%= link_to "Log attempt", app_lead_path(lead, anchor: "call-attempt"), class: "btn btn-sm btn-outline-primary", data: { bs_toggle: "modal", bs_target: "#logCallAttemptModal" } %>
                   </div>
                 </div>
               </div>
@@ -64,8 +64,8 @@
                     </div>
                   </div>
                   <div class="d-flex gap-2">
-                    <%= link_to "Open", lead_path(lead), class: "btn btn-sm btn-outline-secondary" %>
-                    <%= link_to "Log attempt", lead_path(lead, anchor: "call-attempt"), class: "btn btn-sm btn-outline-primary", data: { bs_toggle: "modal", bs_target: "#logCallAttemptModal" } %>
+                    <%= link_to "Open", app_lead_path(lead), class: "btn btn-sm btn-outline-secondary" %>
+                    <%= link_to "Log attempt", app_lead_path(lead, anchor: "call-attempt"), class: "btn btn-sm btn-outline-primary", data: { bs_toggle: "modal", bs_target: "#logCallAttemptModal" } %>
                   </div>
                 </div>
               </div>
@@ -118,7 +118,7 @@
                     </div>
                   </div>
                   <% if demo.lead.present? %>
-                    <%= link_to "Open", lead_path(demo.lead), class: "btn btn-sm btn-outline-primary" %>
+                    <%= link_to "Open", app_lead_path(demo.lead), class: "btn btn-sm btn-outline-primary" %>
                   <% end %>
                 </div>
               </div>

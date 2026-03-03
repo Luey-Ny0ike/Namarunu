@@ -90,6 +90,7 @@ RSpec.describe "Leads", type: :request do
       .and change(Activity, :count).by(1)
     expect(response).to redirect_to(lead_path(lead))
     follow_redirect!
+    follow_redirect! if response.redirect?
     expect(response.body).to include("Lead checked out")
 
     sign_in_as(second_rep)
@@ -98,6 +99,7 @@ RSpec.describe "Leads", type: :request do
     end.not_to change(LeadAssignment, :count)
 
     follow_redirect!
+    follow_redirect! if response.redirect?
     expect(response.body).to include("Already checked out by")
     expect(response.body).to include(first_rep.full_name)
   end
@@ -219,6 +221,7 @@ RSpec.describe "Leads", type: :request do
     post log_call_attempt_lead_path(follow_up_due), params: { call_attempt: { outcome: "follow_up", notes: "Call back tomorrow" } }
     expect(response).to redirect_to(lead_path(follow_up_due))
     follow_redirect!
+    follow_redirect! if response.redirect?
     expect(response.body).to include("Follow-up date is required")
 
     follow_up_at = 1.day.from_now.change(sec: 0)
@@ -348,7 +351,7 @@ RSpec.describe "Leads", type: :request do
     expect(lead.reload.owner_user).to eq(new_owner)
   end
 
-  it "shows demo metrics on lead dashboard" do
+  it "redirects legacy /leads path to /app/leads" do
     rep = build_user(:sales_rep)
     sign_in_as(rep)
 
@@ -358,13 +361,7 @@ RSpec.describe "Leads", type: :request do
 
     get my_tasks_leads_path
 
-    expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Demos Booked")
-    expect(response.body).to include("3")
-    expect(response.body).to include("Demos Completed")
-    expect(response.body).to include("1")
-    expect(response.body).to include("Show Rate")
-    expect(response.body).to include("50.0%")
+    expect(response).to redirect_to(app_leads_path)
   end
 
   it "converts a qualified lead into an account and links demos" do

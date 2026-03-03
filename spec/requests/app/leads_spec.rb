@@ -89,4 +89,45 @@ RSpec.describe "App::Leads", type: :request do
 
     expect(response).to redirect_to(app_leads_path)
   end
+
+  it "renders /app/leads/:id in app layout without marketing chrome" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = create_lead(name: "Show Lead", owner: rep)
+
+    get app_lead_path(lead)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Namarunu CRM")
+    expect(response.body).to include("Show Lead")
+    expect(response.body).not_to include("marketing-navbar")
+  end
+
+  it "redirects legacy /leads/:id show to /app/leads/:id for staff" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = create_lead(name: "Legacy Lead", owner: rep)
+
+    get lead_path(lead)
+
+    expect(response).to redirect_to(app_lead_path(lead))
+  end
+
+  it "hides Book Demo assignee dropdown for reps and shows it for managers" do
+    rep = build_user(:sales_rep)
+    manager = build_user(:sales_manager)
+    lead = create_lead(name: "Demo Assignment Visibility", owner: rep)
+
+    sign_in_as(rep)
+    get app_lead_path(lead)
+    expect(response).to have_http_status(:ok)
+    expect(response.body).not_to include("Assign to")
+    expect(response.body).not_to include("assigned_to_user_id")
+
+    sign_in_as(manager)
+    get app_lead_path(lead)
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Assign to")
+    expect(response.body).to include("assigned_to_user_id")
+  end
 end
