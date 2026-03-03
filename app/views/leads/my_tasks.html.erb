@@ -27,7 +27,7 @@
                     Status: <%= lead.status.humanize %> • Next action: <%= lead.next_action_at ? l(lead.next_action_at, format: :short) : "-" %>
                   </div>
                 </div>
-                <%= link_to "Open", lead_path(lead), class: "btn btn-namarunu btn-sm" %>
+                <%= link_to "Open", app_lead_path(lead), class: "btn btn-namarunu btn-sm" %>
               </div>
             </div>
           <% end %>
@@ -52,7 +52,7 @@
                     Due: <%= lead.next_action_at ? l(lead.next_action_at, format: :short) : "-" %> • Last contacted: <%= lead.last_contacted_at ? l(lead.last_contacted_at, format: :short) : "-" %>
                   </div>
                 </div>
-                <%= link_to "Open", lead_path(lead), class: "btn btn-outline-secondary btn-sm" %>
+                <%= link_to "Open", app_lead_path(lead), class: "btn btn-outline-secondary btn-sm" %>
               </div>
             </div>
           <% end %>

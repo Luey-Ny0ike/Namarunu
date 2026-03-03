@@ -2,7 +2,8 @@
 
 module App
   class LeadsController < BaseController
-    before_action :load_assignable_users, only: :index
+    before_action :set_lead, only: :show
+    before_action :load_assignable_users, only: %i[index show]
 
     def index
       authorize Lead
@@ -19,7 +20,21 @@ module App
       render "leads/index"
     end
 
+    def show
+      authorize @lead
+      @active_assignment = @lead.active_assignment
+      @latest_submission = @lead.lead_submissions.order(created_at: :desc, id: :desc).first
+      @activities = @lead.activities.includes(:actor_user).recent_first
+      @demos = policy_scope(Demo).where(lead_id: @lead.id).order(scheduled_at: :asc)
+
+      render "leads/show"
+    end
+
     private
+
+    def set_lead
+      @lead = Lead.includes(:lead_contacts, :converted_account, :lead_submissions).find(params[:id])
+    end
 
     def resolved_tab
       params[:tab].presence_in(allowed_tabs) || default_tab

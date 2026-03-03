@@ -13,7 +13,7 @@
     </div>
     <div class="d-flex gap-2">
       <% if @demo.lead.present? %>
-        <%= link_to "Back to Lead", lead_path(@demo.lead), class: "btn btn-outline-secondary" %>
+        <%= link_to "Back to Lead", app_lead_path(@demo.lead), class: "btn btn-outline-secondary" %>
       <% else %>
         <%= link_to "Back", app_leads_path, class: "btn btn-outline-secondary" %>
       <% end %>

@@ -28,7 +28,7 @@
           </div>
 
           <div class="d-grid gap-2">
-            <%= link_to "Open Lead", demo.lead.present? ? lead_path(demo.lead) : demo_path(demo), class: "btn btn-outline-secondary" %>
+            <%= link_to "Open Lead", demo.lead.present? ? app_lead_path(demo.lead) : app_demo_path(demo), class: "btn btn-outline-secondary" %>
           </div>
 
           <% if demo.lead.present? && (demo.status_scheduled? || demo.status_rescheduled?) %>

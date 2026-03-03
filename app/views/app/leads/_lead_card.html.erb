@@ -42,7 +42,7 @@
     </div>
 
     <div>
-      <%= link_to "Open", lead_path(lead), class: "btn btn-namarunu btn-sm", data: { turbo_frame: "_top" } %>
+      <%= link_to "Open", app_lead_path(lead, return_to: request.fullpath), class: "btn btn-namarunu btn-sm", data: { turbo_frame: "_top" } %>
     </div>
   </div>
 </div>

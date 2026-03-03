@@ -96,4 +96,23 @@ RSpec.describe "App::Demos", type: :request do
     expect(demo.outcome).to eq("qualified")
     expect(lead.reload.status).to eq("demo_completed")
   end
+
+  it "renders demo show in app namespace" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = create_lead(rep, name: "Show Demo Lead")
+    demo = Demo.create!(
+      lead: lead,
+      created_by_user: rep,
+      assigned_to_user: rep,
+      scheduled_at: 2.hours.from_now,
+      duration_minutes: 30
+    )
+
+    get app_demo_path(demo)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Demo ##{demo.id}")
+    expect(response.body).to include("Namarunu CRM")
+  end
 end

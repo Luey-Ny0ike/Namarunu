@@ -152,12 +152,13 @@ module App
 
       scheduled_at = parse_datetime(book_demo_params[:scheduled_at])
       if scheduled_at.blank?
-        redirect_to safe_return_to || lead_path(lead), alert: "Scheduled time is required."
+        redirect_to safe_return_to || app_lead_path(lead), alert: "Scheduled time is required."
         return
       end
 
       now = Time.current
       demo = nil
+      assigned_user = assignee_for_booking(book_demo_params[:assigned_to_user_id])
 
       Lead.transaction do
         demo = Demo.create!(
@@ -165,7 +166,7 @@ module App
           scheduled_at: scheduled_at,
           duration_minutes: book_demo_params[:duration_minutes].presence || 30,
           notes: book_demo_params[:notes].to_s.strip.presence,
-          assigned_to_user: Current.user,
+          assigned_to_user: assigned_user,
           created_by_user: Current.user
         )
 
@@ -183,9 +184,11 @@ module App
         )
       end
 
-      redirect_to app_demos_path(tab: "upcoming"), notice: "Demo booked."
+      redirect_to safe_return_to || app_lead_path(lead), notice: "Demo booked."
+    rescue ActiveRecord::RecordNotFound
+      redirect_to safe_return_to || app_lead_path(lead), alert: "Assignee not found."
     rescue ActiveRecord::RecordInvalid => e
-      redirect_to safe_return_to || lead_path(params[:id]), alert: "Unable to book demo: #{e.record.errors.full_messages.to_sentence}"
+      redirect_to safe_return_to || app_lead_path(params[:id]), alert: "Unable to book demo: #{e.record.errors.full_messages.to_sentence}"
     end
 
     def log_attempt
@@ -242,7 +245,7 @@ module App
     end
 
     def book_demo_params
-      params.permit(:scheduled_at, :duration_minutes, :notes, :return_to)
+      params.permit(:scheduled_at, :duration_minutes, :notes, :assigned_to_user_id, :return_to)
     end
 
     def post_demo_params
@@ -312,11 +315,11 @@ module App
       next_id = params[:queue_next_lead_id].to_i
       return app_work_queue_path(lead_id: next_id) if next_id.positive?
 
-      safe_return_to || lead_path(params[:id])
+      safe_return_to || app_lead_path(params[:id])
     end
 
     def failure_redirect_target
-      safe_return_to || lead_path(params[:id])
+      safe_return_to || app_lead_path(params[:id])
     end
 
     def safe_return_to
@@ -325,6 +328,13 @@ module App
       return unless path.start_with?("/")
 
       path
+    end
+
+    def assignee_for_booking(requested_assignee_id)
+      return Current.user if requested_assignee_id.blank?
+      return Current.user if Current.user&.sales_rep?
+
+      User.find(requested_assignee_id)
     end
   end
 end
