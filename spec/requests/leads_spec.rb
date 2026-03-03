@@ -23,7 +23,7 @@ RSpec.describe "Leads", type: :request do
     sign_in_as(user)
 
     expect do
-      post leads_path, params: {
+      post app_leads_path, params: {
         lead: {
           business_name: "Acme",
           location: "Nairobi",
@@ -44,7 +44,7 @@ RSpec.describe "Leads", type: :request do
     expect(create_activity.action_type).to eq("lead_created")
 
     expect do
-      patch lead_path(lead), params: {
+      patch app_lead_path(lead), params: {
         lead: {
           status: "qualified",
           industry: "Fashion"
@@ -65,9 +65,9 @@ RSpec.describe "Leads", type: :request do
       lead_contacts_attributes: [{ name: "Invoice Contact", phone: "+15551239999" }]
     )
 
-    patch lead_path(lead), params: { lead: { status: "invoice_sent" } }
+    patch app_lead_path(lead), params: { lead: { status: "invoice_sent" } }
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     lead.reload
     expect(lead.status).to eq("invoice_sent")
     expect(lead.invoice_sent_at).to be_within(5.seconds).of(Time.current)
@@ -345,9 +345,9 @@ RSpec.describe "Leads", type: :request do
       lead_contacts_attributes: [{ name: "Primary Contact", phone: "+15551233333" }]
     )
 
-    patch lead_path(lead), params: { lead: { owner_user_id: new_owner.id } }
+    patch app_lead_path(lead), params: { lead: { owner_user_id: new_owner.id } }
 
-    expect(response).to redirect_to(lead_path(lead))
+    expect(response).to redirect_to(app_lead_path(lead))
     expect(lead.reload.owner_user).to eq(new_owner)
   end
 
@@ -358,6 +358,30 @@ RSpec.describe "Leads", type: :request do
     get leads_path
 
     expect(response).to redirect_to(app_leads_path)
+  end
+
+  it "redirects legacy lead CRUD routes to app routes for staff" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = Lead.create!(
+      business_name: "Legacy Redirect Co",
+      owner_user: rep,
+      lead_contacts_attributes: [{ name: "Primary Contact", phone: "+15557778888" }]
+    )
+
+    get new_lead_path
+    expect(response).to redirect_to(app_new_lead_path)
+
+    get edit_lead_path(lead)
+    expect(response).to redirect_to(edit_app_lead_path(lead))
+
+    post leads_path, params: { lead: { business_name: "Redirect Create" } }
+    expect(response).to have_http_status(:temporary_redirect)
+    expect(response).to redirect_to(app_leads_path)
+
+    patch lead_path(lead), params: { lead: { business_name: "Redirect Update" } }
+    expect(response).to have_http_status(:temporary_redirect)
+    expect(response).to redirect_to(app_lead_path(lead))
   end
 
   it "converts a qualified lead into an account and links demos" do

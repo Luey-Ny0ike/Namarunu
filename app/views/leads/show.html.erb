@@ -44,7 +44,7 @@
           <%= link_to "View Account", account_path(@lead.converted_account), class: "btn btn-outline-secondary" %>
         <% end %>
         <% if policy(@lead).edit? %>
-          <%= link_to "Edit", edit_lead_path(@lead), class: "btn btn-namarunu" %>
+          <%= link_to "Edit", edit_app_lead_path(@lead), class: "btn btn-namarunu" %>
         <% end %>
       </div>
     </div>

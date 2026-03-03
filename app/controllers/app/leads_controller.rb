@@ -2,8 +2,8 @@
 
 module App
   class LeadsController < BaseController
-    before_action :set_lead, only: :show
-    before_action :load_assignable_users, only: %i[index show]
+    before_action :set_lead, only: %i[show edit update]
+    before_action :load_assignable_users, only: %i[index show new create edit update]
 
     def index
       authorize Lead
@@ -28,6 +28,53 @@ module App
       @demos = policy_scope(Demo).where(lead_id: @lead.id).order(scheduled_at: :asc)
 
       render "leads/show"
+    end
+
+    def new
+      authorize Lead
+      @lead = Lead.new
+      @lead.lead_contacts.build
+
+      render "leads/new"
+    end
+
+    def create
+      @lead = Lead.new(normalized_lead_params)
+      @lead.owner_user ||= Current.user
+      authorize @lead
+
+      if @lead.save
+        write_activity!(@lead, "lead_created", metadata: { status: @lead.status, temperature: @lead.temperature })
+        redirect_to app_lead_path(@lead), notice: "Lead was successfully created."
+      else
+        @lead.lead_contacts.build if @lead.lead_contacts.empty?
+        render "leads/new", status: :unprocessable_entity
+      end
+    end
+
+    def edit
+      authorize @lead
+      @lead.lead_contacts.build if @lead.lead_contacts.empty?
+
+      render "leads/edit"
+    end
+
+    def update
+      authorize @lead
+
+      if @lead.update(normalized_lead_params)
+        write_activity!(@lead, "lead_updated", metadata: { changed_fields: @lead.saved_changes.except("updated_at").keys })
+
+        if @lead.saved_change_to_status?
+          from, to = @lead.saved_change_to_status
+          write_activity!(@lead, "lead_status_changed", metadata: { from: from, to: to })
+        end
+
+        redirect_to app_lead_path(@lead), notice: "Lead was successfully updated."
+      else
+        @lead.lead_contacts.build if @lead.lead_contacts.empty?
+        render "leads/edit", status: :unprocessable_entity
+      end
     end
 
     private
@@ -101,6 +148,41 @@ module App
 
     def manager_like?
       Current.user&.sales_manager? || Current.user&.super_admin?
+    end
+
+    def lead_params
+      permitted = [
+        :business_name,
+        :location,
+        :industry,
+        :source,
+        :status,
+        :temperature,
+        :next_action_at,
+        lead_contacts_attributes: %i[id name phone email role preferred_channel _destroy]
+      ]
+      permitted << :owner_user_id if manager_like?
+      permitted << :last_contacted_at if manager_like?
+
+      params.require(:lead).permit(permitted)
+    end
+
+    def normalized_lead_params
+      attributes = lead_params
+      return attributes unless attributes[:status].to_s == Lead::STATUSES[:invoice_sent]
+      return attributes if attributes[:invoice_sent_at].present?
+
+      attributes.merge(invoice_sent_at: Time.current)
+    end
+
+    def write_activity!(lead, action_type, metadata: {})
+      Activity.create!(
+        actor_user: Current.user,
+        subject: lead,
+        action_type: action_type,
+        metadata: metadata,
+        occurred_at: Time.current
+      )
     end
   end
 end

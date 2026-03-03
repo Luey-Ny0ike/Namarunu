@@ -1,4 +1,5 @@
-<%= form_with(model: lead, local: true) do |form| %>
+<%= form_with(model: lead, url: lead.persisted? ? app_lead_path(lead) : app_leads_path, local: true) do |form| %>
+  <% manager_like = Current.user&.sales_manager? || Current.user&.super_admin? %>
   <% if lead.errors.any? %>
     <div id="error_explanation" class="alert alert-danger">
       <h2><%= pluralize(lead.errors.count, "error") %> prohibited this lead from being saved:</h2>
@@ -10,94 +11,90 @@
     </div>
   <% end %>
 
-  <div class="row g-3">
-    <div class="col-md-6">
-      <%= form.label :business_name, class: "form-label" %>
-      <%= form.text_field :business_name, class: "form-control" %>
-    </div>
-    <div class="col-md-6">
-      <%= form.label :location, class: "form-label" %>
-      <%= form.text_field :location, class: "form-control" %>
-    </div>
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Lead Details</h2>
+      <div class="row g-3">
+        <div class="col-12 col-lg-6">
+          <%= form.label :business_name, class: "form-label" %>
+          <%= form.text_field :business_name, class: "form-control", required: true %>
+        </div>
+        <div class="col-12 col-lg-6">
+          <%= form.label :location, class: "form-label" %>
+          <%= form.text_field :location, class: "form-control" %>
+        </div>
 
-    <div class="col-md-6">
-      <%= form.label :industry, class: "form-label" %>
-      <%= form.text_field :industry, class: "form-control" %>
-    </div>
-    <div class="col-md-6">
-      <%= form.label :source, class: "form-label" %>
-      <%= form.text_field :source, class: "form-control" %>
-    </div>
+        <div class="col-12 col-lg-6">
+          <%= form.label :industry, class: "form-label" %>
+          <%= form.select :industry,
+                          Lead::INDUSTRIES.values.map { |value| [value.humanize, value] },
+                          { include_blank: "Select industry" },
+                          class: "form-select" %>
+        </div>
+        <div class="col-12 col-lg-6">
+          <%= form.label :source, class: "form-label" %>
+          <%= form.select :source,
+                          Lead::SOURCES.values.map { |value| [value.humanize, value] },
+                          { include_blank: "Select source" },
+                          class: "form-select" %>
+        </div>
 
-    <div class="col-md-4">
-      <%= form.label :status, class: "form-label" %>
-      <%= form.select :status, Lead.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "form-select" %>
-    </div>
-    <div class="col-md-4">
-      <%= form.label :temperature, class: "form-label" %>
-      <%= form.select :temperature, Lead.temperatures.keys.map { |value| [value.humanize, value] }, {}, class: "form-select" %>
-    </div>
-    <div class="col-md-4">
-      <%= form.label :owner_user_id, "Owner", class: "form-label" %>
-      <%= form.select :owner_user_id,
-                      @assignable_users.map { |user| [user.full_name.presence || user.email_address, user.id] },
-                      { include_blank: "Unassigned" },
-                      class: "form-select" %>
-    </div>
+        <div class="col-12 col-lg-6">
+          <%= form.label :temperature, class: "form-label" %>
+          <%= form.select :temperature, Lead.temperatures.keys.map { |value| [value.humanize, value] }, {}, class: "form-select" %>
+        </div>
+        <% if manager_like %>
+          <div class="col-12 col-lg-6">
+            <%= form.label :status, class: "form-label" %>
+            <%= form.select :status, Lead.statuses.keys.map { |value| [value.humanize, value] }, {}, class: "form-select" %>
+          </div>
+          <div class="col-12 col-lg-6">
+            <%= form.label :owner_user_id, "Owner", class: "form-label" %>
+            <%= form.select :owner_user_id,
+                            @assignable_users.map { |user| [user.full_name.presence || user.email_address, user.id] },
+                            { include_blank: "Unassigned" },
+                            class: "form-select" %>
+          </div>
+        <% end %>
 
-    <div class="col-md-6">
-      <%= form.label :next_action_at, class: "form-label" %>
-      <%= form.datetime_local_field :next_action_at, class: "form-control" %>
-    </div>
-    <div class="col-md-6">
-      <%= form.label :last_contacted_at, class: "form-label" %>
-      <%= form.datetime_local_field :last_contacted_at, class: "form-control" %>
-    </div>
-
-    <div class="col-md-6">
-      <%= form.label :converted_at, class: "form-label" %>
-      <%= form.datetime_local_field :converted_at, class: "form-control" %>
+        <div class="col-12 col-lg-6">
+          <%= form.label :next_action_at, class: "form-label" %>
+          <%= form.datetime_local_field :next_action_at, class: "form-control" %>
+        </div>
+        <% if manager_like %>
+          <div class="col-12 col-lg-6">
+            <%= form.label :last_contacted_at, class: "form-label" %>
+            <%= form.datetime_local_field :last_contacted_at, class: "form-control" %>
+          </div>
+        <% end %>
+      </div>
     </div>
   </div>
 
-  <hr class="my-4">
-
-  <h2 class="h5 mb-3">Lead Contacts</h2>
-
-  <%= form.fields_for :lead_contacts do |contact_form| %>
-    <div class="border rounded-3 p-3 mb-3 bg-light">
-      <%= contact_form.hidden_field :id if contact_form.object.persisted? %>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <%= contact_form.label :name, class: "form-label" %>
-          <%= contact_form.text_field :name, class: "form-control" %>
-        </div>
-        <div class="col-md-6">
-          <%= contact_form.label :role, class: "form-label" %>
-          <%= contact_form.text_field :role, class: "form-control" %>
-        </div>
-
-        <div class="col-md-6">
-          <%= contact_form.label :phone, class: "form-label" %>
-          <%= contact_form.telephone_field :phone, class: "form-control" %>
-        </div>
-        <div class="col-md-6">
-          <%= contact_form.label :email, class: "form-label" %>
-          <%= contact_form.email_field :email, class: "form-control" %>
-        </div>
-
-        <div class="col-md-6">
-          <%= contact_form.label :preferred_channel, class: "form-label" %>
-          <%= contact_form.select :preferred_channel,
-                                  LeadContact::CHANNEL_OPTIONS.map { |value| [value.humanize, value] },
-                                  { include_blank: "No preference" },
-                                  class: "form-select" %>
-        </div>
+  <div class="card shadow-sm">
+    <div class="card-body" data-controller="lead-contacts">
+      <h2 class="h5 mb-3">Lead Contacts</h2>
+      <div data-lead-contacts-target="container">
+        <%= form.fields_for :lead_contacts do |contact_form| %>
+          <%= render "leads/lead_contact_fields", form: contact_form %>
+        <% end %>
       </div>
-    </div>
-  <% end %>
 
-  <div class="pt-2">
+      <template data-lead-contacts-target="template">
+        <%= form.fields_for :lead_contacts, LeadContact.new, child_index: "NEW_RECORD" do |contact_form| %>
+          <%= render "leads/lead_contact_fields", form: contact_form %>
+        <% end %>
+      </template>
+
+      <button type="button" class="btn btn-outline-secondary btn-sm" data-action="lead-contacts#add">Add another contact</button>
+    </div>
+  </div>
+
+  <div class="d-none d-lg-flex justify-content-end pt-3">
     <%= form.submit class: "btn btn-namarunu" %>
+  </div>
+
+  <div class="d-lg-none position-sticky bottom-0 bg-body border-top mt-3 py-2" style="z-index: 1020;">
+    <%= form.submit class: "btn btn-namarunu w-100" %>
   </div>
 <% end %>

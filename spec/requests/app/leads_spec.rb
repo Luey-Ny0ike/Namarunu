@@ -103,6 +103,68 @@ RSpec.describe "App::Leads", type: :request do
     expect(response.body).not_to include("marketing-navbar")
   end
 
+  it "renders new/edit in app layout and redirects create/update to app show" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = create_lead(name: "Editable Lead", owner: rep)
+
+    get app_new_lead_path
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Namarunu CRM")
+    expect(response.body).not_to include("marketing-navbar")
+
+    post app_leads_path, params: {
+      lead: {
+        business_name: "Created In App",
+        lead_contacts_attributes: {
+          "0" => { name: "", phone: "+15558889999" }
+        }
+      }
+    }
+    created_lead = Lead.order(:id).last
+    expect(response).to redirect_to(app_lead_path(created_lead))
+    expect(created_lead.lead_contacts.first.name).to be_blank
+    expect(created_lead.lead_contacts.first.phone).to eq("+15558889999")
+
+    get edit_app_lead_path(lead)
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Namarunu CRM")
+    expect(response.body).not_to include("marketing-navbar")
+
+    patch app_lead_path(lead), params: { lead: { industry: "Updated Industry" } }
+    expect(response).to redirect_to(app_lead_path(lead))
+    expect(lead.reload.industry).to eq("Updated Industry")
+  end
+
+  it "shows manager-only lead form fields only to managers/admins" do
+    rep = build_user(:sales_rep)
+    manager = build_user(:sales_manager)
+    lead = create_lead(name: "Role Aware Form Lead", owner: rep)
+
+    sign_in_as(rep)
+    get app_new_lead_path
+    expect(response).to have_http_status(:ok)
+    expect(response.body).not_to include("lead[owner_user_id]")
+    expect(response.body).not_to include("lead[status]")
+    expect(response.body).not_to include("lead[last_contacted_at]")
+    expect(response.body).not_to include("lead[converted_at]")
+
+    get edit_app_lead_path(lead)
+    expect(response).to have_http_status(:ok)
+    expect(response.body).not_to include("lead[owner_user_id]")
+    expect(response.body).not_to include("lead[status]")
+    expect(response.body).not_to include("lead[last_contacted_at]")
+    expect(response.body).not_to include("lead[converted_at]")
+
+    sign_in_as(manager)
+    get app_new_lead_path
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("lead[owner_user_id]")
+    expect(response.body).to include("lead[status]")
+    expect(response.body).to include("lead[last_contacted_at]")
+    expect(response.body).not_to include("lead[converted_at]")
+  end
+
   it "redirects legacy /leads/:id show to /app/leads/:id for staff" do
     rep = build_user(:sales_rep)
     sign_in_as(rep)

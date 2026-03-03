@@ -39,12 +39,22 @@ class LeadsController < ApplicationController
   end
 
   def new
+    if redirect_staff_to_app_show?
+      redirect_to app_new_lead_path
+      return
+    end
+
     authorize Lead
     @lead = Lead.new
     @lead.lead_contacts.build
   end
 
   def create
+    if redirect_staff_to_app_show?
+      redirect_to app_leads_path, status: :temporary_redirect
+      return
+    end
+
     @lead = Lead.new(normalized_lead_params)
     @lead.owner_user ||= Current.user
     authorize @lead
@@ -59,11 +69,21 @@ class LeadsController < ApplicationController
   end
 
   def edit
+    if redirect_staff_to_app_show?
+      redirect_to edit_app_lead_path(@lead)
+      return
+    end
+
     authorize @lead
     @lead.lead_contacts.build if @lead.lead_contacts.empty?
   end
 
   def update
+    if redirect_staff_to_app_show?
+      redirect_to app_lead_path(@lead), status: :temporary_redirect
+      return
+    end
+
     authorize @lead
 
     if @lead.update(normalized_lead_params)
