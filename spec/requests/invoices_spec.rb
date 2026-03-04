@@ -72,4 +72,61 @@ RSpec.describe "Invoices", type: :request do
       "invoice_status" => invoice.status
     )
   end
+
+  it "prefills invoice recipient details when opened from a lead" do
+    user = build_user(:sales_rep)
+    sign_in_as(user)
+
+    lead = Lead.create!(
+      business_name: "Prefill Lead",
+      owner_user: user,
+      lead_contacts_attributes: [{ name: "Lead Contact", phone: "+15551230002", email: "lead@example.com" }]
+    )
+
+    get new_invoice_path(lead_id: lead.id)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Pre-filled from lead")
+    expect(response.body).to include(lead.business_name)
+    expect(response.body).to include("lead@example.com")
+    expect(response.body).to include("+15551230002")
+  end
+
+  it "preserves lead context on validation failure during create" do
+    user = build_user(:sales_rep)
+    sign_in_as(user)
+
+    lead = Lead.create!(
+      business_name: "Validation Lead",
+      owner_user: user,
+      lead_contacts_attributes: [{ name: "Lead Contact", phone: "+15551230003", email: "validation@example.com" }]
+    )
+
+    post invoices_path, params: {
+      lead_id: lead.id,
+      save_as: "draft",
+      invoice: {
+        name: "",
+        currency: "KES",
+        billing_period: "monthly",
+        billing_period_start: Date.current,
+        billing_period_end: Date.current + 30.days,
+        status: "draft",
+        line_items_attributes: {
+          "0" => {
+            kind: "subscription",
+            description: "Starter plan",
+            quantity: 1,
+            unit_amount_cents: 10_000,
+            amount_cents: 10_000
+          }
+        }
+      }
+    }
+
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response.body).to include("Pre-filled from lead")
+    expect(response.body).to include(lead.business_name)
+    expect(response.body).to include("Back to Lead")
+  end
 end

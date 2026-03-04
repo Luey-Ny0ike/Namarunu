@@ -2,6 +2,7 @@
 
 class InvoicesController < ApplicationController
   before_action :set_invoice, only: %i[show edit update destroy]
+  before_action :load_lead_context, only: %i[new create]
 
   def index
     @invoices = Invoice.includes(:store).order(created_at: :desc)
@@ -22,8 +23,7 @@ class InvoicesController < ApplicationController
 
   def new
     @invoice = Invoice.new(status: "draft", currency: "KES")
-    if params[:lead_id].present?
-      @lead = Lead.includes(:lead_contacts).find(params[:lead_id])
+    if @lead.present?
       contact = @lead.lead_contacts.order(:created_at, :id).first
       @invoice.name          = @lead.business_name
       @invoice.email_address = contact&.email
@@ -142,10 +142,12 @@ class InvoicesController < ApplicationController
   end
 
   def resolve_lead_for_activity
-    lead_id = params[:lead_id].presence
-    return if lead_id.blank?
+    @lead
+  end
 
-    Lead.find_by(id: lead_id)
+  def load_lead_context
+    lead_id = params[:lead_id].presence
+    @lead = lead_id.present? ? Lead.includes(:lead_contacts).find_by(id: lead_id) : nil
   end
 
   def next_invoice_number
