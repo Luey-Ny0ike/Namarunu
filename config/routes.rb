@@ -6,6 +6,14 @@ Rails.application.routes.draw do
   resource :registration, only: [:new, :create]
   resources :passwords, param: :token, only: [:new, :create, :edit, :update]
   get "/leads", to: redirect("/app/leads"), as: :legacy_leads_index
+  resource :session, only: %i[new create destroy]
+  resource :registration, only: %i[new create]
+  resources :passwords, param: :token, only: %i[new create edit update]
+  resources :invoices do
+    resources :line_items, controller: "invoices/line_items"
+  end
+  resource :invoice_archive, only: :show
+  resources :stores
   resources :inquiries do
     collection do
       get :won_deals
@@ -73,10 +81,14 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 
   # STATIC PAGES ROUTES
-  root 'static_pages#index'
-  get 'products', to: 'static_pages#products', as: 'products'
-  get '/products/namarunu-store', to: 'static_pages#store-sell', as: 'store_sell'
-  get 'products/web-administration-services', to: 'static_pages#web-administration', as: 'web_administration'
-  get 'products/startup-package', to: 'static_pages#startup-package', as: 'startup_package'
-  get '/pricing', to: 'static_pages#pricing', as: 'pricing'
+  root "static_pages#index"
+  get "products", to: "static_pages#products", as: "products"
+  get "/products/namarunu-store", to: "static_pages#store-sell", as: "store_sell"
+  get "products/web-administration-services", to: "static_pages#web-administration", as: "web_administration"
+  get "products/startup-package", to: "static_pages#startup-package", as: "startup_package"
+  get "/pricing", to: "static_pages#pricing", as: "pricing"
+
+  get "up", to: "rails/health#show", as: :rails_health_check
+  get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
+  get "service-worker" => "pwa#service_worker"
 end

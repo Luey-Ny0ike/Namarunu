@@ -1,0 +1,96 @@
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h3 mb-1">Invoice #<%= @invoice.invoice_number %></h1>
+      <p class="text-muted mb-0"><%= @invoice.recipient_name %> &mdash; <%= @invoice.billing_period.humanize %></p>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to "Edit", edit_invoice_path(@invoice), class: "btn btn-outline-secondary" %>
+      <button type="button"
+              class="btn btn-outline-primary"
+              data-bs-toggle="collapse"
+              data-bs-target="#invoicePdfPreview"
+              aria-expanded="false"
+              aria-controls="invoicePdfPreview">
+        Preview
+      </button>
+      <%= link_to invoice_path(@invoice, format: :pdf),
+                  class: "btn btn-success d-flex align-items-center gap-2",
+                  target: "_blank" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+          <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+        </svg>
+        Download PDF
+      <% end %>
+    </div>
+  </div>
+
+  <div class="collapse mb-4" id="invoicePdfPreview">
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body p-0">
+            <embed src="<%= invoice_path(@invoice, format: :pdf) %>"
+                   type="application/pdf"
+                   width="100%"
+                   height="780px"
+                   class="rounded" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="card shadow-sm mb-3" id="line-items">
+        <div class="card-body">
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+              <div class="text-muted small text-uppercase fw-semibold mb-1">Billing Period</div>
+              <div><%= @invoice.billing_period_start.strftime("%-d %b %Y") %> &ndash; <%= @invoice.billing_period_end.strftime("%-d %b %Y") %></div>
+            </div>
+            <div class="col-sm-6">
+              <div class="text-muted small text-uppercase fw-semibold mb-1">Status</div>
+              <span class="badge <%= status_badge_class(@invoice.status) %>"><%= @invoice.status.capitalize %></span>
+            </div>
+            <% if @invoice.plan %>
+            <div class="col-sm-6">
+              <div class="text-muted small text-uppercase fw-semibold mb-1">Plan</div>
+              <div><%= @invoice.plan.name %></div>
+            </div>
+            <% end %>
+            <div class="col-sm-6">
+              <div class="text-muted small text-uppercase fw-semibold mb-1">Issued</div>
+              <div><%= (@invoice.issued_at || @invoice.created_at).strftime("%-d %B %Y") %></div>
+            </div>
+          </div>
+
+          <%= turbo_frame_tag "line_items" do %>
+            <%= render "line_items", invoice: @invoice %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <div class="text-muted small text-uppercase fw-semibold mb-3">Issued To</div>
+          <div class="fw-semibold"><%= @invoice.recipient_name %></div>
+          <% if @invoice.recipient_email.present? %>
+            <div class="text-muted small"><%= @invoice.recipient_email %></div>
+          <% end %>
+          <% if @invoice.recipient_phone.present? %>
+            <div class="text-muted small"><%= @invoice.recipient_phone %></div>
+          <% end %>
+        </div>
+      </div>
+
+      <%= turbo_frame_tag "invoice_totals" do %>
+        <%= render "invoice_totals", invoice: @invoice %>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -55,6 +55,7 @@
         More actions
       </button>
       <ul class="dropdown-menu w-100">
+        <li><%= link_to "Create Invoice", new_invoice_path(lead_id: current_lead.id), class: "dropdown-item" %></li>
         <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#awaitingCommitmentModal">Awaiting commitment</button></li>
         <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#invoiceSentModal">Mark Invoice Sent</button></li>
         <li><button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#confirmPaymentModal">Confirm Payment (Won)</button></li>

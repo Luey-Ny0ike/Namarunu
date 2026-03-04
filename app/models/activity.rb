@@ -50,6 +50,9 @@ class Activity < ApplicationRecord
       "Demo status changed from #{from.humanize} to #{to.humanize}"
     when "converted"
       "Lead converted to account"
+    when "create_invoice"
+      invoice_number = metadata["invoice_number"].presence
+      invoice_number.present? ? "Invoice ##{invoice_number} created" : "Invoice created"
     else
       action_type.humanize
     end

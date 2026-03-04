@@ -1,50 +1,54 @@
 # frozen_string_literal: true
 
-source 'https://rubygems.org'
+source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
-require 'net/http'
-
-ruby file: ".ruby-version"
+require "net/http"
 
 # Drivers
-gem 'rails', github: 'rails/rails', branch: "main"
-gem 'pg', '>= 0.18', '< 2.0'
-gem 'puma', '~> 6.4'
+gem "pg", ">= 0.18", "< 2.0"
+gem "puma", "~> 6.4"
+gem "rails", github: "rails/rails", branch: "main"
 
 # Frontend
 gem "importmap-rails", "~> 2.2"
-gem 'propshaft', '~> 1.3'
-
+gem "propshaft", "~> 1.3"
 
 gem "stimulus-rails", "~> 1.3"
-gem 'turbo-rails', '~> 2.0'
+gem "turbo-rails", "~> 2.0"
 
-gem 'jbuilder', '~> 2.7'
+gem "jbuilder", "~> 2.7"
 gem "mutex_m"
 
-
-gem 'africastalking-ruby', '~> 2.1', '>= 2.1.5'
-gem 'wicked'
+gem "africastalking-ruby", "~> 2.1", ">= 2.1.5"
 gem "geared_pagination", "~> 1.2"
+gem "wicked"
 
 # Use Active Storage variant
-gem 'image_processing', '~> 1.2'
+gem "image_processing", "~> 1.2"
+
+# Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
+gem "solid_cable"
+gem "solid_cache"
+gem "solid_queue"
 
 # Reduces boot times through caching; required in config/boot.rb
-gem 'bootsnap', '>= 1.4.2', require: false
-gem 'foreman', '~> 0.90.0'
-gem 'tzinfo-data', platforms: %i[ windows jruby]
+gem "bootsnap", ">= 1.4.2", require: false
+gem "foreman", "~> 0.90.0"
+gem "tzinfo-data", platforms: %i[windows jruby]
 
 # Google recaptcha
 gem "recaptcha", "~> 5.21"
 
 group :development, :test do
-  gem 'byebug', platforms: %i[ windows ]
-  gem 'rspec-rails'
+  gem "byebug", platforms: %i[windows]
+  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
+  gem "rubocop-rails-omakase", require: false
   # gem 'launchy'
-  gem 'pry'
-  gem 'shoulda-matchers'
+  gem "rspec"
+  gem "rspec-rails"
   gem "dotenv-rails", "~> 3.2"
+  gem "pry"
+  gem "shoulda-matchers"
 end
 
 group :development do
@@ -61,3 +65,12 @@ group :development do
 end
 
 gem "bcrypt", "~> 3.1"
+
+gem "matrix"
+gem "prawn"
+gem "prawn-table"
+gem "rubyzip", "~> 2.3"
+
+gem "kamal", "~> 2.10"
+
+gem "thruster", "~> 0.1.17"

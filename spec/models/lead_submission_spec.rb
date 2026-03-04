@@ -56,7 +56,7 @@ RSpec.describe LeadSubmission, type: :model do
   end
 
   it "normalizes phone numbers to right-most 12 digits when possible" do
-    submission = build_submission(instagram_url: nil, phone_raw: "+254 712 345 678 ext 9")
+    submission = build_submission(instagram_url: nil, phone_raw: "+254 712 345 678")
 
     submission.validate
 

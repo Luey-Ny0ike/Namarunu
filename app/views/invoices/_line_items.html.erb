@@ -1,0 +1,43 @@
+<table class="table table-sm">
+  <thead class="table-dark">
+    <tr>
+      <th>Service Description</th>
+      <th class="text-end">Qty</th>
+      <th class="text-end">Unit Price</th>
+      <th class="text-end">Total</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% invoice.line_items.each do |item| %>
+      <tr id="line_item_<%= item.id %>">
+        <td>
+          <div><%= item.description %></div>
+          <small class="text-muted"><%= item.kind.humanize %></small>
+        </td>
+        <td class="text-end"><%= item.quantity %></td>
+        <td class="text-end"><%= format_invoice_money(item.unit_amount_cents, invoice.currency) %></td>
+        <td class="text-end"><%= format_invoice_money(item.amount_cents, invoice.currency) %></td>
+        <td class="text-end text-nowrap">
+          <%= link_to "Edit", edit_invoice_line_item_path(invoice, item), class: "btn btn-sm btn-outline-secondary me-1",
+                data: { turbo_frame: "line_item_form" } %>
+          <%= button_to "Remove", invoice_line_item_path(invoice, item), method: :delete,
+                class: "btn btn-sm btn-outline-danger",
+                form: { data: { turbo_confirm: "Remove this line item?" } } %>
+        </td>
+      </tr>
+    <% end %>
+    <% if invoice.line_items.empty? %>
+      <tr>
+        <td colspan="5" class="text-center text-muted py-3">No line items yet.</td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="mt-2">
+  <%= link_to "Add Line Item", new_invoice_line_item_path(invoice), class: "btn btn-outline-primary btn-sm",
+        data: { turbo_frame: "line_item_form" } %>
+</div>
+
+<%= turbo_frame_tag "line_item_form" %>
