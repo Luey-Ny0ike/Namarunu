@@ -87,8 +87,9 @@ test:
 production:
   primary: &primary_production
     <<: *default
+    username: ubuntu
     database: namarunu_production
-    password: <%= ENV["POSTGRES_DATABASE_PASSWORD"] %>
+    password: <%= Rails.application.credentials.dig(:db_password) %>
   cache:
     <<: *primary_production
     database: namarunu_production_cache
