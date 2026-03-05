@@ -6,15 +6,19 @@ class AccountPolicy < ApplicationPolicy
   end
 
   def show?
-    return true if super_admin? || sales_manager?
+    return true if manager_or_admin?
 
     sales_rep? && owned_account?
   end
 
   def update?
-    return true if super_admin? || sales_manager?
+    return true if manager_or_admin?
 
     sales_rep? && owned_account?
+  end
+
+  def create?
+    manager_or_admin?
   end
 
   class Scope < Scope
@@ -30,5 +34,9 @@ class AccountPolicy < ApplicationPolicy
 
   def owned_account?
     record.owner_user_id == user&.id
+  end
+
+  def manager_or_admin?
+    super_admin? || sales_manager?
   end
 end

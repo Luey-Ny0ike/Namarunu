@@ -3,6 +3,9 @@
     <h1 class="h3 mb-1">Customers</h1>
     <p class="text-muted mb-0">Your customer profiles by status.</p>
   </div>
+  <% if policy(Account).create? %>
+    <%= link_to "New Customer", new_app_customer_path, class: "btn btn-primary" %>
+  <% end %>
 </div>
 
 <div class="card shadow-sm mb-3">

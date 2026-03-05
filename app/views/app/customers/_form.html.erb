@@ -1,0 +1,114 @@
+<% manager_or_admin = Current.user&.sales_manager? || Current.user&.super_admin? %>
+
+<%= form_with model: customer,
+              url: customer.persisted? ? app_customer_path(customer) : app_customers_path,
+              method: customer.persisted? ? :patch : :post,
+              local: true,
+              class: "row g-3" do |form| %>
+  <% if customer.errors.any? %>
+    <div class="col-12">
+      <div class="alert alert-danger">
+        <ul class="mb-0">
+          <% customer.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="col-12 col-md-6">
+    <%= form.label :name, class: "form-label" %>
+    <%= form.text_field :name, class: "form-control", required: true %>
+  </div>
+
+  <div class="col-12 col-md-6">
+    <%= form.label :industry, class: "form-label" %>
+    <%= form.select :industry,
+                    industry_options.map { |value| [value.humanize, value] },
+                    { include_blank: "Select industry" },
+                    class: "form-select" %>
+  </div>
+
+  <div class="col-12 col-md-6">
+    <%= form.label :location, class: "form-label" %>
+    <%= form.text_field :location, class: "form-control" %>
+  </div>
+
+  <% if manager_or_admin %>
+    <div class="col-12 col-md-3">
+      <%= form.label :status, class: "form-label" %>
+      <%= form.select :status,
+                      Account.statuses.keys.map { |value| [value.humanize, value] },
+                      {},
+                      class: "form-select" %>
+    </div>
+
+    <div class="col-12 col-md-3">
+      <%= form.label :owner_user_id, "Owner", class: "form-label" %>
+      <%= form.select :owner_user_id,
+                      @assignable_users.to_a.map { |user| [user.full_name.presence || user.email_address, user.id] },
+                      { include_blank: "Unassigned" },
+                      class: "form-select" %>
+    </div>
+  <% end %>
+
+  <div class="col-12 col-md-6">
+    <%= form.label :instagram_handle, class: "form-label" %>
+    <%= form.text_field :instagram_handle, class: "form-control", placeholder: "e.g. acme.store" %>
+  </div>
+
+  <div class="col-12 col-md-6">
+    <%= form.label :instagram_url, class: "form-label" %>
+    <%= form.text_field :instagram_url, class: "form-control", placeholder: "https://instagram.com/acme.store" %>
+  </div>
+
+  <div class="col-12 col-md-6">
+    <%= form.label :tiktok_handle, class: "form-label" %>
+    <%= form.text_field :tiktok_handle, class: "form-control", placeholder: "e.g. acmeshop" %>
+  </div>
+
+  <div class="col-12 col-md-6">
+    <%= form.label :tiktok_url, class: "form-label" %>
+    <%= form.text_field :tiktok_url, class: "form-control", placeholder: "https://www.tiktok.com/@acmeshop" %>
+  </div>
+
+  <div class="col-12">
+    <%= form.label :facebook_url, class: "form-label" %>
+    <%= form.text_field :facebook_url, class: "form-control", placeholder: "https://facebook.com/acme" %>
+  </div>
+
+  <% unless customer.persisted? %>
+    <div class="col-12">
+      <hr class="my-2">
+      <h2 class="h6 mb-2">Initial Contacts (Optional)</h2>
+      <p class="small text-muted mb-2">Leave fully blank to skip. If provided, include at least phone or email.</p>
+      <%= form.fields_for :contacts do |contact_form| %>
+        <div class="border rounded-3 p-3 mb-2">
+          <div class="row g-2">
+            <div class="col-12 col-md-6">
+              <%= contact_form.label :name, class: "form-label small text-muted" %>
+              <%= contact_form.text_field :name, class: "form-control" %>
+            </div>
+            <div class="col-12 col-md-6">
+              <%= contact_form.label :role, class: "form-label small text-muted" %>
+              <%= contact_form.text_field :role, class: "form-control" %>
+            </div>
+            <div class="col-12 col-md-6">
+              <%= contact_form.label :phone, class: "form-label small text-muted" %>
+              <%= contact_form.text_field :phone, class: "form-control" %>
+            </div>
+            <div class="col-12 col-md-6">
+              <%= contact_form.label :email, class: "form-label small text-muted" %>
+              <%= contact_form.email_field :email, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="col-12 d-grid d-md-flex justify-content-md-end">
+    <%= form.submit customer.persisted? ? "Save overview" : "Create customer", class: "btn btn-primary" %>
+  </div>
+<% end %>
