@@ -13,12 +13,22 @@ RSpec.describe "Role-based auxiliary policies" do
     )
   end
 
-  it "allows support to view accounts but not update them" do
-    support_user = build_user(:support)
-    account = Account.new(name: "Support Visible")
+  it "allows sales reps to view/update only owned accounts" do
+    rep = build_user(:sales_rep)
+    other_rep = build_user(:sales_rep)
+    manager = build_user(:sales_manager)
+    admin = build_user(:super_admin)
+    own_account = Account.new(name: "Owned", owner_user: rep)
+    other_account = Account.new(name: "Other", owner_user: other_rep)
 
-    expect(AccountPolicy.new(support_user, account).show?).to be(true)
-    expect(AccountPolicy.new(support_user, account).update?).to be(false)
+    expect(AccountPolicy.new(rep, own_account).show?).to be(true)
+    expect(AccountPolicy.new(rep, own_account).update?).to be(true)
+    expect(AccountPolicy.new(rep, other_account).show?).to be(false)
+    expect(AccountPolicy.new(rep, other_account).update?).to be(false)
+    expect(AccountPolicy.new(manager, other_account).show?).to be(true)
+    expect(AccountPolicy.new(manager, other_account).update?).to be(true)
+    expect(AccountPolicy.new(admin, other_account).show?).to be(true)
+    expect(AccountPolicy.new(admin, other_account).update?).to be(true)
   end
 
   it "allows reps to manage only their own demos and managers all demos" do
