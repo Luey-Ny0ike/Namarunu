@@ -57,8 +57,7 @@ module App
       end
 
       LeadAssignment.active_at(now)
-        .joins(:lead)
-        .merge(policy_scope(Lead).where.not(status: [Lead::STATUSES[:won], Lead::STATUSES[:lost]]))
+        .where(lead_id: policy_scope(Lead).where.not(status: [Lead::STATUSES[:won], Lead::STATUSES[:lost]]).select(:id))
         .where(user_id: Current.user.id)
         .order(checked_out_at: :desc)
         .pluck(:lead_id)
@@ -87,8 +86,7 @@ module App
       open_lead_ids = open_scoped_leads.pluck(:id)
       active_assignment_ids = LeadAssignment
         .active_at(now)
-        .joins(:lead)
-        .merge(open_scoped_leads)
+        .where(lead_id: open_scoped_leads.select(:id))
         .where(user_id: Current.user.id)
         .pluck(:lead_id)
 

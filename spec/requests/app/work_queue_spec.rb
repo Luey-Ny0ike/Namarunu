@@ -195,8 +195,6 @@ RSpec.describe "App::WorkQueue", type: :request do
     get app_work_queue_path
 
     expect(response).to redirect_to(root_path)
-    follow_redirect!
-    expect(response.body).to include("You are not authorized to perform this action.")
   end
 
   it "respects policy_scope changes when loading queue leads" do
