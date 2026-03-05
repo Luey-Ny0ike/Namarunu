@@ -5,7 +5,6 @@ Rails.application.routes.draw do
   resource :session, only: [:new, :create, :destroy]
   resource :registration, only: [:new, :create]
   resources :passwords, param: :token, only: [:new, :create, :edit, :update]
-  get "/leads", to: redirect("/app/leads"), as: :legacy_leads_index
   resources :inquiries do
     collection do
       get :won_deals
@@ -15,7 +14,7 @@ Rails.application.routes.draw do
       patch :reassign_checkout
     end
   end
-  resources :leads, only: %i[show new create edit update] do
+  resources :leads, only: %i[index show new create edit update] do
     collection do
       get :my_tasks
     end
@@ -52,6 +51,10 @@ Rails.application.routes.draw do
     get "leads/new", to: "leads#new", as: :new_lead
     resources :leads, only: %i[index show create edit update] do
       member do
+        patch :checkout, to: "lead_actions#checkout"
+        patch :release, to: "lead_actions#release"
+        patch :force_release, to: "lead_actions#force_release"
+        patch :reassign_checkout, to: "lead_actions#reassign_checkout"
         post :log_attempt, to: "lead_actions#log_attempt"
         post :book_demo, to: "lead_actions#book_demo"
         post :mark_awaiting_commitment, to: "lead_actions#mark_awaiting_commitment"

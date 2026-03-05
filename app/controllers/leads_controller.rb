@@ -4,6 +4,10 @@ class LeadsController < ApplicationController
   before_action :set_lead, only: %i[show edit update convert book_demo checkout release force_release reassign_checkout log_call_attempt]
   before_action :load_assignable_users, only: %i[index show new create edit update reassign_checkout]
   before_action :load_demo_metrics, only: %i[index my_tasks]
+  before_action :redirect_staff_legacy_index, only: :index
+  before_action :redirect_staff_legacy_show, only: :show
+  before_action :redirect_staff_legacy_new, only: :new
+  before_action :redirect_staff_legacy_edit, only: :edit
 
   def index
     authorize Lead
@@ -28,10 +32,6 @@ class LeadsController < ApplicationController
 
   def show
     authorize @lead
-    if redirect_staff_to_app_show?
-      redirect_to app_lead_path(@lead)
-      return
-    end
 
     @active_assignment = @lead.active_assignment
     @activities = @lead.activities.includes(:actor_user).recent_first
@@ -39,11 +39,6 @@ class LeadsController < ApplicationController
   end
 
   def new
-    if redirect_staff_to_app_show?
-      redirect_to app_new_lead_path
-      return
-    end
-
     authorize Lead
     @lead = Lead.new
     @lead.lead_contacts.build
@@ -69,11 +64,6 @@ class LeadsController < ApplicationController
   end
 
   def edit
-    if redirect_staff_to_app_show?
-      redirect_to edit_app_lead_path(@lead)
-      return
-    end
-
     authorize @lead
     @lead.lead_contacts.build if @lead.lead_contacts.empty?
   end
@@ -545,5 +535,29 @@ class LeadsController < ApplicationController
 
   def redirect_staff_to_app_show?
     Current.user.present? && !Current.user.lead_contributor?
+  end
+
+  def redirect_staff_legacy_index
+    return unless redirect_staff_to_app_show?
+
+    redirect_to app_leads_path(request.query_parameters), status: :temporary_redirect
+  end
+
+  def redirect_staff_legacy_show
+    return unless redirect_staff_to_app_show?
+
+    redirect_to app_lead_path(@lead, request.query_parameters), status: :temporary_redirect
+  end
+
+  def redirect_staff_legacy_new
+    return unless redirect_staff_to_app_show?
+
+    redirect_to app_new_lead_path(request.query_parameters), status: :temporary_redirect
+  end
+
+  def redirect_staff_legacy_edit
+    return unless redirect_staff_to_app_show?
+
+    redirect_to edit_app_lead_path(@lead, request.query_parameters), status: :temporary_redirect
   end
 end
