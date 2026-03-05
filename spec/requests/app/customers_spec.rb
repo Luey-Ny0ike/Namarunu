@@ -44,6 +44,24 @@ RSpec.describe "App::Customers", type: :request do
 
     get app_customer_path(own_pending)
     expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Owner")
+  end
+
+  it "allows manager to filter customers by owner in index" do
+    manager = build_user(:sales_manager)
+    rep = build_user(:sales_rep)
+    other_rep = build_user(:sales_rep)
+    sign_in_as(manager)
+
+    Account.create!(name: "Rep Customer", owner_user: rep, status: :pending, instagram_url: "https://instagram.com/rep")
+    Account.create!(name: "Other Customer", owner_user: other_rep, status: :pending)
+
+    get app_customers_path(owner_user_id: rep.id, status: "pending")
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Rep Customer")
+    expect(response.body).to include("Instagram")
+    expect(response.body).not_to include("Other Customer")
   end
 
   it "allows managing contacts only on owned customers" do

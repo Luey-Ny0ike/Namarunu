@@ -3,17 +3,19 @@
 module App
   class CustomersController < App::BaseController
     before_action :set_customer, only: %i[show update]
-    before_action :load_form_collections, only: %i[new create show]
+    before_action :load_form_collections, only: %i[index new create show]
 
     def index
       authorize Account, :index?
 
       @status_filter = resolved_status_filter
       @query = params[:q].to_s.strip
+      @owner_filter = params[:owner_user_id].presence
 
       customers = policy_scope(Account)
       customers = customers.where(status: @status_filter)
       customers = customers.where("LOWER(accounts.name) LIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(@query.downcase)}%") if @query.present?
+      customers = customers.where(owner_user_id: @owner_filter) if manager_or_admin? && @owner_filter.present?
 
       @customers = customers.includes(:owner_user, :converted_from_lead).order(updated_at: :desc)
     end
@@ -48,6 +50,7 @@ module App
       @lead = @customer.converted_from_lead
       @contacts = @customer.contacts.order(created_at: :asc, id: :asc)
       @industry_options = industry_options(@customer)
+      @customer_owner = @customer.owner_user
     end
 
     def update
@@ -59,6 +62,7 @@ module App
         @lead = @customer.converted_from_lead
         @contacts = @customer.contacts.order(created_at: :asc, id: :asc)
         @industry_options = industry_options(@customer)
+        @customer_owner = @customer.owner_user
         render :show, status: :unprocessable_entity
       end
     end
