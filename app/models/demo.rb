@@ -37,6 +37,11 @@ class Demo < ApplicationRecord
     lost: "lost"
   }.freeze
 
+  MEETING_TYPES = {
+    virtual: "virtual",
+    in_person: "in_person"
+  }.freeze
+
   belongs_to :lead, optional: true, inverse_of: :demos
   belongs_to :account, optional: true, inverse_of: :demos
   belongs_to :created_by_user, class_name: "User", inverse_of: :created_demos
@@ -46,6 +51,7 @@ class Demo < ApplicationRecord
 
   enum :status, STATUSES, default: :scheduled, validate: true, prefix: true
   enum :outcome, OUTCOMES, validate: { allow_nil: true }, prefix: true
+  enum :meeting_type, MEETING_TYPES, default: :virtual, validate: true, prefix: true
 
   validates :scheduled_at, :duration_minutes, presence: true
   validates :duration_minutes, numericality: { only_integer: true, greater_than: 0 }

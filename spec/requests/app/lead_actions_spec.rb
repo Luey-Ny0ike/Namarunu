@@ -124,6 +124,9 @@ RSpec.describe "App::LeadActions", type: :request do
       post book_demo_app_lead_path(lead), params: {
         scheduled_at: 1.day.from_now.strftime("%Y-%m-%dT%H:%M"),
         duration_minutes: 45,
+        meeting_type: "in_person",
+        meeting_location: "Nairobi CBD Office",
+        virtual_meeting_link: "https://meet.example.com/intro",
         notes: "Product walkthrough",
         return_to: app_work_queue_path
       }
@@ -135,6 +138,9 @@ RSpec.describe "App::LeadActions", type: :request do
     expect(demo.lead).to eq(lead)
     expect(demo.assigned_to_user).to eq(rep)
     expect(demo.created_by_user).to eq(rep)
+    expect(demo.meeting_type).to eq("in_person")
+    expect(demo.meeting_location).to eq("Nairobi CBD Office")
+    expect(demo.virtual_meeting_link).to eq("https://meet.example.com/intro")
     expect(lead.reload.status).to eq("demo_booked")
   end
 
@@ -368,7 +374,7 @@ RSpec.describe "App::LeadActions", type: :request do
     rep = build_user(:sales_rep)
     lead = create_lead(name: "Already Converted Won", status: :invoice_sent, owner_user: rep)
     account = Account.create!(name: "Existing Account", converted_from_lead: lead)
-    Contact.create!(account: account, name: "Primary Contact")
+    Contact.create!(account: account, name: "Primary Contact", phone: "+15550001111")
     sign_in_as(rep)
 
     expect do

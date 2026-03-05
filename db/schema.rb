@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_06_022000) do
+ActiveRecord::Schema[8.2].define(version: 2026_03_06_032000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -71,16 +71,20 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_06_022000) do
     t.string "demo_link"
     t.integer "duration_minutes", default: 30, null: false
     t.bigint "lead_id"
+    t.string "meeting_location"
+    t.string "meeting_type", default: "virtual", null: false
     t.text "notes"
     t.string "outcome"
     t.datetime "scheduled_at", null: false
     t.string "status", default: "scheduled", null: false
     t.datetime "updated_at", null: false
+    t.string "virtual_meeting_link"
     t.index ["account_id"], name: "index_demos_on_account_id"
     t.index ["assigned_to_user_id", "scheduled_at"], name: "index_demos_on_assigned_to_user_id_and_scheduled_at"
     t.index ["assigned_to_user_id"], name: "index_demos_on_assigned_to_user_id"
     t.index ["created_by_user_id"], name: "index_demos_on_created_by_user_id"
     t.index ["lead_id"], name: "index_demos_on_lead_id"
+    t.index ["meeting_type"], name: "index_demos_on_meeting_type"
     t.index ["outcome"], name: "index_demos_on_outcome"
     t.index ["scheduled_at"], name: "index_demos_on_scheduled_at"
     t.index ["status"], name: "index_demos_on_status"

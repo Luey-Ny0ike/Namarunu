@@ -91,7 +91,7 @@ module App
     end
 
     def demo_params
-      params.require(:demo).permit(:status, :outcome, :notes, :demo_link)
+      params.require(:demo).permit(:status, :outcome, :notes, :demo_link, :meeting_type, :meeting_location, :virtual_meeting_link)
     end
 
     def write_demo_update_activity!
