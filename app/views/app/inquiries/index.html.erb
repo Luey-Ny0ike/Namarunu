@@ -1,0 +1,70 @@
+<div class="container py-4">
+  <% if notice.present? %>
+    <div class="alert alert-info" role="alert" id="notice"><%= notice %></div>
+  <% end %>
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h1 class="h3 mb-1">Inquiries</h1>
+      <p class="text-muted mb-0">Track and review marketing lead submissions.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <% if policy(Inquiry).create? %>
+        <%= link_to 'New Inquiry', new_app_inquiry_path, class: 'btn btn-namarunu' %>
+      <% end %>
+      <% if policy(Inquiry).won_deals? %>
+        <%= link_to 'Won Deals', won_deals_app_inquiries_path, class: 'btn btn-outline-secondary' %>
+      <% end %>
+    </div>
+  </div>
+
+  <%= with_automatic_pagination("inquiries", @page) do %>
+    <div class="row g-3">
+      <% @inquiries.each do |inquiry| %>
+        <div class="col-12">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="row align-items-center g-3">
+                <div class="col-lg-3">
+                  <div class="fw-semibold"><%= inquiry.full_name %></div>
+                  <div class="small text-muted"><%= inquiry.business_name %></div>
+                  <div class="small text-muted">
+                    Submitted <%= time_ago_in_words(inquiry.created_at) %> ago
+                    (<%= inquiry.created_at.strftime("%b %-d, %Y at %-l:%M %p") %>)
+                  </div>
+                </div>
+                <div class="col-lg-3">
+                  <div><%= inquiry.phone_number.presence || '-' %></div>
+                  <div class="small text-muted"><%= inquiry.email.presence || '-' %></div>
+                </div>
+                <div class="col-lg-3">
+                  <div><%= inquiry.business_type.presence || '-' %></div>
+                  <div class="small text-muted">In-store: <%= inquiry.sell_in_store.nil? ? "-" : (inquiry.sell_in_store ? "Yes" : "No") %></div>
+                </div>
+                <div class="col-lg-2">
+                  <% if inquiry.intent.present? %>
+                    <span class="badge bg-success-subtle text-dark"><%= inquiry.intent.humanize %></span>
+                  <% else %>
+                    <span class="text-muted">-</span>
+                  <% end %>
+                  <div class="small text-muted">Status: <%= inquiry.status %></div>
+                  <div class="small text-muted">Linked lead: <%= inquiry.lead.present? ? "Yes" : "No" %></div>
+                </div>
+                <div class="col-lg-1 text-lg-end">
+                  <%= link_to 'View', app_inquiry_path(inquiry), class: 'btn btn-namarunu btn-sm', data: { turbo_frame: "_top" } %>
+                </div>
+                <div class="col-12 col-lg-auto text-lg-end">
+                  <% if inquiry.lead.present? %>
+                    <%= link_to "Open Lead", app_lead_path(inquiry.lead), class: "btn btn-outline-secondary btn-sm", data: { turbo_frame: "_top" } %>
+                  <% else %>
+                    <%= button_to "Convert to Lead", convert_to_lead_app_inquiry_path(inquiry), method: :post, class: "btn btn-outline-warning btn-sm", form: { data: { turbo_frame: "_top" } } %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

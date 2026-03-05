@@ -5,15 +5,7 @@ Rails.application.routes.draw do
   resource :session, only: [:new, :create, :destroy]
   resource :registration, only: [:new, :create]
   resources :passwords, param: :token, only: [:new, :create, :edit, :update]
-  resources :inquiries do
-    collection do
-      get :won_deals
-    end
-
-    member do
-      patch :reassign_checkout
-    end
-  end
+  resources :inquiries, only: [:create]
   resources :build, controller: 'inquiries/build'
 
   namespace :admin do
@@ -22,6 +14,15 @@ Rails.application.routes.draw do
 
   namespace :app do
     root "dashboard#show"
+    resources :inquiries do
+      collection do
+        get :won_deals
+      end
+
+      member do
+        post :convert_to_lead
+      end
+    end
     resources :accounts, only: %i[show]
     resources :demos, only: %i[index show update] do
       member do

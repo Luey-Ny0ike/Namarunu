@@ -13,8 +13,8 @@ RSpec.describe InquiryPolicy do
     )
   end
 
-  let(:owner) { build_user(:sales_rep) }
-  let(:checked_out_rep) { build_user(:sales_rep) }
+  let(:owner) { build_user(:sales_manager) }
+  let(:checked_out_rep) { build_user(:sales_manager) }
   let(:inquiry) do
     Inquiry.create!(
       full_name: "Lead One",
@@ -34,7 +34,6 @@ RSpec.describe InquiryPolicy do
     expect(policy.create?).to be(true)
     expect(policy.update?).to be(true)
     expect(policy.destroy?).to be(true)
-    expect(policy.reassign_checkout?).to be(true)
     expect(policy.won_deals?).to be(true)
   end
 
@@ -46,33 +45,15 @@ RSpec.describe InquiryPolicy do
     expect(policy.show?).to be(true)
     expect(policy.create?).to be(true)
     expect(policy.update?).to be(true)
-    expect(policy.reassign_checkout?).to be(true)
     expect(policy.destroy?).to be(false)
   end
 
-  it "allows sales_rep to update only owned leads" do
-    user = owner
-    policy = described_class.new(user, inquiry)
-
-    expect(policy.show?).to be(true)
-    expect(policy.update?).to be(true)
-    expect(policy.reassign_checkout?).to be(false)
-  end
-
-  it "allows sales_rep to update only checked-out leads" do
-    user = checked_out_rep
-    policy = described_class.new(user, inquiry)
-
-    expect(policy.update?).to be(true)
-  end
-
-  it "prevents sales_rep from updating other leads" do
+  it "prevents sales_rep from inquiry access" do
     user = build_user(:sales_rep)
     policy = described_class.new(user, inquiry)
 
-    expect(policy.show?).to be(true)
+    expect(policy.show?).to be(false)
     expect(policy.update?).to be(false)
-    expect(policy.reassign_checkout?).to be(false)
   end
 
   it "prevents support from editing leads" do

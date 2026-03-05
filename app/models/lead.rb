@@ -97,6 +97,7 @@ class Lead < ApplicationRecord
 
   has_many :lead_contacts, dependent: :destroy, inverse_of: :lead
   has_many :lead_submissions, dependent: :nullify
+  has_many :inquiries, dependent: :nullify, inverse_of: :lead
   has_many :lead_assignments, dependent: :destroy
   has_many :activities, as: :subject, dependent: :destroy
   has_many :demos, dependent: :nullify
