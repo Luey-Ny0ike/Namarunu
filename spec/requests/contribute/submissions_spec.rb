@@ -98,7 +98,7 @@ RSpec.describe "Contribute::Submissions", type: :request do
     Activity.create!(
       actor_user: rep,
       subject: lead,
-      action_type: "call_attempt_logged",
+      action_type: "call_logged",
       metadata: { outcome: "follow_up", notes: "internal notes should not render" },
       occurred_at: 2.hours.ago
     )

@@ -294,7 +294,7 @@ module App
           actor_user: Current.user,
           subject: lead,
           action_type: "status_changed",
-          metadata: { old: previous_status, new: lead.status },
+          metadata: { from: previous_status, to: lead.status },
           occurred_at: now
         )
       end
@@ -437,15 +437,16 @@ module App
           action_type: "call_logged",
           metadata: {
             outcome: outcome,
-            notes_present: notes.present?
-          },
+            notes: notes.presence,
+            next_action_at: next_action_at&.iso8601
+          }.compact,
           occurred_at: now
         )
 
         remove_from_queue!(lead.id) if lead.status_lost? || lead.status_won?
       end
 
-      redirect_to success_redirect_target, notice: "Call attempt logged."
+      redirect_to success_redirect_target, notice: "Call logged."
     rescue ActiveRecord::RecordInvalid => e
       redirect_to failure_redirect_target, alert: "Unable to log call attempt: #{e.record.errors.full_messages.to_sentence}"
     end
