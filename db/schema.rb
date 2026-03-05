@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_05_191910) do
+ActiveRecord::Schema[8.2].define(version: 2026_03_05_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -83,6 +83,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_05_191910) do
     t.string "email"
     t.string "full_name"
     t.string "intent"
+    t.bigint "lead_id"
     t.text "message"
     t.bigint "owner_id"
     t.string "phone_number"
@@ -100,6 +101,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_05_191910) do
     t.string "utm_term"
     t.string "web_administration"
     t.index ["checked_out_by_id"], name: "index_inquiries_on_checked_out_by_id"
+    t.index ["lead_id"], name: "index_inquiries_on_lead_id"
     t.index ["owner_id"], name: "index_inquiries_on_owner_id"
   end
 
@@ -216,6 +218,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_05_191910) do
   add_foreign_key "demos", "leads"
   add_foreign_key "demos", "users", column: "assigned_to_user_id"
   add_foreign_key "demos", "users", column: "created_by_user_id"
+  add_foreign_key "inquiries", "leads"
   add_foreign_key "inquiries", "users", column: "checked_out_by_id"
   add_foreign_key "inquiries", "users", column: "owner_id"
   add_foreign_key "lead_assignments", "leads"

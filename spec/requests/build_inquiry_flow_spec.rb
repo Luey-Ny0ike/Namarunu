@@ -38,6 +38,9 @@ RSpec.describe "Build inquiry flow", type: :request do
       expect(inquiry.utm_medium).to eq("cpc")
       expect(inquiry.source).to eq("marketing_get_started")
       expect(inquiry.status).to eq("new")
+      expect(inquiry.lead).to be_present
+      expect(inquiry.lead.source).to eq("website")
+      expect(inquiry.lead.owner_user_id).to be_nil
     end
   end
 

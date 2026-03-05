@@ -35,6 +35,7 @@
 class Inquiry < ApplicationRecord
   belongs_to :owner, class_name: "User", optional: true, inverse_of: :owned_inquiries
   belongs_to :checked_out_by, class_name: "User", optional: true, inverse_of: :checked_out_inquiries
+  belongs_to :lead, optional: true
 
   INTENT_OPTIONS = %w[
     start_selling_online
@@ -64,6 +65,7 @@ class Inquiry < ApplicationRecord
   attr_accessor :website, :require_business_context
 
   before_validation :normalize_string_fields
+  after_commit :sync_lead_from_inquiry!, on: :create
 
   validates :full_name, :phone_number, :business_name, presence: true
   validates :intent, inclusion: { in: INTENT_OPTIONS }, allow_blank: true
@@ -93,5 +95,9 @@ class Inquiry < ApplicationRecord
     return if digits.length.between?(7, 15)
 
     errors.add(:phone_number, "is invalid")
+  end
+
+  def sync_lead_from_inquiry!
+    InquiryToLeadService.new(self).call
   end
 end

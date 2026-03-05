@@ -2,15 +2,15 @@
 
 class InquiryPolicy < ApplicationPolicy
   def index?
-    super_admin? || sales_manager? || sales_rep?
+    super_admin? || sales_manager?
   end
 
   def show?
-    super_admin? || sales_manager? || sales_rep?
+    index?
   end
 
   def create?
-    super_admin? || sales_manager? || sales_rep?
+    index?
   end
 
   def public_create?
@@ -18,18 +18,11 @@ class InquiryPolicy < ApplicationPolicy
   end
 
   def update?
-    return true if super_admin? || sales_manager?
-    return false unless sales_rep?
-
-    record.owned_or_checked_out_by?(user)
+    index?
   end
 
   def destroy?
     super_admin?
-  end
-
-  def reassign_checkout?
-    super_admin? || sales_manager?
   end
 
   def won_deals?
@@ -38,7 +31,7 @@ class InquiryPolicy < ApplicationPolicy
 
   class Scope < Scope
     def resolve
-      return scope.all if user&.super_admin? || user&.sales_manager? || user&.sales_rep?
+      return scope.all if user&.super_admin? || user&.sales_manager?
 
       scope.none
     end

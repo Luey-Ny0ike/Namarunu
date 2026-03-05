@@ -5,7 +5,7 @@ class InquiryMailer < ApplicationMailer
 
   def new_inquiry_email
     @inquiry = params[:inquiry]
-    @admin_link = inquiry_url(@inquiry)
+    @admin_link = app_inquiry_url(@inquiry)
 
     mail(to: 'namarunu@gmail.com', subject: "New marketing lead: #{@inquiry.business_name}")
   end
