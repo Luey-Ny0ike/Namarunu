@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Accounts", type: :request do
+RSpec.describe "App::Accounts", type: :request do
   def build_user(role)
     User.create!(
       email_address: "#{role}-#{SecureRandom.hex(4)}@example.com",
@@ -41,7 +41,7 @@ RSpec.describe "Accounts", type: :request do
       assigned_to_user: rep
     )
 
-    get account_path(account)
+    get app_account_path(account)
 
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("Account Source Co")

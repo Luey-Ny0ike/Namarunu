@@ -81,15 +81,6 @@ RSpec.describe "App::Leads", type: :request do
     expect(response.body).not_to include("Other Rep Lead")
   end
 
-  it "redirects legacy /leads index path to /app/leads" do
-    rep = build_user(:sales_rep)
-    sign_in_as(rep)
-
-    get "/leads"
-
-    expect(response).to redirect_to(app_leads_path)
-  end
-
   it "renders /app/leads/:id in app layout without marketing chrome" do
     rep = build_user(:sales_rep)
     sign_in_as(rep)
@@ -163,16 +154,6 @@ RSpec.describe "App::Leads", type: :request do
     expect(response.body).to include("lead[status]")
     expect(response.body).to include("lead[last_contacted_at]")
     expect(response.body).not_to include("lead[converted_at]")
-  end
-
-  it "redirects legacy /leads/:id show to /app/leads/:id for staff" do
-    rep = build_user(:sales_rep)
-    sign_in_as(rep)
-    lead = create_lead(name: "Legacy Lead", owner: rep)
-
-    get lead_path(lead)
-
-    expect(response).to redirect_to(app_lead_path(lead))
   end
 
   it "hides Book Demo assignee dropdown for reps and shows it for managers" do

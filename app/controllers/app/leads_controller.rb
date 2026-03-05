@@ -17,7 +17,6 @@ module App
       @show_all_tab = manager_like?
       @show_owner_filter = manager_like?
 
-      render "leads/index"
     end
 
     def show
@@ -27,7 +26,6 @@ module App
       @activities = @lead.activities.includes(:actor_user).recent_first
       @demos = policy_scope(Demo).where(lead_id: @lead.id).order(scheduled_at: :asc)
 
-      render "leads/show"
     end
 
     def new
@@ -35,7 +33,6 @@ module App
       @lead = Lead.new
       @lead.lead_contacts.build
 
-      render "leads/new"
     end
 
     def create
@@ -48,7 +45,7 @@ module App
         redirect_to app_lead_path(@lead), notice: "Lead was successfully created."
       else
         @lead.lead_contacts.build if @lead.lead_contacts.empty?
-        render "leads/new", status: :unprocessable_entity
+        render :new, status: :unprocessable_entity
       end
     end
 
@@ -56,7 +53,6 @@ module App
       authorize @lead
       @lead.lead_contacts.build if @lead.lead_contacts.empty?
 
-      render "leads/edit"
     end
 
     def update
@@ -73,7 +69,7 @@ module App
         redirect_to app_lead_path(@lead), notice: "Lead was successfully updated."
       else
         @lead.lead_contacts.build if @lead.lead_contacts.empty?
-        render "leads/edit", status: :unprocessable_entity
+        render :edit, status: :unprocessable_entity
       end
     end
 

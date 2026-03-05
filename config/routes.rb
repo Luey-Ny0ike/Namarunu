@@ -14,36 +14,16 @@ Rails.application.routes.draw do
       patch :reassign_checkout
     end
   end
-  resources :leads, only: %i[index show new create edit update] do
-    collection do
-      get :my_tasks
-    end
-
-    member do
-      post :convert
-      post :book_demo
-      patch :checkout
-      patch :release
-      patch :force_release
-      patch :reassign_checkout
-      post :log_call_attempt
-    end
-  end
-  resources :accounts, only: %i[show]
-  resources :demos, only: %i[show update]
   resources :build, controller: 'inquiries/build'
 
   namespace :admin do
     resources :users, only: %i[index update]
   end
 
-  namespace :finance do
-    resources :payouts, only: :index
-  end
-
   namespace :app do
     root "dashboard#show"
-    resources :demos, only: %i[index show] do
+    resources :accounts, only: %i[show]
+    resources :demos, only: %i[index show update] do
       member do
         post :complete
       end
@@ -51,6 +31,7 @@ Rails.application.routes.draw do
     get "leads/new", to: "leads#new", as: :new_lead
     resources :leads, only: %i[index show create edit update] do
       member do
+        post :convert, to: "lead_actions#convert"
         patch :checkout, to: "lead_actions#checkout"
         patch :release, to: "lead_actions#release"
         patch :force_release, to: "lead_actions#force_release"

@@ -33,13 +33,12 @@ class InquiryPolicy < ApplicationPolicy
   end
 
   def won_deals?
-    super_admin? || sales_manager? || finance?
+    super_admin? || sales_manager?
   end
 
   class Scope < Scope
     def resolve
       return scope.all if user&.super_admin? || user&.sales_manager? || user&.sales_rep?
-      return scope.where(status: "won") if user&.finance?
 
       scope.none
     end

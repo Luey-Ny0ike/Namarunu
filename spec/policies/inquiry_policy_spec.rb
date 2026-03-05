@@ -75,15 +75,6 @@ RSpec.describe InquiryPolicy do
     expect(policy.reassign_checkout?).to be(false)
   end
 
-  it "allows finance to view won deals but not edit leads" do
-    user = build_user(:finance)
-    policy = described_class.new(user, inquiry)
-
-    expect(policy.won_deals?).to be(true)
-    expect(policy.show?).to be(false)
-    expect(policy.update?).to be(false)
-  end
-
   it "prevents support from editing leads" do
     user = build_user(:support)
     policy = described_class.new(user, inquiry)
@@ -99,13 +90,4 @@ RSpec.describe InquiryPolicy do
     expect(policy.create?).to be(false)
   end
 
-  it "scopes finance to won leads only" do
-    finance_user = build_user(:finance)
-    won = Inquiry.create!(full_name: "Won", phone_number: "+15551234568", business_name: "Won Inc", status: "won")
-    Inquiry.create!(full_name: "Open", phone_number: "+15551234569", business_name: "Open Inc", status: "new")
-
-    result = described_class::Scope.new(finance_user, Inquiry).resolve
-
-    expect(result).to contain_exactly(won)
-  end
 end

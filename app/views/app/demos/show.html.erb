@@ -54,7 +54,7 @@
       <% if policy(@demo).update? %>
         <div class="border rounded-3 p-3">
           <h2 class="h5 mb-3">Update Demo Outcome</h2>
-          <%= form_with model: @demo, method: :patch, local: true, class: "row g-2 align-items-end" do |form| %>
+          <%= form_with model: @demo, url: app_demo_path(@demo), method: :patch, local: true, class: "row g-2 align-items-end" do |form| %>
             <div class="col-md-4">
               <%= form.label :status, class: "form-label" %>
               <%= form.select :status,

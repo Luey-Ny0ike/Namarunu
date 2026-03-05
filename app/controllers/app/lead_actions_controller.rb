@@ -68,6 +68,52 @@ module App
       redirect_to failure_redirect_target, alert: "Unable to release lead: #{e.record.errors.full_messages.to_sentence}"
     end
 
+    def convert
+      lead = Lead.find(params[:id])
+      authorize lead, :convert?
+
+      account = nil
+      lead_status = lead.status
+      now = Time.current
+
+      Lead.transaction do
+        account = Account.create!(
+          name: lead.business_name,
+          converted_from_lead: lead
+        )
+
+        primary_contact = lead.lead_contacts.order(:created_at, :id).first
+        Contact.create!(
+          account: account,
+          name: primary_contact&.name.presence || "Primary Contact",
+          phone: primary_contact&.phone,
+          email: primary_contact&.email,
+          role: primary_contact&.role
+        )
+
+        lead_updates = { converted_at: now }
+        lead_updates[:status] = :demo_booked if lead.demos.exists? && lead.status_qualified?
+        lead.update!(lead_updates)
+        lead.demos.where(account_id: nil).update_all(account_id: account.id)
+
+        Activity.create!(
+          actor_user: Current.user,
+          subject: lead,
+          action_type: "converted",
+          metadata: {
+            account_id: account.id,
+            previous_status: lead_status,
+            status: lead.status
+          },
+          occurred_at: now
+        )
+      end
+
+      redirect_to app_account_path(account), notice: "Lead converted to account successfully."
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to failure_redirect_target, alert: "Unable to convert lead: #{e.record.errors.full_messages.to_sentence}"
+    end
+
     def checkout
       lead = Lead.find(params[:id])
       authorize lead, :checkout?

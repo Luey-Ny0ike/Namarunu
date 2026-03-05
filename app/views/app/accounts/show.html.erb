@@ -72,7 +72,7 @@
                     • Assignee: <%= demo.assigned_to_user&.full_name.presence || demo.assigned_to_user&.email_address || "-" %>
                   </div>
                 </div>
-                <%= link_to "Open", demo_path(demo), class: "btn btn-outline-secondary btn-sm" %>
+                <%= link_to "Open", app_demo_path(demo), class: "btn btn-outline-secondary btn-sm" %>
               </div>
             </div>
           <% end %>

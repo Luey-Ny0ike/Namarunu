@@ -48,12 +48,6 @@ RSpec.describe "Role-based auxiliary policies" do
     expect(policy.update?).to be(true)
   end
 
-  it "allows finance to access payout pages" do
-    finance_user = build_user(:finance)
-
-    expect(Finance::PayoutPolicy.new(finance_user, :payout).index?).to be(true)
-  end
-
   it "limits admin user management to super_admin" do
     super_admin = build_user(:super_admin)
     manager = build_user(:sales_manager)
