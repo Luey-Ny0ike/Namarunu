@@ -187,4 +187,28 @@ RSpec.describe "App::WorkQueue", type: :request do
 
     expect(response).to redirect_to(contribute_root_path)
   end
+
+  it "blocks support from work queue via lead policy authorization" do
+    support = build_user(:support)
+    sign_in_as(support)
+
+    get app_work_queue_path
+
+    expect(response).to redirect_to(root_path)
+    follow_redirect!
+    expect(response.body).to include("You are not authorized to perform this action.")
+  end
+
+  it "respects policy_scope changes when loading queue leads" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = create_lead("Scoped Queue Lead")
+    LeadAssignment.create!(lead: lead, user: rep, checked_out_at: Time.current, expires_at: 1.hour.from_now)
+
+    allow_any_instance_of(App::WorkQueueController).to receive(:policy_scope).with(Lead).and_return(Lead.none)
+
+    get app_work_queue_path
+
+    expect(response).to redirect_to(app_root_path)
+  end
 end

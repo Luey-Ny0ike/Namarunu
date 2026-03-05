@@ -31,6 +31,7 @@ RSpec.describe LeadPolicy do
     expect(policy.create?).to be(true)
     expect(policy.update?).to be(true)
     expect(policy.destroy?).to be(true)
+    expect(policy.work_queue?).to be(true)
   end
 
   it "allows sales_manager to update all leads" do
