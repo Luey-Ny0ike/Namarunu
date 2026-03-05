@@ -1,7 +1,9 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
   <div>
-    <h1 class="h3 mb-1">Customers</h1>
-    <p class="text-muted mb-0">Your customer profiles by status.</p>
+    <h1 class="h3 mb-1"><%= Current.user&.sales_rep? ? "My Customers" : "Customers" %></h1>
+    <p class="text-muted mb-0">
+      <%= Current.user&.sales_rep? ? "Your owned customer profiles by status." : "Customer profiles by status and owner." %>
+    </p>
   </div>
   <% if policy(Account).create? %>
     <%= link_to "New Customer", new_app_customer_path, class: "btn btn-primary" %>
@@ -20,10 +22,18 @@
 
     <%= form_with url: app_customers_path, method: :get, local: true, class: "row g-2" do |form| %>
       <%= form.hidden_field :status, value: @status_filter %>
-      <div class="col-12 col-md-8">
+      <div class="col-12 col-md-5">
         <%= form.search_field :q, value: @query, placeholder: "Search by customer name", class: "form-control" %>
       </div>
-      <div class="col-12 col-md-4 d-grid d-md-flex gap-2 justify-content-md-end">
+      <% if Current.user&.sales_manager? || Current.user&.super_admin? %>
+        <div class="col-12 col-md-4">
+          <%= form.select :owner_user_id,
+                          @assignable_users.to_a.map { |user| [user.full_name.presence || user.email_address, user.id] },
+                          { include_blank: "All owners", selected: @owner_filter },
+                          class: "form-select" %>
+        </div>
+      <% end %>
+      <div class="col-12 col-md-3 d-grid d-md-flex gap-2 justify-content-md-end">
         <%= form.submit "Search", class: "btn btn-outline-secondary" %>
         <%= link_to "Reset", app_customers_path(status: @status_filter), class: "btn btn-link" %>
       </div>
@@ -42,9 +52,32 @@
               <span class="badge <%= account_status_badge_class(customer.status) %>"><%= customer.status.humanize %></span>
             </div>
             <div class="small text-muted mb-3">
+              <div>Owner: <%= customer.owner_user&.full_name.presence || customer.owner_user&.email_address || "-" %></div>
               <div>Industry: <%= customer.industry.presence || "-" %></div>
               <div>Location: <%= customer.location.presence || "-" %></div>
             </div>
+            <% if customer.instagram_url.present? || customer.tiktok_url.present? || customer.facebook_url.present? %>
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <% if customer.instagram_url.present? %>
+                  <%= link_to customer.instagram_url, target: "_blank", rel: "noopener", class: "badge bg-light text-dark border text-decoration-none d-inline-flex align-items-center gap-1" do %>
+                    <%= instagram_icon(size: 12, class_name: "opacity-75") %>
+                    <span>Instagram</span>
+                  <% end %>
+                <% end %>
+                <% if customer.tiktok_url.present? %>
+                  <%= link_to customer.tiktok_url, target: "_blank", rel: "noopener", class: "badge bg-light text-dark border text-decoration-none d-inline-flex align-items-center gap-1" do %>
+                    <%= tiktok_icon(size: 12, class_name: "opacity-75") %>
+                    <span>TikTok</span>
+                  <% end %>
+                <% end %>
+                <% if customer.facebook_url.present? %>
+                  <%= link_to customer.facebook_url, target: "_blank", rel: "noopener", class: "badge bg-light text-dark border text-decoration-none d-inline-flex align-items-center gap-1" do %>
+                    <%= facebook_icon(size: 12, class_name: "opacity-75") %>
+                    <span>Facebook</span>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
             <div class="mt-auto d-grid">
               <%= link_to "Open", app_customer_path(customer), class: "btn btn-outline-primary" %>
             </div>

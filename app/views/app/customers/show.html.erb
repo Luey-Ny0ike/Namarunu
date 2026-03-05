@@ -10,6 +10,50 @@
   <div class="col-12 col-lg-7">
     <div class="card shadow-sm mb-3">
       <div class="card-body">
+        <h2 class="h5 mb-3">Profile Snapshot</h2>
+        <dl class="row mb-0 small g-2">
+          <dt class="col-5 text-muted">Status</dt>
+          <dd class="col-7 mb-0"><%= @customer.status.humanize %></dd>
+
+          <dt class="col-5 text-muted">Owner</dt>
+          <dd class="col-7 mb-0"><%= @customer_owner&.full_name.presence || @customer_owner&.email_address || "-" %></dd>
+
+          <dt class="col-5 text-muted">Industry</dt>
+          <dd class="col-7 mb-0"><%= @customer.industry.presence || "-" %></dd>
+
+          <dt class="col-5 text-muted">Location</dt>
+          <dd class="col-7 mb-0"><%= @customer.location.presence || "-" %></dd>
+
+          <dt class="col-5 text-muted">Instagram</dt>
+          <dd class="col-7 mb-0">
+            <%= @customer.instagram_handle.presence || "-" %>
+            <% if @customer.instagram_url.present? %>
+              <div><%= link_to @customer.instagram_url, @customer.instagram_url, target: "_blank", rel: "noopener", class: "small" %></div>
+            <% end %>
+          </dd>
+
+          <dt class="col-5 text-muted">TikTok</dt>
+          <dd class="col-7 mb-0">
+            <%= @customer.tiktok_handle.presence || "-" %>
+            <% if @customer.tiktok_url.present? %>
+              <div><%= link_to @customer.tiktok_url, @customer.tiktok_url, target: "_blank", rel: "noopener", class: "small" %></div>
+            <% end %>
+          </dd>
+
+          <dt class="col-5 text-muted">Facebook</dt>
+          <dd class="col-7 mb-0">
+            <% if @customer.facebook_url.present? %>
+              <%= link_to @customer.facebook_url, @customer.facebook_url, target: "_blank", rel: "noopener", class: "small text-break" %>
+            <% else %>
+              -
+            <% end %>
+          </dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
         <h2 class="h5 mb-3">Overview</h2>
         <%= render "form", customer: @customer, industry_options: @industry_options %>
       </div>
@@ -74,7 +118,9 @@
         <% if @lead.present? %>
           <div class="border rounded-3 p-3">
             <div class="fw-semibold mb-1"><%= @lead.business_name %></div>
-            <div class="small text-muted mb-2">Status: <%= @lead.status.humanize %></div>
+            <div class="small text-muted">Status: <%= @lead.status.humanize %></div>
+            <div class="small text-muted">Industry: <%= @lead.industry.presence || "-" %></div>
+            <div class="small text-muted mb-2">Location: <%= @lead.location.presence || "-" %></div>
             <%= link_to "Open Lead", app_lead_path(@lead), class: "btn btn-sm btn-outline-secondary" %>
           </div>
         <% else %>
