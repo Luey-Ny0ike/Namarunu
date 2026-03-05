@@ -91,12 +91,7 @@
           <% if @activities.any? %>
             <div class="list-group list-group-flush">
               <% @activities.each do |activity| %>
-                <% normalized_action_type = case activity.action_type
-                  when "call_attempt_logged" then "call_logged"
-                  when "lead_status_changed" then "status_changed"
-                  else activity.action_type
-                end %>
-                <% title = case normalized_action_type
+                <% title = case activity.action_type
                   when "call_logged" then "Call logged"
                   when "demo_booked" then "Demo booked"
                   when "demo_completed" then "Demo completed"
@@ -115,7 +110,7 @@
                       <div class="fw-semibold"><%= title %></div>
                       <div class="small text-muted">by <%= activity.actor_user.full_name.presence || activity.actor_user.email_address %></div>
 
-                      <% if normalized_action_type == "call_logged" %>
+                      <% if activity.action_type == "call_logged" %>
                         <div class="small mt-1">
                           <span class="badge bg-light text-dark border">
                             Outcome: <%= activity.metadata["outcome"].presence&.humanize || "Unknown" %>
@@ -129,13 +124,13 @@
                         <% end %>
                       <% end %>
 
-                      <% if normalized_action_type == "status_changed" %>
-                        <% from_status = activity.metadata["from"].presence || activity.metadata["old"].presence || "-" %>
-                        <% to_status = activity.metadata["to"].presence || activity.metadata["new"].presence || activity.metadata["status"].presence || "-" %>
+                      <% if activity.action_type == "status_changed" %>
+                        <% from_status = activity.metadata["from"].presence || "-" %>
+                        <% to_status = activity.metadata["to"].presence || "-" %>
                         <div class="small mt-1 text-muted"><%= from_status.to_s.humanize %> -> <%= to_status.to_s.humanize %></div>
                       <% end %>
 
-                      <% if normalized_action_type == "demo_booked" && activity.metadata["scheduled_at"].present? %>
+                      <% if activity.action_type == "demo_booked" && activity.metadata["scheduled_at"].present? %>
                         <% scheduled_at = Time.zone.parse(activity.metadata["scheduled_at"].to_s) rescue nil %>
                         <% if scheduled_at.present? %>
                           <div class="small mt-1 text-muted">Scheduled: <%= l(scheduled_at, format: :short) %></div>

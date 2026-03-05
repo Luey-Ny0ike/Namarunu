@@ -63,7 +63,7 @@ module App
 
         if @lead.saved_change_to_status?
           from, to = @lead.saved_change_to_status
-          write_activity!(@lead, "lead_status_changed", metadata: { from: from, to: to })
+          write_activity!(@lead, "status_changed", metadata: { from: from, to: to })
         end
 
         redirect_to app_lead_path(@lead), notice: "Lead was successfully updated."

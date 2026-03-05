@@ -134,7 +134,7 @@ module App
         Activity.create!(
           actor_user: Current.user,
           subject: lead,
-          action_type: "lead_status_changed",
+          action_type: "status_changed",
           metadata: { from: previous_lead_status, to: lead.status, source: "demo_update", demo_id: @demo.id },
           occurred_at: Time.current
         )

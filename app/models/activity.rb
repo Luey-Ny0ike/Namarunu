@@ -29,7 +29,7 @@ class Activity < ApplicationRecord
       "Lead created"
     when "lead_updated"
       "Lead updated"
-    when "lead_status_changed"
+    when "status_changed"
       from = metadata["from"].presence || "-"
       to = metadata["to"].presence || "-"
       "Status changed from #{from.humanize} to #{to.humanize}"
@@ -46,9 +46,9 @@ class Activity < ApplicationRecord
       "Lead checkout reassigned"
     when "expired"
       "Lead checkout expired"
-    when "call_attempt_logged"
+    when "call_logged"
       outcome = metadata["outcome"].presence || "unknown"
-      "Call attempt logged (#{outcome.humanize})"
+      "Call logged (#{outcome.humanize})"
     when "demo_booked"
       scheduled_at = metadata["scheduled_at"].presence
       if scheduled_at.present?

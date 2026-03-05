@@ -223,12 +223,10 @@ class Lead < ApplicationRecord
       lead_created_from_submission
       submission_attached
       call_logged
-      call_attempt_logged
       demo_booked
       demo_completed
       converted
       status_changed
-      lead_status_changed
     ])
   end
 
@@ -240,7 +238,7 @@ class Lead < ApplicationRecord
       { label: "Lead created from submission", occurred_at: activity.occurred_at, actor_name: actor_name }
     when "submission_attached"
       { label: "Submission attached to existing lead", occurred_at: activity.occurred_at, actor_name: actor_name }
-    when "call_logged", "call_attempt_logged"
+    when "call_logged"
       outcome = activity.metadata["outcome"].presence || "unknown"
       { label: "Call logged (#{outcome.to_s.humanize})", occurred_at: activity.occurred_at, actor_name: actor_name }
     when "demo_booked"
@@ -249,9 +247,9 @@ class Lead < ApplicationRecord
       { label: "Demo done", occurred_at: activity.occurred_at, actor_name: actor_name }
     when "converted"
       { label: "Lead won", occurred_at: activity.occurred_at, actor_name: actor_name }
-    when "status_changed", "lead_status_changed"
+    when "status_changed"
       from = activity.metadata["from"].presence || "-"
-      to = activity.metadata["to"].presence || activity.metadata["status"].presence || "-"
+      to = activity.metadata["to"].presence || "-"
       { label: "Status changed: #{from.to_s.humanize} -> #{to.to_s.humanize}", occurred_at: activity.occurred_at, actor_name: actor_name }
     end
   end

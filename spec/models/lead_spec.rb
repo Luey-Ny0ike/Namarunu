@@ -375,14 +375,14 @@ RSpec.describe Lead, type: :model do
     Activity.create!(
       actor_user: rep,
       subject: lead,
-      action_type: "call_attempt_logged",
+      action_type: "call_logged",
       metadata: { outcome: "no_answer", notes: "secret rep notes" },
       occurred_at: 4.hours.ago
     )
     Activity.create!(
       actor_user: rep,
       subject: lead,
-      action_type: "lead_status_changed",
+      action_type: "status_changed",
       metadata: { from: "new", to: "qualified", notes: "do not expose" },
       occurred_at: 3.hours.ago
     )

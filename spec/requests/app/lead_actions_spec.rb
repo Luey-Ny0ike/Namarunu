@@ -70,8 +70,9 @@ RSpec.describe "App::LeadActions", type: :request do
     expect(lead.status).to eq("qualified")
     expect(lead.last_contacted_at).to be_within(5.seconds).of(Time.current)
     activity = Activity.where(subject: lead, action_type: "call_logged").order(:created_at).last
-    expect(activity.metadata).to include("outcome" => "interested", "notes_present" => true)
-    expect(activity.metadata).not_to have_key("notes")
+    expect(activity.metadata).to include("outcome" => "interested", "notes" => "qualified conversation")
+    expect(activity.metadata).not_to have_key("notes_present")
+    expect(activity.metadata).not_to have_key("next_action_at")
     expect(activity.occurred_at).to be_within(5.seconds).of(Time.current)
   end
 
@@ -183,7 +184,7 @@ RSpec.describe "App::LeadActions", type: :request do
     expect(response).to redirect_to(app_lead_path(lead))
     expect(lead.reload.status).to eq("awaiting_commitment")
     activity = Activity.where(subject: lead, action_type: "status_changed").order(:created_at).last
-    expect(activity.metadata).to include("old" => "new", "new" => "awaiting_commitment")
+    expect(activity.metadata).to include("from" => "new", "to" => "awaiting_commitment")
   end
 
   it "auto-converts lead when marking awaiting_commitment" do
