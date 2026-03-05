@@ -3,20 +3,26 @@
 module App
   class WorkQueueController < App::BaseController
     def pull
-      result = Leads::SmartPull.new(user: Current.user, count: 10).call
-      session[:work_queue_ids] = result[:lead_ids]
+      authorize Lead, :work_queue?
 
-      flash[:notice] = if result[:lead_ids].any?
-        "Pulled #{result[:lead_ids].size} leads into your queue."
+      now = Time.current
+      result = Leads::SmartPull.new(user: Current.user, count: 10).call
+      filtered_ids = valid_queue_ids_in_order(result[:lead_ids], now)
+      session[:work_queue_ids] = filtered_ids
+
+      flash[:notice] = if filtered_ids.any?
+        "Pulled #{filtered_ids.size} leads into your queue."
       else
         "No eligible leads are available right now."
       end
       flash[:alert] = result[:warning] if result[:warning].present?
 
-      redirect_to app_work_queue_path(lead_id: result[:lead_ids].first)
+      redirect_to app_work_queue_path(lead_id: filtered_ids.first)
     end
 
     def show
+      authorize Lead, :work_queue?
+
       @queue_ids = queue_ids
       if @queue_ids.empty?
         redirect_to app_root_path, notice: "Queue complete"
@@ -50,10 +56,9 @@ module App
         return filtered_ids
       end
 
-      LeadAssignment.active_at
-        .joins(:lead)
+      LeadAssignment.active_at(now)
+        .where(lead_id: policy_scope(Lead).where.not(status: [Lead::STATUSES[:won], Lead::STATUSES[:lost]]).select(:id))
         .where(user_id: Current.user.id)
-        .where.not(leads: { status: [Lead::STATUSES[:won], Lead::STATUSES[:lost]] })
         .order(checked_out_at: :desc)
         .pluck(:lead_id)
         .tap { |ids| session[:work_queue_ids] = ids if ids.any? }
@@ -64,14 +69,25 @@ module App
 
       requested_id = params[:lead_id].to_i
       current_id = ids.include?(requested_id) ? requested_id : ids.first
-      Lead.includes(:lead_contacts, :lead_submissions, :activities).find_by(id: current_id)
+      policy_scope(Lead)
+        .where(id: current_id)
+        .includes(:lead_contacts, :lead_submissions, :activities)
+        .find_by(id: current_id)
     end
 
     def valid_queue_ids_in_order(ids, now)
-      open_lead_ids = Lead.where(id: ids).where.not(status: [Lead::STATUSES[:won], Lead::STATUSES[:lost]]).pluck(:id)
+      normalized_ids = Array(ids).map(&:to_i).select(&:positive?).uniq
+      return [] if normalized_ids.empty?
+
+      open_scoped_leads = policy_scope(Lead)
+        .where(id: normalized_ids)
+        .where.not(status: [Lead::STATUSES[:won], Lead::STATUSES[:lost]])
+
+      open_lead_ids = open_scoped_leads.pluck(:id)
       active_assignment_ids = LeadAssignment
         .active_at(now)
-        .where(user_id: Current.user.id, lead_id: ids)
+        .where(lead_id: open_scoped_leads.select(:id))
+        .where(user_id: Current.user.id)
         .pluck(:lead_id)
 
       ids.select { |id| open_lead_ids.include?(id) && active_assignment_ids.include?(id) }

@@ -40,6 +40,10 @@ class LeadPolicy < ApplicationPolicy
     super_admin? || sales_manager?
   end
 
+  def work_queue?
+    index?
+  end
+
   def convert?
     update? && record.conversion_eligible? && record.converted_account.blank?
   end
