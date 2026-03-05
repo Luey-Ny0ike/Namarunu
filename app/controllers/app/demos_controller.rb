@@ -15,7 +15,7 @@ module App
       now = Time.current
       @tab = params[:tab].presence_in(%w[today upcoming past]) || "today"
 
-      base_scope = policy_scope(Demo).includes(:lead, :assigned_to_user, :created_by_user)
+      base_scope = policy_scope(Demo).includes(:lead, :assigned_to_user)
       base_scope = base_scope.where(assigned_to_user_id: params[:assigned_to_user_id]) if manager_like? && params[:assigned_to_user_id].present?
       base_scope = base_scope.where(assigned_to_user_id: Current.user.id) unless manager_like?
 
