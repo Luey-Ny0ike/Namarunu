@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Demos", type: :request do
+RSpec.describe "App::DemosUpdate", type: :request do
   def build_user(role)
     User.create!(
       email_address: "#{role}-#{SecureRandom.hex(4)}@example.com",
@@ -37,10 +37,10 @@ RSpec.describe "Demos", type: :request do
     )
 
     expect do
-      patch demo_path(demo), params: { demo: { status: :completed, outcome: :qualified, notes: "Good fit" } }
+      patch app_demo_path(demo), params: { demo: { status: :completed, outcome: :qualified, notes: "Good fit" } }
     end.to change(Activity, :count).by(3)
 
-    expect(response).to redirect_to(demo_path(demo))
+    expect(response).to redirect_to(app_demo_path(demo))
     demo.reload
     lead.reload
 
@@ -62,7 +62,7 @@ RSpec.describe "Demos", type: :request do
       assigned_to_user: other_rep
     )
 
-    patch demo_path(demo), params: { demo: { status: :no_show } }
+    patch app_demo_path(demo), params: { demo: { status: :no_show } }
 
     expect(response).to redirect_to(root_path)
     follow_redirect!
@@ -82,9 +82,9 @@ RSpec.describe "Demos", type: :request do
       assigned_to_user: rep
     )
 
-    patch demo_path(demo), params: { demo: { status: :no_show, notes: "Customer did not join" } }
+    patch app_demo_path(demo), params: { demo: { status: :no_show, notes: "Customer did not join" } }
 
-    expect(response).to redirect_to(demo_path(demo))
+    expect(response).to redirect_to(app_demo_path(demo))
     expect(demo.reload.status).to eq("no_show")
   end
 end

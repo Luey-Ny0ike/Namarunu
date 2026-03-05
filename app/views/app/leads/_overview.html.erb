@@ -93,15 +93,15 @@
 
       <div class="d-grid gap-2">
         <% if policy(lead).checkout? && active_assignment.blank? %>
-          <%= button_to "Check out", checkout_lead_path(lead), method: :patch, class: "btn btn-sm btn-namarunu" %>
+          <%= button_to "Check out", checkout_app_lead_path(lead), method: :patch, class: "btn btn-sm btn-namarunu" %>
         <% end %>
 
         <% if policy(lead).release? && active_assignment.present? && active_assignment.user_id == Current.user.id %>
-          <%= button_to "Release", release_lead_path(lead), method: :patch, class: "btn btn-sm btn-outline-secondary" %>
+          <%= button_to "Release", release_app_lead_path(lead), method: :patch, class: "btn btn-sm btn-outline-secondary" %>
         <% end %>
 
         <% if manager_like && policy(lead).force_release? && active_assignment.present? %>
-          <%= button_to "Force release", force_release_lead_path(lead), method: :patch, class: "btn btn-sm btn-outline-danger" %>
+          <%= button_to "Force release", force_release_app_lead_path(lead), method: :patch, class: "btn btn-sm btn-outline-danger" %>
         <% end %>
       </div>
     </div>
@@ -117,7 +117,7 @@
           <div id="overviewReassignCollapse" class="accordion-collapse collapse" aria-labelledby="overviewReassignHeading" data-bs-parent="#overviewManagerTools">
             <div class="accordion-body pt-2">
               <div class="small text-muted mb-2">Reassign checkout</div>
-              <%= form_with url: reassign_checkout_lead_path(lead), method: :patch, local: true, class: "d-grid gap-2" do |form| %>
+              <%= form_with url: reassign_checkout_app_lead_path(lead), method: :patch, local: true, class: "d-grid gap-2" do |form| %>
                 <%= form.select :user_id,
                                 options_for_select(assignable_users.map { |user| [user.full_name.presence || user.email_address, user.id] }, active_assignment&.user_id),
                                 {},

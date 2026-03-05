@@ -52,10 +52,6 @@ class ApplicationPolicy
     user&.support? == true
   end
 
-  def finance?
-    user&.finance? == true
-  end
-
   def lead_contributor?
     user&.lead_contributor? == true
   end

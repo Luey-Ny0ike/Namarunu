@@ -68,6 +68,218 @@ module App
       redirect_to failure_redirect_target, alert: "Unable to release lead: #{e.record.errors.full_messages.to_sentence}"
     end
 
+    def convert
+      lead = Lead.find(params[:id])
+      authorize lead, :convert?
+
+      account = nil
+      lead_status = lead.status
+      now = Time.current
+
+      Lead.transaction do
+        account = Account.create!(
+          name: lead.business_name,
+          converted_from_lead: lead
+        )
+
+        primary_contact = lead.lead_contacts.order(:created_at, :id).first
+        Contact.create!(
+          account: account,
+          name: primary_contact&.name.presence || "Primary Contact",
+          phone: primary_contact&.phone,
+          email: primary_contact&.email,
+          role: primary_contact&.role
+        )
+
+        lead_updates = { converted_at: now }
+        lead_updates[:status] = :demo_booked if lead.demos.exists? && lead.status_qualified?
+        lead.update!(lead_updates)
+        lead.demos.where(account_id: nil).update_all(account_id: account.id)
+
+        Activity.create!(
+          actor_user: Current.user,
+          subject: lead,
+          action_type: "converted",
+          metadata: {
+            account_id: account.id,
+            previous_status: lead_status,
+            status: lead.status
+          },
+          occurred_at: now
+        )
+      end
+
+      redirect_to app_account_path(account), notice: "Lead converted to account successfully."
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to failure_redirect_target, alert: "Unable to convert lead: #{e.record.errors.full_messages.to_sentence}"
+    end
+
+    def checkout
+      lead = Lead.find(params[:id])
+      authorize lead, :checkout?
+
+      now = Time.current
+      active_assignment = nil
+      expired_assignments = []
+      created_assignment = nil
+
+      Lead.transaction do
+        locked_lead = Lead.lock.find(lead.id)
+        expired_assignments = expire_stale_assignments!(locked_lead, now)
+        active_assignment = locked_lead.active_assignment(now)
+
+        if active_assignment.blank?
+          created_assignment = locked_lead.lead_assignments.create!(
+            user: Current.user,
+            checked_out_at: now,
+            expires_at: now + checkout_duration
+          )
+        end
+      end
+
+      write_expired_activities!(lead, expired_assignments)
+
+      if created_assignment.present?
+        Activity.create!(
+          actor_user: Current.user,
+          subject: lead,
+          action_type: "checked_out",
+          metadata: checkout_activity_metadata(created_assignment),
+          occurred_at: now
+        )
+        redirect_to success_redirect_target, notice: "Lead checked out until #{view_context.l(created_assignment.expires_at, format: :short)}."
+      else
+        holder = user_display_name(active_assignment.user)
+        expires_at = view_context.l(active_assignment.expires_at, format: :short)
+        redirect_to failure_redirect_target, alert: "Already checked out by #{holder} until #{expires_at}."
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to failure_redirect_target, alert: "Unable to check out lead: #{e.record.errors.full_messages.to_sentence}"
+    end
+
+    def release
+      lead = Lead.find(params[:id])
+      authorize lead, :release?
+
+      now = Time.current
+      expired_assignments = []
+      released_assignment = nil
+
+      Lead.transaction do
+        locked_lead = Lead.lock.find(lead.id)
+        expired_assignments = expire_stale_assignments!(locked_lead, now)
+        active_assignment = locked_lead.active_assignment(now)
+
+        if active_assignment.present? && active_assignment.user_id == Current.user.id
+          active_assignment.release!(reason: "released", at: now)
+          released_assignment = active_assignment
+        end
+      end
+
+      write_expired_activities!(lead, expired_assignments)
+
+      if released_assignment.present?
+        Activity.create!(
+          actor_user: Current.user,
+          subject: lead,
+          action_type: "released",
+          metadata: release_activity_metadata(released_assignment, "released"),
+          occurred_at: now
+        )
+        redirect_to success_redirect_target, notice: "Lead checkout released."
+      else
+        redirect_to failure_redirect_target, alert: "No active checkout found for your user."
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to failure_redirect_target, alert: "Unable to release lead: #{e.record.errors.full_messages.to_sentence}"
+    end
+
+    def force_release
+      lead = Lead.find(params[:id])
+      authorize lead, :force_release?
+
+      now = Time.current
+      expired_assignments = []
+      released_assignment = nil
+
+      Lead.transaction do
+        locked_lead = Lead.lock.find(lead.id)
+        expired_assignments = expire_stale_assignments!(locked_lead, now)
+        active_assignment = locked_lead.active_assignment(now)
+
+        if active_assignment.present?
+          active_assignment.release!(reason: "force_released", at: now)
+          released_assignment = active_assignment
+        end
+      end
+
+      write_expired_activities!(lead, expired_assignments)
+
+      if released_assignment.present?
+        Activity.create!(
+          actor_user: Current.user,
+          subject: lead,
+          action_type: "released",
+          metadata: release_activity_metadata(released_assignment, "force_released"),
+          occurred_at: now
+        )
+        redirect_to success_redirect_target, notice: "Lead checkout force released."
+      else
+        redirect_to failure_redirect_target, alert: "No active checkout to release."
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to failure_redirect_target, alert: "Unable to force release lead: #{e.record.errors.full_messages.to_sentence}"
+    end
+
+    def reassign_checkout
+      lead = Lead.find(params[:id])
+      authorize lead, :reassign_checkout?
+      assignee = User.find(reassign_checkout_params[:user_id])
+
+      now = Time.current
+      expired_assignments = []
+      previous_assignment = nil
+      new_assignment = nil
+
+      Lead.transaction do
+        locked_lead = Lead.lock.find(lead.id)
+        expired_assignments = expire_stale_assignments!(locked_lead, now)
+        previous_assignment = locked_lead.active_assignment(now)
+
+        if previous_assignment.blank? || previous_assignment.user_id != assignee.id
+          previous_assignment&.release!(reason: "reassigned", at: now)
+          new_assignment = locked_lead.lead_assignments.create!(
+            user: assignee,
+            checked_out_at: now,
+            expires_at: now + checkout_duration
+          )
+        end
+      end
+
+      write_expired_activities!(lead, expired_assignments)
+
+      if new_assignment.present?
+        Activity.create!(
+          actor_user: Current.user,
+          subject: lead,
+          action_type: "reassigned",
+          metadata: {
+            from_user_id: previous_assignment&.user_id,
+            to_user_id: assignee.id,
+            expires_at: new_assignment.expires_at.iso8601
+          },
+          occurred_at: now
+        )
+        redirect_to success_redirect_target, notice: "Lead checkout reassigned to #{user_display_name(assignee)}."
+      else
+        redirect_to success_redirect_target, notice: "Lead is already checked out by #{user_display_name(assignee)}."
+      end
+    rescue ActiveRecord::RecordNotFound
+      redirect_to failure_redirect_target, alert: "User not found."
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to failure_redirect_target, alert: "Unable to reassign checkout: #{e.record.errors.full_messages.to_sentence}"
+    end
+
     def mark_awaiting_commitment
       lead = Lead.find(params[:id])
       authorize lead, :update?
@@ -252,6 +464,10 @@ module App
       params.permit(:lost_reason, :return_to, :queue_next_lead_id)
     end
 
+    def reassign_checkout_params
+      params.permit(:user_id, :return_to, :queue_next_lead_id)
+    end
+
     def parse_datetime(raw_value)
       return if raw_value.blank?
 
@@ -335,6 +551,50 @@ module App
       return Current.user if Current.user&.sales_rep?
 
       User.find(requested_assignee_id)
+    end
+
+    def checkout_duration
+      Rails.configuration.x.leads.checkout_duration || 2.hours
+    end
+
+    def expire_stale_assignments!(lead, now)
+      stale = lead.lead_assignments.unreleased.where("expires_at <= ?", now).to_a
+      stale.each { |assignment| assignment.release!(reason: "expired", at: now) }
+      stale
+    end
+
+    def write_expired_activities!(lead, assignments)
+      assignments.each do |assignment|
+        Activity.create!(
+          actor_user: Current.user,
+          subject: lead,
+          action_type: "expired",
+          metadata: {
+            checked_out_user_id: assignment.user_id,
+            expired_at: assignment.expires_at.iso8601
+          },
+          occurred_at: Time.current
+        )
+      end
+    end
+
+    def checkout_activity_metadata(assignment)
+      {
+        checked_out_user_id: assignment.user_id,
+        expires_at: assignment.expires_at.iso8601
+      }
+    end
+
+    def release_activity_metadata(assignment, reason)
+      {
+        checked_out_user_id: assignment.user_id,
+        reason: reason,
+        released_at: assignment.released_at&.iso8601
+      }
+    end
+
+    def user_display_name(user)
+      user.full_name.presence || user.email_address
     end
   end
 end

@@ -76,13 +76,13 @@
       <h2 class="h5 mb-3">Lead Contacts</h2>
       <div data-lead-contacts-target="container">
         <%= form.fields_for :lead_contacts do |contact_form| %>
-          <%= render "leads/lead_contact_fields", form: contact_form %>
+          <%= render "app/leads/lead_contact_fields", form: contact_form %>
         <% end %>
       </div>
 
       <template data-lead-contacts-target="template">
         <%= form.fields_for :lead_contacts, LeadContact.new, child_index: "NEW_RECORD" do |contact_form| %>
-          <%= render "leads/lead_contact_fields", form: contact_form %>
+          <%= render "app/leads/lead_contact_fields", form: contact_form %>
         <% end %>
       </template>
 
