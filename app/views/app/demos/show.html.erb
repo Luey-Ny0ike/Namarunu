@@ -41,6 +41,15 @@
         <dt class="col-sm-3 text-muted">Created by</dt>
         <dd class="col-sm-9"><%= @demo.created_by_user.full_name.presence || @demo.created_by_user.email_address %></dd>
 
+        <dt class="col-sm-3 text-muted">Virtual meeting link</dt>
+        <dd class="col-sm-9">
+          <% if @demo.virtual_meeting_link.present? %>
+            <%= link_to @demo.virtual_meeting_link, @demo.virtual_meeting_link, target: "_blank", rel: "noopener" %>
+          <% else %>
+            -
+          <% end %>
+        </dd>
+
         <dt class="col-sm-3 text-muted">Demo link</dt>
         <dd class="col-sm-9">
           <% if @demo.demo_link.present? %>
@@ -49,6 +58,15 @@
             -
           <% end %>
         </dd>
+
+        <dt class="col-sm-3 text-muted">Meeting</dt>
+        <dd class="col-sm-9"><%= @demo.meeting_type&.humanize || "Virtual" %></dd>
+
+        <dt class="col-sm-3 text-muted">Location</dt>
+        <dd class="col-sm-9"><%= @demo.meeting_location.presence || "-" %></dd>
+
+        <dt class="col-sm-3 text-muted">Prep Notes</dt>
+        <dd class="col-sm-9"><%= @demo.notes.presence || "-" %></dd>
       </dl>
 
       <% if policy(@demo).update? %>
@@ -70,8 +88,23 @@
                               class: "form-select" %>
             </div>
             <div class="col-md-4">
-              <%= form.label :demo_link, class: "form-label" %>
-              <%= form.url_field :demo_link, class: "form-control", placeholder: "https://meet.example.com/..." %>
+              <%= form.label :virtual_meeting_link, class: "form-label" %>
+              <%= form.url_field :virtual_meeting_link, class: "form-control", placeholder: "https://meet.example.com/..." %>
+            </div>
+            <div class="col-md-4">
+              <%= form.label :demo_link, "Demo link (website)", class: "form-label" %>
+              <%= form.url_field :demo_link, class: "form-control", placeholder: "https://example.com/demo-page" %>
+            </div>
+            <div class="col-md-4">
+              <%= form.label :meeting_type, class: "form-label" %>
+              <%= form.select :meeting_type,
+                              options_for_select(Demo.meeting_types.keys.map { |value| [value.humanize, value] }, @demo.meeting_type),
+                              {},
+                              class: "form-select" %>
+            </div>
+            <div class="col-md-4">
+              <%= form.label :meeting_location, class: "form-label" %>
+              <%= form.text_field :meeting_location, class: "form-control", placeholder: "Office address or venue" %>
             </div>
             <div class="col-12">
               <%= form.label :notes, "Outcome Notes", class: "form-label" %>
@@ -85,6 +118,13 @@
           <% end %>
         </div>
       <% end %>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h2 class="h5 mb-2">Prep Notes</h2>
+      <p class="mb-0"><%= @demo.notes.presence || "-" %></p>
     </div>
   </div>
 

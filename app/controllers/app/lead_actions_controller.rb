@@ -378,6 +378,10 @@ module App
           scheduled_at: scheduled_at,
           duration_minutes: book_demo_params[:duration_minutes].presence || 30,
           notes: book_demo_params[:notes].to_s.strip.presence,
+          demo_link: book_demo_params[:demo_link].to_s.strip.presence,
+          meeting_type: book_demo_params[:meeting_type].presence || :virtual,
+          meeting_location: book_demo_params[:meeting_location].to_s.strip.presence,
+          virtual_meeting_link: book_demo_params[:virtual_meeting_link].to_s.strip.presence,
           assigned_to_user: assigned_user,
           created_by_user: Current.user
         )
@@ -458,7 +462,7 @@ module App
     end
 
     def book_demo_params
-      params.permit(:scheduled_at, :duration_minutes, :notes, :assigned_to_user_id, :return_to)
+      params.permit(:scheduled_at, :duration_minutes, :notes, :demo_link, :meeting_type, :meeting_location, :virtual_meeting_link, :assigned_to_user_id, :return_to)
     end
 
     def post_demo_params

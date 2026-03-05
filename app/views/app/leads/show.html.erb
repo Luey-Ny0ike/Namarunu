@@ -255,6 +255,18 @@
           <%= form.datetime_local_field :scheduled_at, class: "form-control", required: true %>
           <%= form.label :duration_minutes, "Duration (minutes)", class: "form-label small text-muted mb-1 mt-1" %>
           <%= form.number_field :duration_minutes, class: "form-control", min: 1, step: 1, value: 30, required: true %>
+          <%= form.label :meeting_type, "Meeting type", class: "form-label small text-muted mb-1 mt-1" %>
+          <%= form.select :meeting_type,
+                          options_for_select([["Virtual", "virtual"], ["In person", "in_person"]], "virtual"),
+                          {},
+                          class: "form-select" %>
+          <%= form.label :demo_link, "Demo link (website)", class: "form-label small text-muted mb-1 mt-1" %>
+          <%= form.url_field :demo_link, class: "form-control", placeholder: "https://example.com/demo-page" %>
+          <div class="small text-muted">For virtual demos, fill Virtual meeting link. For in-person demos, capture a location.</div>
+          <%= form.label :virtual_meeting_link, "Virtual meeting link", class: "form-label small text-muted mb-1 mt-1" %>
+          <%= form.url_field :virtual_meeting_link, class: "form-control", placeholder: "https://meet.example.com/..." %>
+          <%= form.label :meeting_location, "Meeting location", class: "form-label small text-muted mb-1 mt-1" %>
+          <%= form.text_field :meeting_location, class: "form-control", placeholder: "Office address or venue" %>
           <% if manager_like %>
             <%= form.label :assigned_to_user_id, "Assign to", class: "form-label small text-muted mb-1 mt-1" %>
             <%= form.select :assigned_to_user_id,
