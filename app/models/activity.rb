@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: activities
+#
+#  id            :integer          not null, primary key
+#  actor_user_id :integer          not null
+#  subject_type  :string           not null
+#  subject_id    :integer          not null
+#  action_type   :string           not null
+#  metadata      :jsonb            default("{}"), not null
+#  occurred_at   :datetime         not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#
+
 # frozen_string_literal: true
 
 class Activity < ApplicationRecord

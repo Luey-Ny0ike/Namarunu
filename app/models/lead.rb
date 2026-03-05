@@ -1,3 +1,24 @@
+# == Schema Information
+#
+# Table name: leads
+#
+#  id                :integer          not null, primary key
+#  business_name     :string           not null
+#  location          :string
+#  industry          :string
+#  source            :string
+#  status            :string           default("new"), not null
+#  temperature       :string           default("warm"), not null
+#  next_action_at    :datetime
+#  last_contacted_at :datetime
+#  owner_user_id     :integer
+#  converted_at      :datetime
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  invoice_sent_at   :datetime
+#  lost_reason       :string
+#
+
 # frozen_string_literal: true
 
 class Lead < ApplicationRecord

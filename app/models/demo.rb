@@ -1,3 +1,22 @@
+# == Schema Information
+#
+# Table name: demos
+#
+#  id                  :integer          not null, primary key
+#  lead_id             :integer
+#  account_id          :integer
+#  scheduled_at        :datetime         not null
+#  duration_minutes    :integer          default(30), not null
+#  status              :string           default("scheduled"), not null
+#  outcome             :string
+#  notes               :text
+#  demo_link           :string
+#  created_by_user_id  :integer          not null
+#  assigned_to_user_id :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#
+
 # frozen_string_literal: true
 
 class Demo < ApplicationRecord

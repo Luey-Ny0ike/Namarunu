@@ -48,7 +48,7 @@ group :development, :test do
 end
 
 group :development do
-  gem 'annotate', require: false if ENV["ENABLE_ANNOTATE"] == "true"
+  gem 'annotate', require: false
   gem 'listen', '>= 3.0.5', '< 3.2'
   gem 'web-console', '>= 3.3.0'
   gem 'capistrano', '~> 3.11', require: false

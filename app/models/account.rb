@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: accounts
+#
+#  id                     :integer          not null, primary key
+#  name                   :string
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  converted_from_lead_id :integer
+#
+
 # frozen_string_literal: true
 
 class Account < ApplicationRecord
