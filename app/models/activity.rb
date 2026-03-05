@@ -65,6 +65,8 @@ class Activity < ApplicationRecord
       "Demo status changed from #{from.humanize} to #{to.humanize}"
     when "converted"
       "Lead converted to account"
+    when "account_created"
+      "Account created from lead"
     else
       action_type.humanize
     end

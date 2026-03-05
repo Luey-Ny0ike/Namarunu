@@ -110,21 +110,30 @@
   </div>
 
   <div class="card shadow-sm">
-    <div class="card-body" data-controller="lead-contacts">
+    <div class="card-body">
       <h2 class="h5 mb-3">Lead Contacts</h2>
-      <div data-lead-contacts-target="container">
-        <%= form.fields_for :lead_contacts do |contact_form| %>
-          <%= render "app/leads/lead_contact_fields", form: contact_form %>
-        <% end %>
-      </div>
+      <% if lead.converted_account.present? %>
+        <div class="alert alert-info d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-0" role="alert">
+          <span>Converted to Customer. Manage contacts on Customer.</span>
+          <%= link_to "Open Customer", app_customer_path(lead.converted_account), class: "btn btn-sm btn-outline-primary" %>
+        </div>
+      <% else %>
+        <div data-controller="lead-contacts">
+          <div data-lead-contacts-target="container">
+            <%= form.fields_for :lead_contacts do |contact_form| %>
+              <%= render "app/leads/lead_contact_fields", form: contact_form %>
+            <% end %>
+          </div>
 
-      <template data-lead-contacts-target="template">
-        <%= form.fields_for :lead_contacts, LeadContact.new, child_index: "NEW_RECORD" do |contact_form| %>
-          <%= render "app/leads/lead_contact_fields", form: contact_form %>
-        <% end %>
-      </template>
+          <template data-lead-contacts-target="template">
+            <%= form.fields_for :lead_contacts, LeadContact.new, child_index: "NEW_RECORD" do |contact_form| %>
+              <%= render "app/leads/lead_contact_fields", form: contact_form %>
+            <% end %>
+          </template>
 
-      <button type="button" class="btn btn-outline-secondary btn-sm" data-action="lead-contacts#add">Add another contact</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-action="lead-contacts#add">Add another contact</button>
+        </div>
+      <% end %>
     </div>
   </div>
 

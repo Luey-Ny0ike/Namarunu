@@ -215,4 +215,24 @@ RSpec.describe "App::Leads", type: :request do
     expect(response.body).to include("Assign to")
     expect(response.body).to include("assigned_to_user_id")
   end
+
+  it "shows converted-to-customer banner on show and locks lead-contact editing on form" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+    lead = create_lead(name: "Converted Lead", owner: rep)
+    account = Account.create!(name: lead.business_name, converted_from_lead: lead)
+
+    get app_lead_path(lead)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Converted to Customer. Manage contacts on Customer.")
+    expect(response.body).to include(app_customer_path(account))
+
+    get edit_app_lead_path(lead)
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Converted to Customer. Manage contacts on Customer.")
+    expect(response.body).to include(app_customer_path(account))
+    expect(response.body).not_to include("Add another contact")
+  end
 end
