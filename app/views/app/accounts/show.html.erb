@@ -43,7 +43,7 @@
           <% @account.contacts.each do |contact| %>
             <div class="col-md-6">
               <div class="border rounded-3 p-3 h-100">
-                <div class="fw-semibold"><%= contact.name %></div>
+                <div class="fw-semibold"><%= contact.name.presence || "-" %></div>
                 <div class="small text-muted mb-2"><%= contact.role.presence || "-" %></div>
                 <div><strong>Phone:</strong> <%= contact.phone.presence || "-" %></div>
                 <div><strong>Email:</strong> <%= contact.email.presence || "-" %></div>

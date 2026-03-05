@@ -20,7 +20,7 @@ module App
 
       now = Time.current
       Lead.transaction do
-        account = ensure_converted_account!(lead, now, source: "confirm_payment")
+        account = LeadConverter.call(lead, actor_user: Current.user)
 
         lead.update!(status: :won)
         Activity.create!(
@@ -286,7 +286,7 @@ module App
 
       now = Time.current
       Lead.transaction do
-        ensure_converted_account!(lead, now, source: "mark_awaiting_commitment")
+        LeadConverter.call(lead, actor_user: Current.user)
 
         previous_status = lead.status
         lead.update!(status: :awaiting_commitment)
@@ -310,7 +310,7 @@ module App
 
       now = Time.current
       Lead.transaction do
-        ensure_converted_account!(lead, now, source: "mark_invoice_sent")
+        LeadConverter.call(lead, actor_user: Current.user)
 
         lead.update!(status: :invoice_sent, invoice_sent_at: now)
         Activity.create!(
@@ -492,40 +492,6 @@ module App
       queue_ids = Array(session[:work_queue_ids]).map(&:to_i)
       updated_ids = queue_ids - [lead_id.to_i]
       session[:work_queue_ids] = updated_ids
-    end
-
-    def ensure_converted_account!(lead, now, source:)
-      return lead.converted_account if lead.converted_account.present?
-
-      account = Account.create!(
-        name: lead.business_name,
-        converted_from_lead: lead
-      )
-
-      primary_contact = lead.lead_contacts.order(:created_at, :id).first
-      Contact.create!(
-        account: account,
-        name: primary_contact&.name.presence || "Primary Contact",
-        phone: primary_contact&.phone,
-        email: primary_contact&.email,
-        role: primary_contact&.role
-      )
-
-      lead.update!(converted_at: now)
-      lead.demos.where(account_id: nil).update_all(account_id: account.id)
-
-      Activity.create!(
-        actor_user: Current.user,
-        subject: lead,
-        action_type: "converted",
-        metadata: {
-          account_id: account.id,
-          source: source
-        },
-        occurred_at: now
-      )
-
-      account
     end
 
     def success_redirect_target

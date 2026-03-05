@@ -196,7 +196,7 @@ RSpec.describe "App::LeadActions", type: :request do
       post mark_awaiting_commitment_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
     end.to change(Account, :count).by(1)
       .and change(Contact, :count).by(1)
-      .and change { Activity.where(action_type: "converted").count }.by(1)
+      .and change { Activity.where(action_type: "account_created").count }.by(1)
 
     expect(response).to redirect_to(app_lead_path(lead))
     lead.reload
@@ -233,7 +233,7 @@ RSpec.describe "App::LeadActions", type: :request do
       post mark_invoice_sent_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
     end.to change(Account, :count).by(1)
       .and change(Contact, :count).by(1)
-      .and change { Activity.where(action_type: "converted").count }.by(1)
+      .and change { Activity.where(action_type: "account_created").count }.by(1)
 
     expect(response).to redirect_to(app_lead_path(lead))
     lead.reload
@@ -347,7 +347,7 @@ RSpec.describe "App::LeadActions", type: :request do
     expect(lead.reload.status).to eq("new")
   end
 
-  it "auto-converts unconverted lead then marks won and records converted/won activities" do
+  it "auto-converts unconverted lead then marks won and records account-created/won activities" do
     rep = build_user(:sales_rep)
     lead = create_lead(name: "Auto Convert Won", status: :demo_completed, owner_user: rep)
     sign_in_as(rep)
@@ -355,7 +355,7 @@ RSpec.describe "App::LeadActions", type: :request do
     expect do
       post confirm_payment_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
     end.to change(Account, :count).by(1)
-      .and change { Activity.where(action_type: "converted").count }.by(1)
+      .and change { Activity.where(action_type: "account_created").count }.by(1)
       .and change { Activity.where(action_type: "won").count }.by(1)
 
     expect(response).to redirect_to(app_lead_path(lead))
@@ -364,7 +364,7 @@ RSpec.describe "App::LeadActions", type: :request do
     expect(lead.converted_account).to be_present
   end
 
-  it "marks already-converted lead as won without duplicate conversion activity" do
+  it "marks already-converted lead as won without duplicate account_created activity" do
     rep = build_user(:sales_rep)
     lead = create_lead(name: "Already Converted Won", status: :invoice_sent, owner_user: rep)
     account = Account.create!(name: "Existing Account", converted_from_lead: lead)
@@ -374,7 +374,7 @@ RSpec.describe "App::LeadActions", type: :request do
     expect do
       post confirm_payment_app_lead_path(lead), params: { return_to: app_lead_path(lead) }
     end.to change(Account, :count).by(0)
-      .and change { Activity.where(action_type: "converted").count }.by(0)
+      .and change { Activity.where(action_type: "account_created").count }.by(0)
       .and change { Activity.where(action_type: "won").count }.by(1)
 
     expect(lead.reload.status).to eq("won")
