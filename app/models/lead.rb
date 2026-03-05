@@ -22,6 +22,9 @@
 # frozen_string_literal: true
 
 class Lead < ApplicationRecord
+  HANDLE_FORMAT = /\A[a-z0-9._]+\z/i
+  HTTP_URL_FORMAT = /\Ahttps?:\/\/\S+\z/i
+
   STATUSES = {
     new: "new",
     in_progress: "in_progress",
@@ -105,7 +108,17 @@ class Lead < ApplicationRecord
   enum :temperature, TEMPERATURES, default: :warm, validate: true, prefix: true
   enum :lost_reason, LOST_REASONS, validate: { allow_nil: true }, prefix: true
 
+  before_validation :normalize_social_identity
+  before_validation :sync_social_urls_from_handles
+
   validates :business_name, presence: true
+  validates :instagram_handle, :tiktok_handle,
+            format: { with: HANDLE_FORMAT, message: "only allows letters, numbers, underscore, and dot" },
+            length: { maximum: 64 },
+            allow_blank: true
+  validates :facebook_url, :instagram_url, :tiktok_url,
+            format: { with: HTTP_URL_FORMAT, message: "must start with http:// or https://" },
+            allow_blank: true
   validates :lost_reason, presence: true, if: :status_lost?
   validates :invoice_sent_at, presence: true, if: :status_invoice_sent?
   validate :must_have_at_least_one_contact
@@ -174,6 +187,36 @@ class Lead < ApplicationRecord
   end
 
   private
+
+  def normalize_social_identity
+    self.instagram_handle = normalize_handle(instagram_handle)
+    self.tiktok_handle = normalize_handle(tiktok_handle)
+    self.facebook_url = normalize_url_with_https(facebook_url)
+    self.instagram_url = instagram_url.to_s.strip.presence
+    self.tiktok_url = tiktok_url.to_s.strip.presence
+  end
+
+  def sync_social_urls_from_handles
+    if instagram_handle.present? && (instagram_url.blank? || will_save_change_to_instagram_handle?)
+      self.instagram_url = "https://www.instagram.com/#{instagram_handle}/"
+    end
+    if tiktok_handle.present? && (tiktok_url.blank? || will_save_change_to_tiktok_handle?)
+      self.tiktok_url = "https://www.tiktok.com/@#{tiktok_handle}"
+    end
+  end
+
+  def normalize_handle(value)
+    value.to_s.strip.gsub(/\A@+/, "").downcase.presence
+  end
+
+  def normalize_url_with_https(value)
+    raw = value.to_s.strip
+    return nil if raw.blank?
+    return raw if raw.match?(%r{\Ahttps?://}i)
+    return "https://#{raw}" if raw.match?(/\A(?:www\.)?[a-z0-9][a-z0-9.-]*\.[a-z]{2,}(?:[\/?#].*)?\z/i)
+
+    raw
+  end
 
   def contributor_activities
     activities.where(action_type: %w[

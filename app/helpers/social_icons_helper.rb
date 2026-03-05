@@ -38,4 +38,21 @@ module SocialIconsHelper
       tag.path(d: "M9 0h2.61a5.54 5.54 0 0 0 1.49 3.52A5.71 5.71 0 0 0 16 5.1v2.8a8.1 8.1 0 0 1-2.85-.59 8.2 8.2 0 0 1-1.54-.88v5.58A4.99 4.99 0 0 1 6.61 16C3.85 16 1.61 13.78 1.61 11.05S3.85 6.1 6.61 6.1c.27 0 .53.02.78.06v2.88a2.26 2.26 0 0 0-.78-.14A2.15 2.15 0 0 0 4.46 11c0 1.18.97 2.14 2.15 2.14A2.15 2.15 0 0 0 8.76 11V0z")
     end
   end
+
+  def facebook_icon(size: 16, class_name: "")
+    classes = ["social-icon", class_name].reject(&:blank?).join(" ")
+
+    tag.svg(
+      xmlns: "http://www.w3.org/2000/svg",
+      width: size,
+      height: size,
+      fill: "currentColor",
+      class: classes,
+      viewBox: "0 0 16 16",
+      "aria-hidden": "true",
+      focusable: "false"
+    ) do
+      tag.path(d: "M16 8a8 8 0 1 0-9.25 7.9v-5.59H4.72V8h2.03V6.3c0-2 1.2-3.1 3.02-3.1.88 0 1.8.16 1.8.16v1.98h-1.01c-1 0-1.31.62-1.31 1.26V8h2.23l-.36 2.31H9.25v5.59A8 8 0 0 0 16 8")
+    end
+  end
 end

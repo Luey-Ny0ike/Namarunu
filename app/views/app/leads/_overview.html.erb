@@ -1,9 +1,21 @@
 <% primary_contact = lead.lead_contacts.order(:created_at, :id).first %>
 <% latest_submission ||= lead.lead_submissions.order(created_at: :desc, id: :desc).first %>
-<% instagram_handle = latest_submission&.instagram_handle.presence || (lead.respond_to?(:instagram_handle) ? lead.instagram_handle.presence : nil) %>
-<% tiktok_handle = latest_submission&.tiktok_handle.presence || (lead.respond_to?(:tiktok_handle) ? lead.tiktok_handle.presence : nil) %>
-<% instagram_url = latest_submission&.instagram_url.presence || (instagram_handle.present? ? "https://instagram.com/#{instagram_handle.delete_prefix("@")}" : nil) %>
-<% tiktok_url = latest_submission&.tiktok_url.presence || (tiktok_handle.present? ? "https://tiktok.com/@#{tiktok_handle.delete_prefix("@")}" : nil) %>
+<% lead_instagram_handle = lead.respond_to?(:instagram_handle) ? lead.instagram_handle.to_s.strip.presence : nil %>
+<% lead_tiktok_handle = lead.respond_to?(:tiktok_handle) ? lead.tiktok_handle.to_s.strip.presence : nil %>
+<% lead_facebook_url = lead.respond_to?(:facebook_url) ? lead.facebook_url.to_s.strip.presence : nil %>
+<% submission_instagram_handle = latest_submission&.instagram_handle.to_s.strip.presence %>
+<% submission_tiktok_handle = latest_submission&.tiktok_handle.to_s.strip.presence %>
+<% submission_facebook_url = latest_submission.respond_to?(:facebook_url) ? latest_submission.facebook_url.to_s.strip.presence : nil %>
+<% instagram_handle = lead_instagram_handle.presence || submission_instagram_handle %>
+<% tiktok_handle = lead_tiktok_handle.presence || submission_tiktok_handle %>
+<% instagram_from_submission = lead_instagram_handle.blank? && submission_instagram_handle.present? %>
+<% tiktok_from_submission = lead_tiktok_handle.blank? && submission_tiktok_handle.present? %>
+<% facebook_from_submission = lead_facebook_url.blank? && submission_facebook_url.present? %>
+<% instagram_url = lead.respond_to?(:instagram_url) ? lead.instagram_url.to_s.strip.presence : nil %>
+<% instagram_url = "https://www.instagram.com/#{instagram_handle.delete_prefix("@")}/" if instagram_url.blank? && instagram_handle.present? %>
+<% tiktok_url = lead.respond_to?(:tiktok_url) ? lead.tiktok_url.to_s.strip.presence : nil %>
+<% tiktok_url = "https://www.tiktok.com/@#{tiktok_handle.delete_prefix("@")}" if tiktok_url.blank? && tiktok_handle.present? %>
+<% facebook_url = lead_facebook_url.presence || submission_facebook_url %>
 <% overdue = lead.next_action_at.present? && lead.next_action_at < Time.current %>
 <% manager_like = Current.user&.sales_manager? || Current.user&.super_admin? %>
 
@@ -28,7 +40,7 @@
       <% end %>
     </div>
 
-    <% if instagram_url.present? || tiktok_url.present? %>
+    <% if instagram_url.present? || tiktok_url.present? || facebook_url.present? %>
       <div class="small mb-3">
         <div class="text-muted mb-1">Social</div>
         <div class="d-flex flex-wrap gap-2">
@@ -36,12 +48,27 @@
             <%= link_to instagram_url, target: "_blank", rel: "noopener", class: "badge bg-light text-dark border text-decoration-none d-inline-flex align-items-center gap-1" do %>
               <%= instagram_icon(size: 12, class_name: "opacity-75") %>
               <span>Instagram</span>
+              <% if instagram_from_submission %>
+                <span class="text-muted">(From submission)</span>
+              <% end %>
             <% end %>
           <% end %>
           <% if tiktok_url.present? %>
             <%= link_to tiktok_url, target: "_blank", rel: "noopener", class: "badge bg-light text-dark border text-decoration-none d-inline-flex align-items-center gap-1" do %>
               <%= tiktok_icon(size: 12, class_name: "opacity-75") %>
               <span>TikTok</span>
+              <% if tiktok_from_submission %>
+                <span class="text-muted">(From submission)</span>
+              <% end %>
+            <% end %>
+          <% end %>
+          <% if facebook_url.present? %>
+            <%= link_to facebook_url, target: "_blank", rel: "noopener", class: "badge bg-light text-dark border text-decoration-none d-inline-flex align-items-center gap-1" do %>
+              <%= facebook_icon(size: 12, class_name: "opacity-75") %>
+              <span>Facebook</span>
+              <% if facebook_from_submission %>
+                <span class="text-muted">(From submission)</span>
+              <% end %>
             <% end %>
           <% end %>
         </div>

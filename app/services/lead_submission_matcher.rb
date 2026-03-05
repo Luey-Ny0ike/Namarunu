@@ -116,6 +116,8 @@ class LeadSubmissionMatcher
   end
 
   def attach_to_existing_lead!(lead, matched_field)
+    seed_missing_lead_socials!(lead)
+
     save_submission!(
       lead,
       match_outcome: LeadSubmission::MATCH_OUTCOMES[:attached_existing],
@@ -137,7 +139,10 @@ class LeadSubmissionMatcher
       location: submission.location,
       industry: nil,
       source: "contributor",
-      owner_user_id: nil
+      owner_user_id: nil,
+      instagram_handle: normalize_handle(submission.instagram_handle),
+      tiktok_handle: normalize_handle(submission.tiktok_handle),
+      facebook_url: normalized_submission_facebook_url
     )
 
     save_submission!(
@@ -173,5 +178,34 @@ class LeadSubmissionMatcher
       metadata: metadata,
       occurred_at: Time.current
     )
+  end
+
+  def seed_missing_lead_socials!(lead)
+    lead.instagram_handle = normalize_handle(submission.instagram_handle) if lead.instagram_handle.blank?
+    lead.tiktok_handle = normalize_handle(submission.tiktok_handle) if lead.tiktok_handle.blank?
+    if lead.facebook_url.blank? && normalized_submission_facebook_url.present?
+      lead.facebook_url = normalized_submission_facebook_url
+    end
+
+    return unless lead.changed?
+
+    begin
+      lead.save!
+    rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid => error
+      Rails.logger.warn(
+        "LeadSubmissionMatcher social seed skipped lead_id=#{lead.id} submission_id=#{submission.id} error=#{error.class}"
+      )
+      lead.reload
+    end
+  end
+
+  def normalize_handle(value)
+    value.to_s.strip.gsub(/\A@+/, "").downcase.presence
+  end
+
+  def normalized_submission_facebook_url
+    return nil unless submission.respond_to?(:facebook_url)
+
+    submission.facebook_url.to_s.strip.presence
   end
 end

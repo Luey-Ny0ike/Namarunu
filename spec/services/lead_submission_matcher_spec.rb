@@ -70,6 +70,56 @@ RSpec.describe LeadSubmissionMatcher do
     expect(Activity.last.metadata["matched_field"]).to eq("phone")
   end
 
+  it "seeds missing lead social fields from submission when attaching" do
+    user = create_user
+    lead = Lead.create!(
+      business_name: "Seed Existing Co",
+      source: "contributor",
+      lead_contacts_attributes: [{ name: "Jane", phone: "+254700000111" }]
+    )
+    submission = LeadSubmission.new(
+      business_name: "Seed Input Co",
+      phone_raw: "254700000111",
+      instagram_url: "https://www.instagram.com/Seed.Me/",
+      tiktok_url: "@SeedTok",
+      submitted_by_user: user
+    )
+
+    described_class.new(submission).call
+    lead.reload
+
+    expect(lead.instagram_handle).to eq("seed.me")
+    expect(lead.tiktok_handle).to eq("seedtok")
+    expect(lead.instagram_url).to eq("https://www.instagram.com/seed.me/")
+    expect(lead.tiktok_url).to eq("https://www.tiktok.com/@seedtok")
+  end
+
+  it "does not overwrite existing lead social values when attaching" do
+    user = create_user
+    lead = Lead.create!(
+      business_name: "Keep Existing Co",
+      source: "contributor",
+      instagram_handle: "kept.insta",
+      tiktok_handle: "kepttok",
+      lead_contacts_attributes: [{ name: "Jane", phone: "+254700000222" }]
+    )
+    submission = LeadSubmission.new(
+      business_name: "Keep Input Co",
+      phone_raw: "254700000222",
+      instagram_url: "https://instagram.com/new.insta",
+      tiktok_url: "@newtok",
+      submitted_by_user: user
+    )
+
+    described_class.new(submission).call
+    lead.reload
+
+    expect(lead.instagram_handle).to eq("kept.insta")
+    expect(lead.tiktok_handle).to eq("kepttok")
+    expect(lead.instagram_url).to eq("https://www.instagram.com/kept.insta/")
+    expect(lead.tiktok_url).to eq("https://www.tiktok.com/@kepttok")
+  end
+
   it "creates a new contributor lead when no match is found and records activity" do
     user = create_user
     submission = LeadSubmission.new(
@@ -93,6 +143,10 @@ RSpec.describe LeadSubmissionMatcher do
     expect(created_lead.location).to eq("Nairobi")
     expect(created_lead.source).to eq("contributor")
     expect(created_lead.owner_user_id).to be_nil
+    expect(created_lead.instagram_handle).to eq("brandnewco")
+    expect(created_lead.instagram_url).to eq("https://www.instagram.com/brandnewco/")
+    expect(created_lead.tiktok_handle).to be_nil
+    expect(created_lead.tiktok_url).to be_nil
     expect(created_lead.lead_contacts).to be_empty
 
     activity = Activity.last

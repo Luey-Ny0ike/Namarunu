@@ -71,6 +71,44 @@
     </div>
   </div>
 
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <h2 class="h5 mb-3">Social Links</h2>
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <%= form.label :instagram_handle, class: "form-label" %>
+          <%= form.text_field :instagram_handle, class: "form-control", placeholder: "e.g. acme.store" %>
+        </div>
+        <div class="col-12 col-md-6">
+          <%= form.label :tiktok_handle, class: "form-label" %>
+          <%= form.text_field :tiktok_handle, class: "form-control", placeholder: "e.g. acmeshop" %>
+        </div>
+        <div class="col-12 col-md-6">
+          <%= form.label :facebook_url, class: "form-label" %>
+          <%= form.text_field :facebook_url, class: "form-control", placeholder: "https://facebook.com/acme" %>
+        </div>
+      </div>
+
+      <% if lead.instagram_url.present? || lead.tiktok_url.present? %>
+        <hr>
+        <div class="row g-2">
+          <% if lead.instagram_url.present? %>
+            <div class="col-12 col-md-6">
+              <div class="small text-muted mb-1">Instagram URL (generated)</div>
+              <%= link_to lead.instagram_url, lead.instagram_url, target: "_blank", rel: "noopener", class: "small text-break" %>
+            </div>
+          <% end %>
+          <% if lead.tiktok_url.present? %>
+            <div class="col-12 col-md-6">
+              <div class="small text-muted mb-1">TikTok URL (generated)</div>
+              <%= link_to lead.tiktok_url, lead.tiktok_url, target: "_blank", rel: "noopener", class: "small text-break" %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
   <div class="card shadow-sm">
     <div class="card-body" data-controller="lead-contacts">
       <h2 class="h5 mb-3">Lead Contacts</h2>
