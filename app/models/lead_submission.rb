@@ -1,3 +1,27 @@
+# == Schema Information
+#
+# Table name: lead_submissions
+#
+#  id                   :integer          not null, primary key
+#  business_name        :string           not null
+#  instagram_url        :string
+#  instagram_handle     :string
+#  tiktok_url           :string
+#  tiktok_handle        :string
+#  phone_raw            :string
+#  phone_normalized     :string
+#  location             :string
+#  notes                :text
+#  submitted_by_user_id :integer          not null
+#  lead_id              :integer
+#  editable_until       :datetime         not null
+#  locked_at            :datetime
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  match_outcome        :string
+#  matched_field        :string
+#
+
 # frozen_string_literal: true
 
 class LeadSubmission < ApplicationRecord

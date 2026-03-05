@@ -1,35 +1,37 @@
 # frozen_string_literal: true
-
 # == Schema Information
 #
 # Table name: inquiries
 #
-#  id                 :bigint           not null, primary key
+#  id                 :integer          not null, primary key
 #  billing_type       :string
-#  business_link      :string
-#  business_name      :string
-#  business_type      :string
 #  created_at         :datetime         not null
 #  domain_name        :string
 #  email              :string
 #  full_name          :string
-#  intent             :string
 #  message            :text
 #  phone_number       :string
 #  plan               :string
 #  preffered_name     :string
-#  sell_in_store      :boolean
-#  source             :string           default("marketing_get_started"), not null
-#  status             :string           default("new"), not null
 #  store_name         :string
 #  updated_at         :datetime         not null
-#  utm_campaign       :string
-#  utm_content        :string
-#  utm_medium         :string
-#  utm_source         :string
-#  utm_term           :string
 #  web_administration :string
+#  business_name      :string
+#  business_type      :string
+#  sell_in_store      :boolean
+#  business_link      :string
+#  intent             :string
+#  source             :string           default("marketing_get_started"), not null
+#  status             :string           default("new"), not null
+#  utm_source         :string
+#  utm_medium         :string
+#  utm_campaign       :string
+#  utm_term           :string
+#  utm_content        :string
+#  owner_id           :integer
+#  checked_out_by_id  :integer
 #
+
 class Inquiry < ApplicationRecord
   belongs_to :owner, class_name: "User", optional: true, inverse_of: :owned_inquiries
   belongs_to :checked_out_by, class_name: "User", optional: true, inverse_of: :checked_out_inquiries

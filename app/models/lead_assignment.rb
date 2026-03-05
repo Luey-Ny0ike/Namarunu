@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: lead_assignments
+#
+#  id             :integer          not null, primary key
+#  lead_id        :integer          not null
+#  user_id        :integer          not null
+#  checked_out_at :datetime         not null
+#  expires_at     :datetime         not null
+#  released_at    :datetime
+#  release_reason :string
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#
+
 # frozen_string_literal: true
 
 class LeadAssignment < ApplicationRecord
