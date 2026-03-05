@@ -35,6 +35,19 @@ module ApplicationHelper
     end
   end
 
+  def account_status_badge_class(status)
+    case status.to_s
+    when "pending"
+      "text-bg-warning text-dark"
+    when "active"
+      "text-bg-success"
+    when "cancelled"
+      "text-bg-secondary"
+    else
+      "text-bg-secondary"
+    end
+  end
+
   def nav_link_to(name, path, match: :exact, **options)
     active = nav_link_active?(path, match)
 

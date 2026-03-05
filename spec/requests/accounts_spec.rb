@@ -19,17 +19,17 @@ RSpec.describe "App::Accounts", type: :request do
   end
 
   it "shows account contacts and demo history" do
-    manager = build_user(:sales_manager)
+    manager = build_user(:sales_rep)
     rep = build_user(:sales_rep)
     sign_in_as(manager)
 
     lead = Lead.create!(
       business_name: "Account Source Co",
-      owner_user: rep,
+      owner_user: manager,
       status: :demo_booked,
       lead_contacts_attributes: [{ name: "Lead Contact", phone: "+15558889999" }]
     )
-    account = Account.create!(name: "Account Source Co", converted_from_lead: lead)
+    account = Account.create!(name: "Account Source Co", converted_from_lead: lead, owner_user: manager, status: :pending)
     Contact.create!(account: account, name: "Primary", phone: "+15557778888", email: "primary@example.com", role: "CEO")
     Demo.create!(
       lead: lead,

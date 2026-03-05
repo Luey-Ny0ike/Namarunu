@@ -24,7 +24,9 @@ Rails.application.routes.draw do
       end
     end
     resources :accounts, only: %i[show]
-    resources :customers, only: %i[show], controller: :accounts
+    resources :customers, only: %i[index show update] do
+      resources :contacts, only: %i[create update destroy], controller: :customer_contacts
+    end
     resources :demos, only: %i[index show update] do
       member do
         post :complete
