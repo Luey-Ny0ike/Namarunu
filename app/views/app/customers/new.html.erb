@@ -1,0 +1,13 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h1 class="h3 mb-1">New Customer</h1>
+    <p class="text-muted mb-0">Create a customer profile and optionally capture first contacts.</p>
+  </div>
+  <%= link_to "Back to Customers", app_customers_path, class: "btn btn-outline-secondary" %>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <%= render "form", customer: @customer, industry_options: @industry_options %>
+  </div>
+</div>

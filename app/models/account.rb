@@ -24,6 +24,8 @@ class Account < ApplicationRecord
   has_many :contacts, dependent: :destroy, inverse_of: :account
   has_many :demos, dependent: :nullify
 
+  accepts_nested_attributes_for :contacts, reject_if: :all_blank
+
   enum :status, STATUSES, default: :pending, validate: true
 
   before_validation :normalize_social_handles

@@ -16,4 +16,14 @@
 
 class Contact < ApplicationRecord
   belongs_to :account, inverse_of: :contacts
+
+  validate :phone_or_email_present
+
+  private
+
+  def phone_or_email_present
+    return if phone.to_s.strip.present? || email.to_s.strip.present?
+
+    errors.add(:base, "Provide at least a phone number or an email")
+  end
 end

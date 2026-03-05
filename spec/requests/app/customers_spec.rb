@@ -77,4 +77,47 @@ RSpec.describe "App::Customers", type: :request do
     }
     expect(response).to have_http_status(:not_found)
   end
+
+  it "allows manager to create customer with owner and initial contacts" do
+    manager = build_user(:sales_manager)
+    rep = build_user(:sales_rep)
+    sign_in_as(manager)
+
+    get new_app_customer_path
+    expect(response).to have_http_status(:ok)
+
+    expect do
+      post app_customers_path, params: {
+        account: {
+          name: "Manager Created Customer",
+          industry: "fashion",
+          location: "Nairobi",
+          status: "active",
+          owner_user_id: rep.id,
+          contacts_attributes: {
+            "0" => { name: "", phone: "+254700111222", email: "", role: "Owner" }
+          }
+        }
+      }
+    end.to change(Account, :count).by(1).and change(Contact, :count).by(1)
+
+    created = Account.order(:id).last
+    expect(response).to redirect_to(app_customer_path(created))
+    expect(created.owner_user_id).to eq(rep.id)
+    expect(created.status).to eq("active")
+    expect(created.contacts.first.phone).to eq("+254700111222")
+  end
+
+  it "prevents sales rep from manually creating customers" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+
+    get new_app_customer_path
+    expect(response).to redirect_to(root_path)
+
+    post app_customers_path, params: {
+      account: { name: "Blocked Rep Customer", industry: "fashion" }
+    }
+    expect(response).to redirect_to(root_path)
+  end
 end

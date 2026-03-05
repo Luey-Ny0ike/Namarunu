@@ -23,12 +23,15 @@ RSpec.describe "Role-based auxiliary policies" do
 
     expect(AccountPolicy.new(rep, own_account).show?).to be(true)
     expect(AccountPolicy.new(rep, own_account).update?).to be(true)
+    expect(AccountPolicy.new(rep, own_account).create?).to be(false)
     expect(AccountPolicy.new(rep, other_account).show?).to be(false)
     expect(AccountPolicy.new(rep, other_account).update?).to be(false)
     expect(AccountPolicy.new(manager, other_account).show?).to be(true)
     expect(AccountPolicy.new(manager, other_account).update?).to be(true)
+    expect(AccountPolicy.new(manager, other_account).create?).to be(true)
     expect(AccountPolicy.new(admin, other_account).show?).to be(true)
     expect(AccountPolicy.new(admin, other_account).update?).to be(true)
+    expect(AccountPolicy.new(admin, other_account).create?).to be(true)
   end
 
   it "allows reps to manage only their own demos and managers all demos" do
