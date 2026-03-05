@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_04_090000) do
+ActiveRecord::Schema[8.2].define(version: 2026_03_05_191910) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -162,7 +162,10 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_04_090000) do
     t.string "business_name", null: false
     t.datetime "converted_at"
     t.datetime "created_at", null: false
+    t.string "facebook_url"
     t.string "industry"
+    t.string "instagram_handle"
+    t.string "instagram_url"
     t.datetime "invoice_sent_at"
     t.datetime "last_contacted_at"
     t.string "location"
@@ -172,7 +175,11 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_04_090000) do
     t.string "source"
     t.string "status", default: "new", null: false
     t.string "temperature", default: "warm", null: false
+    t.string "tiktok_handle"
+    t.string "tiktok_url"
     t.datetime "updated_at", null: false
+    t.index "lower((instagram_handle)::text)", name: "index_leads_on_lower_instagram_handle_unique", unique: true, where: "(instagram_handle IS NOT NULL)"
+    t.index "lower((tiktok_handle)::text)", name: "index_leads_on_lower_tiktok_handle_unique", unique: true, where: "(tiktok_handle IS NOT NULL)"
     t.index ["invoice_sent_at"], name: "index_leads_on_invoice_sent_at"
     t.index ["lost_reason"], name: "index_leads_on_lost_reason"
     t.index ["next_action_at"], name: "index_leads_on_next_action_at"

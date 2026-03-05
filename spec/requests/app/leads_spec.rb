@@ -127,6 +127,48 @@ RSpec.describe "App::Leads", type: :request do
     expect(lead.reload.industry).to eq("Updated Industry")
   end
 
+  it "allows staff to create and update lead social fields" do
+    rep = build_user(:sales_rep)
+    sign_in_as(rep)
+
+    post app_leads_path, params: {
+      lead: {
+        business_name: "Social Editable Lead",
+        instagram_handle: " @Acme.Shop ",
+        tiktok_handle: "AcmeTok",
+        facebook_url: "www.facebook.com/acme",
+        lead_contacts_attributes: {
+          "0" => { name: "Jane", phone: "+15558881234" }
+        }
+      }
+    }
+
+    created_lead = Lead.order(:id).last
+    expect(response).to redirect_to(app_lead_path(created_lead))
+    created_lead.reload
+    expect(created_lead.instagram_handle).to eq("acme.shop")
+    expect(created_lead.tiktok_handle).to eq("acmetok")
+    expect(created_lead.facebook_url).to eq("https://www.facebook.com/acme")
+    expect(created_lead.instagram_url).to eq("https://www.instagram.com/acme.shop/")
+    expect(created_lead.tiktok_url).to eq("https://www.tiktok.com/@acmetok")
+
+    patch app_lead_path(created_lead), params: {
+      lead: {
+        instagram_handle: "@Acme.New",
+        tiktok_handle: "AcmeNewTok",
+        facebook_url: "https://facebook.com/acme-new"
+      }
+    }
+
+    expect(response).to redirect_to(app_lead_path(created_lead))
+    created_lead.reload
+    expect(created_lead.instagram_handle).to eq("acme.new")
+    expect(created_lead.tiktok_handle).to eq("acmenewtok")
+    expect(created_lead.facebook_url).to eq("https://facebook.com/acme-new")
+    expect(created_lead.instagram_url).to eq("https://www.instagram.com/acme.new/")
+    expect(created_lead.tiktok_url).to eq("https://www.tiktok.com/@acmenewtok")
+  end
+
   it "shows manager-only lead form fields only to managers/admins" do
     rep = build_user(:sales_rep)
     manager = build_user(:sales_manager)

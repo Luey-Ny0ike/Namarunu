@@ -14,6 +14,15 @@
       </div>
     </div>
   <% else %>
+    <% queue_instagram_url = @current_lead.instagram_url.to_s.strip.presence %>
+    <% if queue_instagram_url.blank? && @current_lead.instagram_handle.to_s.strip.present? %>
+      <% queue_instagram_url = "https://www.instagram.com/#{@current_lead.instagram_handle.to_s.strip.delete_prefix("@")}/" %>
+    <% end %>
+    <% queue_tiktok_url = @current_lead.tiktok_url.to_s.strip.presence %>
+    <% if queue_tiktok_url.blank? && @current_lead.tiktok_handle.to_s.strip.present? %>
+      <% queue_tiktok_url = "https://www.tiktok.com/@#{@current_lead.tiktok_handle.to_s.strip.delete_prefix("@")}" %>
+    <% end %>
+
     <div class="row g-4">
       <div class="col-12 col-lg-7">
         <div class="d-flex flex-column gap-3">
@@ -31,23 +40,17 @@
                 <% if @current_lead.source.present? %>
                   <span class="badge bg-secondary-subtle text-dark"><%= @current_lead.source.humanize %></span>
                 <% end %>
-                <% if @latest_submission&.instagram_handle.present? %>
-                  <span class="badge bg-light text-dark border d-inline-flex align-items-center">
-                    <span class="d-inline d-md-none"><%= instagram_icon(class_name: "opacity-75") %></span>
-                    <span class="d-none d-md-inline d-inline-flex align-items-center gap-1">
-                      <%= instagram_icon(size: 12, class_name: "opacity-75") %>
-                      <span class="small">Instagram</span>
-                    </span>
-                  </span>
+                <% if queue_instagram_url.present? %>
+                  <%= link_to queue_instagram_url, target: "_blank", rel: "noopener", class: "badge bg-light text-dark border text-decoration-none d-inline-flex align-items-center gap-1" do %>
+                    <%= instagram_icon(size: 12, class_name: "opacity-75") %>
+                    <span class="small">Instagram</span>
+                  <% end %>
                 <% end %>
-                <% if @latest_submission&.tiktok_handle.present? %>
-                  <span class="badge bg-light text-dark border d-inline-flex align-items-center">
-                    <span class="d-inline d-md-none"><%= tiktok_icon(class_name: "opacity-75") %></span>
-                    <span class="d-none d-md-inline d-inline-flex align-items-center gap-1">
-                      <%= tiktok_icon(size:12, class_name: "opacity-75") %>
-                      <span class="small">TikTok</span>
-                    </span>
-                  </span>
+                <% if queue_tiktok_url.present? %>
+                  <%= link_to queue_tiktok_url, target: "_blank", rel: "noopener", class: "badge bg-light text-dark border text-decoration-none d-inline-flex align-items-center gap-1" do %>
+                    <%= tiktok_icon(size: 12, class_name: "opacity-75") %>
+                    <span class="small">TikTok</span>
+                  <% end %>
                 <% end %>
               </div>
             </div>

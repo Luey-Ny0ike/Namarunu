@@ -28,6 +28,72 @@ RSpec.describe Lead, type: :model do
     expect(lead).to be_valid
   end
 
+  it "normalizes handles and generates canonical social urls" do
+    lead = described_class.new(
+      business_name: "Social Co",
+      source: "contributor",
+      instagram_handle: "  @Acme.Shop  ",
+      tiktok_handle: " @AcmeTok ",
+      facebook_url: "  www.facebook.com/acme  "
+    )
+
+    expect(lead).to be_valid
+    expect(lead.instagram_handle).to eq("acme.shop")
+    expect(lead.tiktok_handle).to eq("acmetok")
+    expect(lead.facebook_url).to eq("https://www.facebook.com/acme")
+    expect(lead.instagram_url).to eq("https://www.instagram.com/acme.shop/")
+    expect(lead.tiktok_url).to eq("https://www.tiktok.com/@acmetok")
+  end
+
+  it "regenerates canonical urls when social handles change" do
+    lead = described_class.create!(
+      business_name: "Regenerate Co",
+      source: "contributor",
+      instagram_handle: "oldname",
+      tiktok_handle: "oldtok"
+    )
+
+    lead.update!(
+      instagram_handle: "New.Name",
+      tiktok_handle: "@NewTok"
+    )
+
+    expect(lead.instagram_handle).to eq("new.name")
+    expect(lead.tiktok_handle).to eq("newtok")
+    expect(lead.instagram_url).to eq("https://www.instagram.com/new.name/")
+    expect(lead.tiktok_url).to eq("https://www.tiktok.com/@newtok")
+  end
+
+  it "allows blank social urls when handles are blank" do
+    lead = described_class.new(
+      business_name: "Blank Socials Co",
+      source: "contributor",
+      instagram_handle: " ",
+      tiktok_handle: nil,
+      instagram_url: nil,
+      tiktok_url: nil
+    )
+
+    expect(lead).to be_valid
+    expect(lead.instagram_url).to be_nil
+    expect(lead.tiktok_url).to be_nil
+  end
+
+  it "rejects invalid handle and non-http url formats" do
+    lead = described_class.new(
+      business_name: "Invalid Social Co",
+      source: "contributor",
+      instagram_handle: "bad handle",
+      instagram_url: "instagram.com/bad",
+      tiktok_url: "ftp://tiktok.com/@bad"
+    )
+
+    expect(lead).not_to be_valid
+    expect(lead.errors[:instagram_handle]).to be_present
+    expect(lead.errors[:instagram_url]).to be_present
+    expect(lead.errors[:tiktok_url]).to be_present
+  end
+
   it "requires lost_reason when status is lost" do
     lead = described_class.new(
       business_name: "Lost Co",
