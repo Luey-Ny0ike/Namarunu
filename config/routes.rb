@@ -49,7 +49,8 @@ Rails.application.routes.draw do
         post :complete
       end
     end
-    resources :leads, only: %i[index show] do
+    get "leads/new", to: "leads#new", as: :new_lead
+    resources :leads, only: %i[index show create edit update] do
       member do
         post :log_attempt, to: "lead_actions#log_attempt"
         post :book_demo, to: "lead_actions#book_demo"

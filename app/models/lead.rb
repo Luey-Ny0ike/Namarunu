@@ -31,6 +31,26 @@ class Lead < ApplicationRecord
     hot: "hot"
   }.freeze
 
+  INDUSTRIES = {
+    retail: "retail",
+    household_goods: "household_goods",
+    jewellery: "jewellery",
+    beauty: "beauty",
+    liqour_store: "liqour_store",
+    fashion: "fashion",
+    other: "other"
+  }.freeze
+
+  SOURCES = {
+    instagram: "instagram",
+    tiktok: "tiktok",
+    referral: "referral",
+    walk_in: "walk_in",
+    website: "website",
+    contributor: "contributor",
+    other: "other"
+  }.freeze
+
   CALL_OUTCOMES = {
     no_answer: "no_answer",
     wrong_number: "wrong_number",

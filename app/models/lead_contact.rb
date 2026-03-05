@@ -5,7 +5,6 @@ class LeadContact < ApplicationRecord
 
   belongs_to :lead, inverse_of: :lead_contacts
 
-  validates :name, presence: true
   validate :phone_or_email_present
 
   private
