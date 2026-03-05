@@ -26,6 +26,7 @@ class User < ApplicationRecord
   has_many :sessions, dependent: :destroy
   has_many :owned_inquiries, class_name: "Inquiry", foreign_key: :owner_id, inverse_of: :owner, dependent: :nullify
   has_many :checked_out_inquiries, class_name: "Inquiry", foreign_key: :checked_out_by_id, inverse_of: :checked_out_by, dependent: :nullify
+  has_many :owned_accounts, class_name: "Account", foreign_key: :owner_user_id, inverse_of: :owner_user, dependent: :nullify
   has_many :owned_leads, class_name: "Lead", foreign_key: :owner_user_id, inverse_of: :owner_user, dependent: :nullify
   has_many :submitted_lead_submissions,
            class_name: "LeadSubmission",

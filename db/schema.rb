@@ -10,16 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.2].define(version: 2026_03_05_200000) do
+ActiveRecord::Schema[8.2].define(version: 2026_03_06_000100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "accounts", force: :cascade do |t|
+    t.datetime "activated_at"
+    t.string "cancel_reason"
+    t.datetime "cancelled_at"
     t.bigint "converted_from_lead_id"
     t.datetime "created_at", null: false
+    t.string "facebook_url"
+    t.string "industry"
+    t.string "instagram_handle"
+    t.string "instagram_url"
+    t.string "location"
     t.string "name"
+    t.bigint "owner_user_id"
+    t.string "status", default: "pending", null: false
+    t.string "tiktok_handle"
+    t.string "tiktok_url"
     t.datetime "updated_at", null: false
     t.index ["converted_from_lead_id"], name: "index_accounts_on_converted_from_lead_id"
+    t.index ["owner_user_id"], name: "index_accounts_on_owner_user_id"
+    t.index ["status"], name: "index_accounts_on_status"
   end
 
   create_table "activities", force: :cascade do |t|
@@ -212,6 +226,7 @@ ActiveRecord::Schema[8.2].define(version: 2026_03_05_200000) do
   end
 
   add_foreign_key "accounts", "leads", column: "converted_from_lead_id"
+  add_foreign_key "accounts", "users", column: "owner_user_id"
   add_foreign_key "activities", "users", column: "actor_user_id"
   add_foreign_key "contacts", "accounts"
   add_foreign_key "demos", "accounts"

@@ -119,7 +119,8 @@ class LeadSubmission < ApplicationRecord
   end
 
   def normalize_phone(value)
-    digits = value.to_s.gsub(/\D/, "")
+    without_extension = value.to_s.sub(/(?:ext\.?|extension|x)\s*\d+\s*\z/i, "")
+    digits = without_extension.gsub(/\D/, "")
     return nil if digits.blank? || digits.length < 9
 
     # Assumption: contributors may submit local or international numbers.
