@@ -13,8 +13,11 @@ module Invoice::Validations
               allow_blank: true
 
     validates :billing_period,
+              presence: true,
               inclusion: { in: Invoice::BILLING_PERIODS },
-              allow_blank: true
+              allow_blank: false
+
+    validates :billing_period_start, :billing_period_end, presence: true
 
     validates :currency,
               presence: true,

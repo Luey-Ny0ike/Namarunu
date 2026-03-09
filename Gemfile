@@ -44,6 +44,8 @@ group :development, :test do
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
   # gem 'launchy'
+  gem "rspec"
+  gem "rspec-rails"
   gem "dotenv-rails", "~> 3.2"
   gem "pry"
   gem "shoulda-matchers"
@@ -67,6 +69,7 @@ gem "bcrypt", "~> 3.1"
 gem "matrix"
 gem "prawn"
 gem "prawn-table"
+gem "rubyzip", "~> 2.3"
 
 gem "kamal", "~> 2.10"
 

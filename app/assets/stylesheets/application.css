@@ -796,3 +796,29 @@ footer {
   color: #0f2f4a;
   text-decoration: underline;
 }
+
+/* INVOICE FORM */
+.invoice-line-item-description-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.invoice-line-item-kind {
+  flex: 0 0 42%;
+}
+
+.invoice-line-item-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .invoice-line-item-description-row {
+    flex-wrap: wrap;
+  }
+
+  .invoice-line-item-kind {
+    flex: 1 1 100%;
+  }
+}

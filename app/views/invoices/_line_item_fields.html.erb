@@ -3,15 +3,17 @@
   <%= f.hidden_field :_destroy, value: "0", data: { destroy_input: true } %>
 
   <td>
-    <%= f.select :kind,
-          Invoice::LineItem::KINDS.map { |k| [k.humanize, k] },
-          {},
-          class: "form-select form-select-sm mb-1",
-          data: { kind_select: true, action: "change->line-items#kindChanged" } %>
-    <%= f.text_field :description,
-          class: "form-control form-control-sm",
-          placeholder: "Item description...",
-          data: { description_input: true } %>
+    <div class="invoice-line-item-description-row">
+      <%= f.select :kind,
+            Invoice::LineItem::KINDS.map { |k| [k.humanize, k] },
+            {},
+            class: "form-select form-select-sm invoice-line-item-kind",
+            data: { kind_select: true, action: "change->line-items#kindChanged" } %>
+      <%= f.text_field :description,
+            class: "form-control form-control-sm invoice-line-item-text",
+            placeholder: "Item description...",
+            data: { description_input: true } %>
+    </div>
   </td>
 
   <td>

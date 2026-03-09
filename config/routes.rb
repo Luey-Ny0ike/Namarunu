@@ -5,7 +5,41 @@ Rails.application.routes.draw do
   resource :session, only: [:new, :create, :destroy]
   resource :registration, only: [:new, :create]
   resources :passwords, param: :token, only: [:new, :create, :edit, :update]
-  resources :inquiries, only: [:create]
+  get "/leads", to: redirect("/app/leads"), as: :legacy_leads_index
+  resource :session, only: %i[new create destroy]
+  resource :registration, only: %i[new create]
+  resources :passwords, param: :token, only: %i[new create edit update]
+  resources :invoices do
+    resources :line_items, controller: "invoices/line_items"
+  end
+  resource :invoice_archive, only: :show
+  resources :stores
+  resources :inquiries do
+    collection do
+      get :won_deals
+    end
+
+    member do
+      patch :reassign_checkout
+    end
+  end
+  resources :leads, only: %i[show new create edit update] do
+    collection do
+      get :my_tasks
+    end
+
+    member do
+      post :convert
+      post :book_demo
+      patch :checkout
+      patch :release
+      patch :force_release
+      patch :reassign_checkout
+      post :log_call_attempt
+    end
+  end
+  resources :accounts, only: %i[show]
+  resources :demos, only: %i[show update]
   resources :build, controller: 'inquiries/build'
 
   namespace :admin do

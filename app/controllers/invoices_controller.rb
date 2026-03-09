@@ -2,6 +2,7 @@
 
 class InvoicesController < ApplicationController
   before_action :set_invoice, only: %i[show edit update destroy]
+  before_action :load_lead_context, only: %i[new create]
 
   def index
     @invoices = Invoice.includes(:store).order(created_at: :desc)
@@ -22,6 +23,12 @@ class InvoicesController < ApplicationController
 
   def new
     @invoice = Invoice.new(status: "draft", currency: "KES")
+    if @lead.present?
+      contact = @lead.lead_contacts.order(:created_at, :id).first
+      @invoice.name          = @lead.business_name
+      @invoice.email_address = contact&.email
+      @invoice.phone_number  = contact&.phone
+    end
     @invoice.line_items.build
     @next_invoice_number = next_invoice_number
     @plans = Plan.all
@@ -36,6 +43,7 @@ class InvoicesController < ApplicationController
 
     if @invoice.save
       recalculate_totals(@invoice)
+      write_create_invoice_activity!(@invoice)
       redirect_to invoice_path(@invoice)
     else
       @next_invoice_number = @invoice.invoice_number || next_invoice_number
@@ -111,6 +119,35 @@ class InvoicesController < ApplicationController
 
   def recalculate_totals(invoice)
     invoice.sync_totals_and_payment_status!
+  end
+
+  def write_create_invoice_activity!(invoice)
+    return unless Current.user.present?
+
+    lead = resolve_lead_for_activity
+    subject = lead || invoice
+
+    Activity.create!(
+      actor_user: Current.user,
+      subject: subject,
+      action_type: "create_invoice",
+      metadata: {
+        lead_id: lead&.id,
+        invoice_id: invoice.id,
+        invoice_number: invoice.invoice_number,
+        invoice_status: invoice.status
+      }.compact,
+      occurred_at: Time.current
+    )
+  end
+
+  def resolve_lead_for_activity
+    @lead
+  end
+
+  def load_lead_context
+    lead_id = params[:lead_id].presence
+    @lead = lead_id.present? ? Lead.includes(:lead_contacts).find_by(id: lead_id) : nil
   end
 
   def next_invoice_number
