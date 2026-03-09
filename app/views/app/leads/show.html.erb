@@ -188,6 +188,7 @@
             <div class="border rounded-3 p-3 mb-3">
               <h3 class="h6 mb-3">Post-Demo Actions</h3>
               <div class="d-grid gap-2">
+                <%= link_to "Create invoice", new_invoice_path(lead_id: @lead.id), class: "btn btn-outline-primary" %>
                 <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadAwaitingCommitmentModal">Awaiting commitment</button>
                 <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#leadInvoiceSentModal">Mark invoice sent</button>
                 <button class="btn btn-outline-success" type="button" data-bs-toggle="modal" data-bs-target="#leadConfirmPaymentModal">Confirm payment (won)</button>
@@ -307,6 +308,7 @@
   </div>
   <div class="offcanvas-body pt-0">
     <div class="d-grid gap-2">
+      <%= link_to "Create invoice", new_invoice_path(lead_id: @lead.id), class: "btn btn-outline-primary", data: { bs_dismiss: "offcanvas" } %>
       <button class="btn btn-outline-primary" type="button" data-bs-dismiss="offcanvas" data-bs-toggle="modal" data-bs-target="#leadAwaitingCommitmentModal">Awaiting commitment</button>
       <button class="btn btn-outline-primary" type="button" data-bs-dismiss="offcanvas" data-bs-toggle="modal" data-bs-target="#leadInvoiceSentModal">Mark invoice sent</button>
       <button class="btn btn-outline-success" type="button" data-bs-dismiss="offcanvas" data-bs-toggle="modal" data-bs-target="#leadConfirmPaymentModal">Confirm payment (won)</button>
