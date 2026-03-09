@@ -24,6 +24,11 @@ module Authentication
     resume_session || request_authentication
   end
 
+  def request_authentication
+    session[:return_to_after_authenticating] = request.url
+    redirect_to new_session_path
+  end
+
   def resume_session
     Current.session ||= find_session_by_cookie
   end
@@ -32,18 +37,14 @@ module Authentication
     Session.find_by(id: cookies.signed[:session_id]) if cookies.signed[:session_id]
   end
 
-    def after_authentication_url
-      session.delete(:return_to_after_authenticating) || default_post_login_url
-    end
-
-    def default_post_login_url
-      return contribute_root_path if Current.user&.role.to_s == "lead_contributor"
-
-      app_root_path
-    end
-
   def after_authentication_url
-    session.delete(:return_to_after_authenticating) || root_url
+    session.delete(:return_to_after_authenticating) || default_post_login_url
+  end
+
+  def default_post_login_url
+    return contribute_root_path if Current.user&.role.to_s == "lead_contributor"
+
+    app_root_path
   end
 
   def start_new_session_for(user)

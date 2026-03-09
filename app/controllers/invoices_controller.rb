@@ -22,6 +22,10 @@ class InvoicesController < ApplicationController
   end
 
   def new
+    if @lead&.invoice.present?
+      return redirect_to invoice_path(@lead.invoice)
+    end
+
     @invoice = Invoice.new(status: "draft", currency: "KES")
     if @lead.present?
       contact = @lead.lead_contacts.order(:created_at, :id).first
@@ -37,6 +41,7 @@ class InvoicesController < ApplicationController
   def create
     @invoice = Invoice.new(invoice_params.except(:store_id))
     @invoice.store = resolve_store
+    @invoice.lead = @lead
     @invoice.invoice_number = next_invoice_number
     apply_status_from_button
     apply_default_money_fields

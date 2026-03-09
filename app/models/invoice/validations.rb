@@ -24,6 +24,7 @@ module Invoice::Validations
               inclusion: { in: Store::CURRENCIES }
 
     validates :invoice_number, presence: true, uniqueness: true
+    validates :lead_id, uniqueness: { allow_nil: true }
     validates :name, presence: true
 
     validates :status,

@@ -8,7 +8,9 @@ class Invoice < ApplicationRecord
   include Validations
 
   before_validation :apply_store_defaults
+  after_save :sync_lead_invoice_sent_status, if: -> { lead_id.present? && saved_change_to_status? }
 
+  belongs_to :lead, optional: true
   belongs_to :store, optional: true
   belongs_to :store_subscription, class_name: "Store::Subscription", optional: true
   has_many :line_items, class_name: "Invoice::LineItem", dependent: :destroy
@@ -64,6 +66,16 @@ class Invoice < ApplicationRecord
   end
 
   private
+
+  def sync_lead_invoice_sent_status
+    return unless status == "issued"
+
+    lead.update_columns(
+      status: Lead::STATUSES[:invoice_sent],
+      invoice_sent_at: Time.current,
+      updated_at: Time.current
+    )
+  end
 
   def apply_store_defaults
     return unless store
